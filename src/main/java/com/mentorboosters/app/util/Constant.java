@@ -28,6 +28,7 @@ public final class Constant {
     public static final int FORBIDDEN_CODE = 403;
     public static final int ERROR_CODE = 500;
     public static final int CONFLICT_CODE = 409;
+    public static final int BAD_REQUEST = 400;
 
 
     //Status boolean true or false
@@ -126,6 +127,8 @@ public final class Constant {
     public static final String EMAIL_ALREADY_EXISTS = "Email Already Exists";
     public static final String USERNAME_ALREADY_EXISTS = "Username Already Exists";
     public static final String ERROR_SENDING_OTP = "Error while sending OTP: ";
+    public static final String EMAIL_OR_PHONE_NUMBER_ALREADY_EXISTS = "Email or phone number Already Exists";
+    public static final String PHONE_NUMBER_REQUIRED = "Phone number required";
 
     //Mentor Errors
     public static final String ERROR_FETCHING_MENTORS = "Error while fetching mentors: ";

@@ -10,14 +10,12 @@ import java.util.Optional;
 public interface UsersRepository extends JpaRepository<Users, Long> {
     boolean existsByEmailId(String emailId);
 
-    boolean existsByUserName(String userName);
-
-    @Query("SELECT u.userName from Users u where u.id = :recipientId")
-    String findUserNameById(@Param("recipientId") Long recipientId);
-
     Users findByEmailId(String email);
 
-    Optional<Object> findByUserName(String username);
-
     void deleteByEmailId(String email);
+
+    @Query("SELECT u.name from Users u where u.id = :recipientId")
+    String findNameById(@Param("recipientId") Long recipientId);
+
+    boolean existsByEmailIdOrPhoneNumber(String emailId, String phoneNumber);
 }

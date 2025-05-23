@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public CommonResponse<LoginResponse> authenticate(@Valid @RequestBody LoginRequest loginRequest) throws UnexpectedServerException {
+    public CommonResponse<LoginResponse> authenticate(@Valid @RequestBody LoginRequest loginRequest) throws UnexpectedServerException, ResourceNotFoundException {
         return authService.authenticate(loginRequest);
     }
 

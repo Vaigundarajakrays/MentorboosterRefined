@@ -108,7 +108,9 @@ public class MentorService {
             Users user = Users.builder()
                     .name(mentor.getName())
                     .emailId(mentor.getEmail())
-                    .userName(commonFiles.generateAlphaPassword(6))
+                    .phoneNumber(null)
+                    .description("Mentor")
+                    .goals(List.of("mentor"))
                     .role(Role.MENTOR)
                     .password(hashedPassword)
                     .build();

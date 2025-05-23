@@ -13,7 +13,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("*") // You can limit to your frontend URL
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*");
-//                .allowCredentials(true);
+//                .allowCredentials(true);  make it true when allowed origins have actual frontend url
     }
 }
 

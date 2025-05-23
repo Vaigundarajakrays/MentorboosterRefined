@@ -27,11 +27,14 @@ public class ApplicationConfig {
 
         return username -> {
 
-            Users user = (Users) usersRepository.findByUserName(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            Users user = usersRepository.findByEmailId(username);
+
+            if(user==null){
+                throw new UsernameNotFoundException("Invalid username or password.");
+            }
 
             return org.springframework.security.core.userdetails.User
-                    .withUsername(user.getUserName())
+                    .withUsername(user.getEmailId())
                     .password(user.getPassword())
                     .authorities("ROLE_" + user.getRole().name()) // e.g. ADMIN, USER, etc.
                     .build();

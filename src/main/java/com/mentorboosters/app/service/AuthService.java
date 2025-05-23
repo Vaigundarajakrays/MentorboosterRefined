@@ -47,23 +47,32 @@ public class AuthService {
         this.passwordEncoder=passwordEncoder;
     }
 
-    public CommonResponse<LoginResponse> authenticate(LoginRequest request) throws UnexpectedServerException {
+    public CommonResponse<LoginResponse> authenticate(LoginRequest request) throws UnexpectedServerException, ResourceNotFoundException {
 
         Users user = usersRepository.findByEmailId(request.getEmailId());
 
         if (user == null) {
-            throw new UsernameNotFoundException(USER_NOT_FOUND_WITH_EMAIL + request.getEmailId());
+            throw new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL + request.getEmailId()); // Don't use user-name-not-found-exception because that exception will not throw instead only give 403 forbidden
         }
 
         try {
 
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(user.getUserName(), request.getPassword())
+                    new UsernamePasswordAuthenticationToken(request.getEmailId(), request.getPassword())
             );
 
             String token = jwtService.generateToken(user);
 
-            LoginResponse loginResponse = new LoginResponse(token);
+            var loginResponse = LoginResponse.builder()
+                    .token(token)
+                    .userId(user.getId())
+                    .emailId(user.getEmailId())
+                    .name(user.getName())
+                    .phoneNumber(user.getPhoneNumber())
+                    .description(user.getDescription())
+                    .goals(user.getGoals())
+                    .role(user.getRole())
+                    .build();
 
             return CommonResponse.<LoginResponse>builder()
                     .message(LOGIN_SUCCESS)

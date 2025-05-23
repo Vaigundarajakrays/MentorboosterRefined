@@ -27,7 +27,7 @@ public class NotificationService {
 
     public CommonResponse<Notification> saveNotification(NotificationDTO notificationDTO) throws UnexpectedServerException, ResourceNotFoundException {
 
-        String recipientName = usersRepository.findUserNameById(notificationDTO.getRecipientId());
+        String recipientName = usersRepository.findNameById(notificationDTO.getRecipientId());
 
         if (recipientName == null) {
             throw new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID + notificationDTO.getRecipientId());

@@ -25,20 +25,21 @@ public class UsersService {
 
     public CommonResponse<Users> signUp(Users users) throws UnexpectedServerException {
 
+        if(users.getPhoneNumber()==null){
+            return CommonResponse.<Users>builder()
+                    .message(PHONE_NUMBER_REQUIRED)
+                    .status(STATUS_FALSE)
+                    .statusCode(BAD_REQUEST)
+                    .build();
+        }
+
         try {
 
-            if (usersRepository.existsByEmailId(users.getEmailId())) {
-                return CommonResponse.<Users>builder()
-                        .message(EMAIL_ALREADY_EXISTS)
-                        .status(STATUS_FALSE)
-                        .data(users)
-                        .statusCode(FORBIDDEN_CODE)
-                        .build();
-            }
+            boolean exists = usersRepository.existsByEmailIdOrPhoneNumber(users.getEmailId(), users.getPhoneNumber());
 
-            if (usersRepository.existsByUserName(users.getUserName())) {
+            if (exists) {
                 return CommonResponse.<Users>builder()
-                        .message(USERNAME_ALREADY_EXISTS)
+                        .message(EMAIL_OR_PHONE_NUMBER_ALREADY_EXISTS)
                         .status(STATUS_FALSE)
                         .data(users)
                         .statusCode(FORBIDDEN_CODE)
@@ -69,18 +70,11 @@ public class UsersService {
 
         try {
 
-            if (usersRepository.existsByEmailId(users.getEmailId())) {
-                return CommonResponse.<Users>builder()
-                        .message(EMAIL_ALREADY_EXISTS)
-                        .status(STATUS_FALSE)
-                        .data(users)
-                        .statusCode(FORBIDDEN_CODE)
-                        .build();
-            }
+            boolean exists = usersRepository.existsByEmailIdOrPhoneNumber(users.getEmailId(), users.getPhoneNumber());
 
-            if (usersRepository.existsByUserName(users.getUserName())) {
+            if (exists) {
                 return CommonResponse.<Users>builder()
-                        .message(USERNAME_ALREADY_EXISTS)
+                        .message(EMAIL_OR_PHONE_NUMBER_ALREADY_EXISTS)
                         .status(STATUS_FALSE)
                         .data(users)
                         .statusCode(FORBIDDEN_CODE)
@@ -90,6 +84,7 @@ public class UsersService {
             String hashedPassword = passwordEncoder.encode(users.getPassword());
             users.setPassword(hashedPassword);
             users.setRole(Role.ADMIN);
+            users.setPhoneNumber(null);
 
             Users savedUser = usersRepository.save(users);
 
@@ -125,16 +120,11 @@ public class UsersService {
 
         try {
 
-            existingUser.setUserName(updatedUser.getUserName());
             existingUser.setName(updatedUser.getName());
+            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
             existingUser.setEmailId(updatedUser.getEmailId());
-            existingUser.setAge(updatedUser.getAge());
-            existingUser.setGender(updatedUser.getGender());
-
-            if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                // Encode the new password if provided
-                existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-            }
+            existingUser.setDescription(updatedUser.getDescription());
+            existingUser.setGoals(updatedUser.getGoals());
 
             Users updated = usersRepository.save(existingUser);
 

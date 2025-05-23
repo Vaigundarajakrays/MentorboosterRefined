@@ -19,6 +19,15 @@ target/
 *.iml
 *.ipr
 
+# Secret keys
+src/main/resources/application-dev.properties
+src/main/resources/application-local.properties
+src/main/resources/boosterKey.json
+src/main/resources/client_secret.json
+
+# Build output
+/target/
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
