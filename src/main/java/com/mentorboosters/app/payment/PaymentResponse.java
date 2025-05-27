@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PaymentResponse {
 
-    private String id;
     private String status;
-    private String clientSecret;
+    private String message;
+    private String sessionId;
+    private String sessionUrl;
 
 }

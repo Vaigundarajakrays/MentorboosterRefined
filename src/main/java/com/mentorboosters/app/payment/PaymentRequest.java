@@ -12,6 +12,9 @@ import lombok.NoArgsConstructor;
 public class PaymentRequest {
 
     private Long amount;
+    private Long quantity;
+    private String name;
     private String currency;
+    private Long userId;
 
 }

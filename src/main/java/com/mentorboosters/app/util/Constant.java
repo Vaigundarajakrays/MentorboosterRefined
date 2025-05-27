@@ -97,7 +97,7 @@ public final class Constant {
     public static final String USER_UPDATED = "User updated successfully.";
 
     //Payment massages
-    public static final String LOADED_CLIENT_SECRET = "Successfully loaded client secret";
+    public static final String LOADED_SESSION_URL = "Successfully loaded session url";
 
     //Seminar messages
     public static final String LOADED_SEMINAR_NOTES = "Loaded seminar notes.";
@@ -166,7 +166,7 @@ public final class Constant {
     public static final String ERROR_FETCHING_TIME_SLOTS_FOR_MENTOR = "Error while fetching time slots for the mentor: ";
 
     //Booking errors
-    public static final String OVERLAPS_WITH_EXISTING_BOOKED_SLOT = "This time slot overlaps with an existing booking. Please choose a different time.";
+    public static final String OVERLAPS_WITH_EXISTING_BOOKED_SLOT = "This time slot overlaps with an existing booking.";
     public static final String ERROR_BOOKING_TIME_SLOT = "Error while booking with the time slot: ";
     public static final String ERROR_FETCHING_BOOKED_SLOTS = "Error while fetching the booked slots: ";
     public static final String ERROR_CHECKING_TIME_SLOT = "Error while checking the time slot: ";

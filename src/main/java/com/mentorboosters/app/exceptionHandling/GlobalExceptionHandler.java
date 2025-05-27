@@ -40,4 +40,42 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
     }
 
+    @ExceptionHandler(BookingOverlapException.class)
+    public ResponseEntity<ErrorResponse> handleBookingOverlap(BookingOverlapException ex) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                "BOOKING_OVERLAP",
+                false,
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(EmailOrPhoneAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleEmailOrPhoneAlreadyExists(EmailOrPhoneAlreadyExistsException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                ex.getMessage(),
+                "EMAIL_OR_PHONE_EXISTS",
+                false,
+                LocalDateTime.now()
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(PhoneNumberRequiredException.class)
+    public ResponseEntity<ErrorResponse> handlePhoneNumberRequired(PhoneNumberRequiredException ex) {
+        ErrorResponse error = new ErrorResponse(
+                ex.getMessage(),
+                "PHONE_NUMBER_REQUIRED",
+                false,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+
+
 }

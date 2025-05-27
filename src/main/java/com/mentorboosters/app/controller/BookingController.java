@@ -20,11 +20,11 @@ public class BookingController {
 
     public BookingController(BookingService bookingService){this.bookingService=bookingService;}
 
-    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_MENTOR')")
-    @PostMapping("/saveBooking")
-    public CommonResponse<Booking> saveBooking(@RequestBody Booking booking) throws UnexpectedServerException, ResourceNotFoundException {
-        return bookingService.saveBooking(booking);
-    }
+//    @PreAuthorize("hasAnyAuthority('ROLE_USER', 'ROLE_MENTOR')")
+//    @PostMapping("/saveBooking")
+//    public CommonResponse<Booking> saveBooking(@RequestBody Booking booking) throws UnexpectedServerException, ResourceNotFoundException {
+//        return bookingService.saveBooking(booking);
+//    }
 
     @GetMapping("getBookingsByUser/{userId}")
     public CommonResponse<List<BookingDTO>> getBookingsByUserId(@PathVariable Long userId, @RequestParam LocalDate date) throws UnexpectedServerException, ResourceNotFoundException {

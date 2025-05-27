@@ -12,8 +12,7 @@ import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.util.Constant;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
@@ -34,7 +33,7 @@ public class FixedTimeSlotService {
         this.mentorRepository=mentorRepository;
     }
 
-    public CommonResponse<List<TimeSlotDTO>> getAllTimeSlotsOfMentor(Long mentorId, LocalDate date) throws ResourceNotFoundException, UnexpectedServerException {
+    public CommonResponse<List<TimeSlotDTO>> getAllTimeSlotsOfMentor(Long mentorId, LocalDate date, String timezone) throws ResourceNotFoundException, UnexpectedServerException {
 
         if(!(mentorRepository.existsById(mentorId))){
             throw new ResourceNotFoundException(NO_MENTORS_AVAILABLE);
@@ -42,7 +41,14 @@ public class FixedTimeSlotService {
 
         try {
 
-            LocalTime currentTime = LocalTime.now();
+            ZoneId zoneId;
+            try {
+                zoneId = ZoneId.of(timezone);
+            } catch (DateTimeException e) {
+                zoneId = ZoneOffset.UTC; // fallback to UTC if timezone is invalid
+            }
+
+            ZonedDateTime now = ZonedDateTime.now(zoneId);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
             List<FixedTimeSlot> slots = fixedTimeSlotRepository.findByMentorId(mentorId);
@@ -52,22 +58,26 @@ public class FixedTimeSlotService {
             }
 
             //If returns empty list, then the SET also become empty, so status never becomes occupied
-            List<Booking> bookings = bookingRepository.findByMentorIdAndBookingDate(mentorId, date);
+            List<Booking> bookings = bookingRepository.findByMentorIdAndBookingDateAndPaymentStatus(mentorId, date, "completed");
 
             // .map(booking -> booking.getTimeSlotId()) IS WRITTEN AS .map(Booking::getTimeSlotId)
             Set<Long> bookedSlotIds = bookings.stream().map(Booking::getTimeSlotId).collect(Collectors.toSet());
 
+            ZoneId finalZoneId = zoneId;
             List<TimeSlotDTO> timeSlotDTOS = slots.stream().map(slot -> {
 
                 LocalTime startTime = slot.getTimeStart();
                 LocalTime endTime = slot.getTimeEnd();
+
+                // Combine date + time + zone to form a ZonedDateTime for slot start
+                ZonedDateTime slotStartTime = ZonedDateTime.of(date, startTime, finalZoneId);
 
                 String status;
 
                 // Using Set for fast O(1) and List takes O(n) lookup and avoiding duplicate slot IDs by mistake
                 if (bookedSlotIds.contains(slot.getId())) {
                     status = "Occupied";
-                } else if (date.isBefore(LocalDate.now()) || date.isEqual(LocalDate.now()) && startTime.isBefore(currentTime)) {
+                } else if (date.isBefore(now.toLocalDate()) || date.isEqual(now.toLocalDate()) && slotStartTime.isBefore(now)) {
                     status = "Not available";
                 } else {
                     status = "Available";

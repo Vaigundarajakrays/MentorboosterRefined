@@ -21,7 +21,9 @@ public class FixedTimeSlotController {
 
     //@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) means We are telling spring to convert the String into LocalDate with ISO format yyyy-mm-dd
     @GetMapping("/getAllSlotsForMentor/{mentorId}")
-    public CommonResponse<List<TimeSlotDTO>> getAllTimeSlotsOfMentor(@PathVariable Long mentorId, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) throws UnexpectedServerException, ResourceNotFoundException {
-        return fixedTimeSlotService.getAllTimeSlotsOfMentor(mentorId, date);
+    public CommonResponse<List<TimeSlotDTO>> getAllTimeSlotsOfMentor(@PathVariable Long mentorId,
+                                                                     @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+                                                                     @RequestParam String timezone) throws UnexpectedServerException, ResourceNotFoundException {
+        return fixedTimeSlotService.getAllTimeSlotsOfMentor(mentorId, date, timezone);
     }
 }

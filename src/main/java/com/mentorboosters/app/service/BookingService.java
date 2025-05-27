@@ -12,12 +12,10 @@ import com.mentorboosters.app.repository.FixedTimeSlotRepository;
 import com.mentorboosters.app.repository.MentorRepository;
 import com.mentorboosters.app.repository.UsersRepository;
 import com.mentorboosters.app.response.CommonResponse;
-import com.mentorboosters.app.util.Constant;
 import com.mentorboosters.app.zoom.ZoomMeetingService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -43,71 +41,74 @@ public class BookingService {
         this.zoomMeetingService=zoomMeetingService;
     }
 
-    public CommonResponse<Booking> saveBooking(Booking booking) throws UnexpectedServerException, ResourceNotFoundException {
-
-        FixedTimeSlot currentSlot = fixedTimeSlotRepository.findById(booking.getTimeSlotId()).orElseThrow(() -> new ResourceNotFoundException(TIMESLOT_NOT_FOUND_WITH_ID + booking.getTimeSlotId()));
-
-        try {
-            // Prevent user from booking same time slot for 2 different mentors
-            List<Booking> bookings = bookingRepository.findByUserIdAndBookingDate(booking.getUserId(), booking.getBookingDate());
-
-            if(!(bookings.isEmpty())) {
-
-                List<Long> bookedSlotIds = bookings.stream().map(Booking::getTimeSlotId).toList();
-
-                // Avoid repetitive DB calls by directly collecting whole Slots
-                List<FixedTimeSlot> bookedSlots = fixedTimeSlotRepository.findAllById(bookedSlotIds);
-
-                for (FixedTimeSlot bookedSlot : bookedSlots) {
-
-                    // Checking current slot and booked slots are overlapping, formula is start1 < end2 && start2 < end1
-                    if (currentSlot.getTimeStart().isBefore(bookedSlot.getTimeEnd()) && bookedSlot.getTimeStart().isBefore(currentSlot.getTimeEnd())) {
-
-                        return CommonResponse.<Booking>builder()
-                                .message(OVERLAPS_WITH_EXISTING_BOOKED_SLOT)
-                                .status(STATUS_FALSE)
-                                .statusCode(CONFLICT_CODE)
-                                .build();
-                    }
-                }
-            }
-
-            // we receive date as string but spring converts it into date automatically if date is in this format yyyy-mm-dd
-            Booking savedBooking = bookingRepository.save(booking);
-
-            Date startTime = Date.from(currentSlot.getTimeStart().atDate(booking.getBookingDate())
-                    .atZone(ZoneId.systemDefault()).toInstant());
-            Date endTime = Date.from(currentSlot.getTimeEnd().atDate(booking.getBookingDate())
-                    .atZone(ZoneId.systemDefault()).toInstant());
-
-            // 4. Get mentor and user emails from DB
-            String userEmail = usersRepository.findById(booking.getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with ID " + booking.getUserId()))
-                    .getEmailId();
-
-            String mentorEmail = mentorRepository.findById(booking.getMentorId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with ID " + booking.getMentorId()))
-                    .getEmail();
-
-            // 5. Create Zoom meeting and notify via email
-            zoomMeetingService.createZoomMeetingAndNotify(mentorEmail, userEmail, startTime, endTime);
-
-            return CommonResponse.<Booking>builder()
-                    .message(SUCCESSFULLY_ADDED)
-                    .status(STATUS_TRUE)
-                    .data(savedBooking)
-                    .statusCode(SUCCESS_CODE)
-                    .build();
-
-        }
-
-        catch (ResourceNotFoundException e){
-            throw e;
-        }
-        catch (Exception e){
-            throw new UnexpectedServerException(ERROR_BOOKING_TIME_SLOT + e.getMessage());
-        }
-    }
+//    public void saveBooking(Booking booking) throws UnexpectedServerException, ResourceNotFoundException {
+//
+//        FixedTimeSlot currentSlot = fixedTimeSlotRepository.findById(booking.getTimeSlotId()).orElseThrow(() -> new ResourceNotFoundException(TIMESLOT_NOT_FOUND_WITH_ID + booking.getTimeSlotId()));
+//
+//        try {
+//            // Prevent user from booking same time slot for 2 different mentors
+//            List<Booking> bookings = bookingRepository.findByUserIdAndBookingDateAndPaymentStatus(booking.getUserId(), booking.getBookingDate(), "complete");
+//
+//            if(!(bookings.isEmpty())) {
+//
+//                List<Long> bookedSlotIds = bookings.stream().map(Booking::getTimeSlotId).toList();
+//
+//                // Avoid repetitive DB calls by directly collecting whole Slots
+//                List<FixedTimeSlot> bookedSlots = fixedTimeSlotRepository.findAllById(bookedSlotIds);
+//
+//                for (FixedTimeSlot bookedSlot : bookedSlots) {
+//
+//                    // Checking current slot and booked slots are overlapping, formula is start1 < end2 && start2 < end1
+//                    if (currentSlot.getTimeStart().isBefore(bookedSlot.getTimeEnd()) && bookedSlot.getTimeStart().isBefore(currentSlot.getTimeEnd())) {
+//
+//                        CommonResponse.<Booking>builder()
+//                                .message(OVERLAPS_WITH_EXISTING_BOOKED_SLOT)
+//                                .status(STATUS_FALSE)
+//                                .statusCode(CONFLICT_CODE)
+//                                .build();
+//                        return;
+//                    }
+//                }
+//            }
+//
+//            booking.setPaymentStatus("pending");
+//
+//            // we receive date as string but spring converts it into date automatically if date is in this format yyyy-mm-dd
+//            Booking savedBooking = bookingRepository.save(booking);
+//
+//            Date startTime = Date.from(currentSlot.getTimeStart().atDate(booking.getBookingDate())
+//                    .atZone(ZoneId.systemDefault()).toInstant());
+//            Date endTime = Date.from(currentSlot.getTimeEnd().atDate(booking.getBookingDate())
+//                    .atZone(ZoneId.systemDefault()).toInstant());
+//
+//            // 4. Get mentor and user emails from DB
+//            String userEmail = usersRepository.findById(booking.getUserId())
+//                    .orElseThrow(() -> new ResourceNotFoundException("User not found with ID " + booking.getUserId()))
+//                    .getEmailId();
+//
+//            String mentorEmail = mentorRepository.findById(booking.getMentorId())
+//                    .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with ID " + booking.getMentorId()))
+//                    .getEmail();
+//
+//            // 5. Create Zoom meeting and notify via email
+//            zoomMeetingService.createZoomMeetingAndNotify(mentorEmail, userEmail, startTime, endTime);
+//
+//            CommonResponse.<Booking>builder()
+//                    .message(SUCCESSFULLY_ADDED)
+//                    .status(STATUS_TRUE)
+//                    .data(savedBooking)
+//                    .statusCode(SUCCESS_CODE)
+//                    .build();
+//
+//        }
+//
+//        catch (ResourceNotFoundException e){
+//            throw e;
+//        }
+//        catch (Exception e){
+//            throw new UnexpectedServerException(ERROR_BOOKING_TIME_SLOT + e.getMessage());
+//        }
+//    }
 
     public CommonResponse<List<BookingDTO>> getBookingsByUserId(Long userId, LocalDate date) throws UnexpectedServerException, ResourceNotFoundException {
 
@@ -137,7 +138,7 @@ public class BookingService {
                 dto.setTimeSlotStart(slot.getTimeStart());
                 dto.setTimeSlotEnd(slot.getTimeEnd());
                 dto.setMentorName(mentor.getName());
-                dto.setGMeetLink(booking.getGoogleMeetLink());
+                dto.setZoomMeetLink(booking.getUserMeetLink());
                 dto.setMentorId(mentor.getId());
                 dto.setUserId(userId);
 
@@ -188,7 +189,7 @@ public class BookingService {
                 dto.setTimeSlotStart(slot.getTimeStart());
                 dto.setTimeSlotEnd(slot.getTimeEnd());
                 dto.setUserName(user.getName());
-                dto.setGMeetLink(booking.getGoogleMeetLink());
+//                dto.setGMeetLink(booking.getGoogleMeetLink());
                 dto.setMentorId(mentorId);
                 dto.setUserId(user.getId());
 

@@ -34,5 +34,5 @@ public class BookingDTO {
 
     private String connectMethod;
 
-    private String gMeetLink;
+    private String zoomMeetLink;
 }

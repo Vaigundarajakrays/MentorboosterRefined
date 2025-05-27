@@ -12,4 +12,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByUserIdAndBookingDate(Long userId, LocalDate bookingDate);
 
     List<Booking> findByUserIdAndMentorIdAndBookingDateGreaterThanEqual(Long userId, Long mentorId, LocalDate today);
+
+    List<Booking> findByUserIdAndBookingDateAndPaymentStatus(Long userId, LocalDate bookingDate, String complete);
+
+    Booking findByStripeSessionId(String sessionId);
+
+    List<Booking> findByMentorIdAndBookingDateAndPaymentStatus(Long mentorId, LocalDate date, String completed);
 }

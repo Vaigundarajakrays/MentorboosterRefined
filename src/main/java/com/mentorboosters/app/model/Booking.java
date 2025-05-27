@@ -36,6 +36,25 @@ public class Booking extends BaseEntity{
     @Column(nullable = false)
     private String connectMethod;
 
-    @Column(nullable = true)
-    private String googleMeetLink;
+    @Column(nullable = false)
+    private Long amount;
+
+    @Column(nullable = false)
+    private String currency;
+
+    @Column(nullable = false)
+    private String productName;
+
+    @Column(nullable = false)
+    private Long quantity;
+
+    private String stripeSessionId;
+
+    private String paymentStatus;
+
+    @Column(columnDefinition = "TEXT")
+    private String mentorMeetLink;
+
+    @Column(columnDefinition = "TEXT")
+    private String userMeetLink;
 }

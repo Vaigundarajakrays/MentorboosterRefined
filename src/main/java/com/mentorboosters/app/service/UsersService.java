@@ -1,6 +1,8 @@
 package com.mentorboosters.app.service;
 
 import com.mentorboosters.app.enumUtil.Role;
+import com.mentorboosters.app.exceptionHandling.EmailOrPhoneAlreadyExistsException;
+import com.mentorboosters.app.exceptionHandling.PhoneNumberRequiredException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.Users;
@@ -26,11 +28,7 @@ public class UsersService {
     public CommonResponse<Users> signUp(Users users) throws UnexpectedServerException {
 
         if(users.getPhoneNumber()==null){
-            return CommonResponse.<Users>builder()
-                    .message(PHONE_NUMBER_REQUIRED)
-                    .status(STATUS_FALSE)
-                    .statusCode(BAD_REQUEST)
-                    .build();
+            throw new PhoneNumberRequiredException("Phone number is required");
         }
 
         try {
@@ -38,12 +36,7 @@ public class UsersService {
             boolean exists = usersRepository.existsByEmailIdOrPhoneNumber(users.getEmailId(), users.getPhoneNumber());
 
             if (exists) {
-                return CommonResponse.<Users>builder()
-                        .message(EMAIL_OR_PHONE_NUMBER_ALREADY_EXISTS)
-                        .status(STATUS_FALSE)
-                        .data(users)
-                        .statusCode(FORBIDDEN_CODE)
-                        .build();
+                throw new EmailOrPhoneAlreadyExistsException("Email or phone number already exists");
             }
 
             String hashedPassword = passwordEncoder.encode(users.getPassword());
@@ -59,6 +52,9 @@ public class UsersService {
                     .statusCode(SUCCESS_CODE)
                     .build();
 
+
+        } catch (EmailOrPhoneAlreadyExistsException | PhoneNumberRequiredException e){
+            throw e;
         } catch (Exception e){
             throw new UnexpectedServerException(ERROR_DURING_SIGN_UP + e.getMessage());
         }
@@ -73,12 +69,7 @@ public class UsersService {
             boolean exists = usersRepository.existsByEmailIdOrPhoneNumber(users.getEmailId(), users.getPhoneNumber());
 
             if (exists) {
-                return CommonResponse.<Users>builder()
-                        .message(EMAIL_OR_PHONE_NUMBER_ALREADY_EXISTS)
-                        .status(STATUS_FALSE)
-                        .data(users)
-                        .statusCode(FORBIDDEN_CODE)
-                        .build();
+                throw new EmailOrPhoneAlreadyExistsException("Email or phone number already exists");
             }
 
             String hashedPassword = passwordEncoder.encode(users.getPassword());

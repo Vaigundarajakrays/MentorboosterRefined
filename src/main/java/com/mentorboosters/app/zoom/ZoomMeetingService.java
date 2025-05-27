@@ -6,7 +6,6 @@ import org.springframework.http.*;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
@@ -28,7 +27,7 @@ public class ZoomMeetingService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public void createZoomMeetingAndNotify(String mentorEmail, String userEmail, Date startTime, Date endTime) throws Exception {
+    public ZoomMeetingResponse createZoomMeetingAndNotify(String mentorEmail, String userEmail, Date startTime, Date endTime) throws Exception {
         String accessToken = zoomTokenService.getAccessToken();
 
         RestTemplate restTemplate = new RestTemplate();
@@ -67,6 +66,11 @@ public class ZoomMeetingService {
 
             sendEmail(mentorEmail, "Zoom Meeting Scheduled", mentorContent);
             sendEmail(userEmail, "Zoom Meeting Scheduled", userContent);
+
+            return ZoomMeetingResponse.builder()
+                    .startUrl(startUrl)
+                    .joinUrl(joinUrl)
+                    .build();
         } else {
             throw new Exception("Failed to create Zoom meeting.");
         }

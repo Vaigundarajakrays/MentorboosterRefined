@@ -43,6 +43,7 @@ public class SecurityConfiguration {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
+                        .requestMatchers("/mentorboosters/api/stripe/webhook").permitAll()
                         .requestMatchers("/mentorboosters/api/auth/signUp",
                                 "/mentorboosters/api/auth/adminSignUp",
                                 "/mentorboosters/api/auth/login",
