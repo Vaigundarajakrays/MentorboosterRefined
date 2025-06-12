@@ -1,5 +1,6 @@
 package com.mentorboosters.app.service;
 
+import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.ConnectMethods;
 import com.mentorboosters.app.repository.ConnectMethodsRepository;
@@ -51,11 +52,7 @@ public class ConnectMethodsService {
     public CommonResponse<ConnectMethods> saveConnectMethods(ConnectMethods connectMethods) throws UnexpectedServerException {
 
         if(connectMethodsRepository.existsByName(connectMethods.getName())){
-            return CommonResponse.<ConnectMethods>builder()
-                    .message(CONNECT_METHOD_ALREADY_EXISTS)
-                    .status(STATUS_FALSE)
-                    .statusCode(FORBIDDEN_CODE)
-                    .build();
+            throw new ResourceAlreadyExistsException(CONNECT_METHOD_ALREADY_EXISTS);
         }
 
         try {

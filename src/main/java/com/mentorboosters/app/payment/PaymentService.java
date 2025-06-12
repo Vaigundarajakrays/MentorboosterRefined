@@ -1,34 +1,34 @@
 package com.mentorboosters.app.payment;
 
-import com.mentorboosters.app.exceptionHandling.BookingOverlapException;
+import com.mentorboosters.app.dto.BookingDTO;
+import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
+import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.Booking;
-import com.mentorboosters.app.model.FixedTimeSlot;
-import com.mentorboosters.app.repository.BookingRepository;
-import com.mentorboosters.app.repository.FixedTimeSlotRepository;
-import com.mentorboosters.app.repository.MentorRepository;
-import com.mentorboosters.app.repository.UsersRepository;
+import com.mentorboosters.app.model.FixedTimeSlotNew;
+import com.mentorboosters.app.model.MenteeProfile;
+import com.mentorboosters.app.repository.*;
 import com.mentorboosters.app.response.CommonResponse;
-import com.mentorboosters.app.service.BookingService;
-import com.mentorboosters.app.util.Constant;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
-import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.ZoneId;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
 
 import static com.mentorboosters.app.util.Constant.*;
 
 @Service
+@RequiredArgsConstructor
 public class PaymentService {
 
     @Value("${stripe.apikey}")
@@ -41,66 +41,134 @@ public class PaymentService {
     private String cancelUrl;
 
     private final BookingRepository bookingRepository;
-    private final FixedTimeSlotRepository fixedTimeSlotRepository;
-    private final MentorRepository mentorRepository;
-    private final UsersRepository usersRepository;
+    private final FixedTimeSlotNewRepository fixedTimeSlotNewRepository;
+    private final MentorProfileRepository mentorProfileRepository;
+    private final MenteeProfileRepository menteeProfileRepository;
 
     @PostConstruct
     public void init() {
         Stripe.apiKey = stripeApiKey;
     }
 
-    public PaymentService(BookingRepository bookingRepository, FixedTimeSlotRepository fixedTimeSlotRepository,MentorRepository mentorRepository, UsersRepository usersRepository){
-        this.bookingRepository=bookingRepository;
-        this.fixedTimeSlotRepository=fixedTimeSlotRepository;
-        this.mentorRepository=mentorRepository;
-        this.usersRepository=usersRepository;
-    }
-
-    public CommonResponse<PaymentResponse> checkoutProducts(Booking booking) throws StripeException, UnexpectedServerException, ResourceNotFoundException {
+    // Make the amount to double not long, because if UI send 2.5 it will cause error
+    // Change like this Math.round(request.getAmount() * 100)
+    // If math.round is not used, java convert 2.5*100 as 249.999
+    // Stripe expects amount to be long or integer not float or double
+    // Math.round convert the double to long automatically
+    public CommonResponse<PaymentResponse> checkoutProducts(BookingDTO bookingDTO) throws StripeException, UnexpectedServerException, ResourceNotFoundException {
 
         try {
 
-            FixedTimeSlot currentSlot = fixedTimeSlotRepository.findById(booking.getTimeSlotId()).orElseThrow(() -> new ResourceNotFoundException(TIMESLOT_NOT_FOUND_WITH_ID + booking.getTimeSlotId()));
+            FixedTimeSlotNew currentSlot = fixedTimeSlotNewRepository.findById(bookingDTO.getTimeSlotId()).orElseThrow(() -> new ResourceNotFoundException(TIMESLOT_NOT_FOUND_WITH_ID + bookingDTO.getTimeSlotId()));
+
+            MenteeProfile menteeProfile = menteeProfileRepository.findById(bookingDTO.getMenteeId()).orElseThrow(() -> new ResourceNotFoundException("Mentee not found with ID " + bookingDTO.getMenteeId()));
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate bookingDate;
+
+            try {
+                bookingDate = LocalDate.parse(bookingDTO.getBookingDate(), formatter);
+            } catch (DateTimeParseException e) {
+                throw new InvalidFieldValueException("Invalid booking date format. Expected yyyy-MM-dd.");
+            }
+
+
+            // Converting the booking date to utc
+            final ZoneId zoneId = resolveZoneId(menteeProfile.getTimeZone());
+
+            LocalDate date = bookingDate;
+            ZonedDateTime startOfDayZoned = date.atStartOfDay(zoneId);
+            Instant bookedUtcDate = startOfDayZoned.toInstant();
+
+            // Finished
+
+            ZonedDateTime dayStartZoned = date.atStartOfDay(zoneId);
+            ZonedDateTime dayEndZoned = dayStartZoned.plusDays(1);
+
+            Instant utcStart = dayStartZoned.toInstant();
+            Instant utcEnd = dayEndZoned.toInstant();
 
             // Prevent user from booking same time slot for 2 different mentors
-            List<Booking> bookings = bookingRepository.findByUserIdAndBookingDateAndPaymentStatus(booking.getUserId(), booking.getBookingDate(), "completed");
+            List<Booking> bookings = bookingRepository.findByMenteeIdAndBookedDateBetweenAndPaymentStatus(bookingDTO.getMenteeId(), utcStart, utcEnd, "completed");
 
             if (!(bookings.isEmpty())) {
 
                 List<Long> bookedSlotIds = bookings.stream().map(Booking::getTimeSlotId).toList();
 
                 // Avoid repetitive DB calls by directly collecting whole Slots
-                List<FixedTimeSlot> bookedSlots = fixedTimeSlotRepository.findAllById(bookedSlotIds);
+                List<FixedTimeSlotNew> bookedSlots = fixedTimeSlotNewRepository.findAllById(bookedSlotIds);
 
-                for (FixedTimeSlot bookedSlot : bookedSlots) {
+                for (FixedTimeSlotNew bookedSlot : bookedSlots) {
 
-                    // Checking current slot and booked slots are overlapping, formula is start1 < end2 && start2 < end1
-                    if (currentSlot.getTimeStart().isBefore(bookedSlot.getTimeEnd()) && bookedSlot.getTimeStart().isBefore(currentSlot.getTimeEnd())) {
+                    //I don’t care what date the mentor originally picked when registering —
+                    // I’m applying that slot’s time to the booking date, and checking if the user is trying to reuse the same time.
+                    // ⏰ Get slotTime (like 17:00) in user's zone
+                    LocalTime bookedSlotTime = bookedSlot.getTimeStart()
+                            .atZone(ZoneOffset.UTC)
+                            .withZoneSameInstant(zoneId)
+                            .toLocalTime();
 
-                        throw new BookingOverlapException(OVERLAPS_WITH_EXISTING_BOOKED_SLOT);
+                    LocalTime currentSlotTime = currentSlot.getTimeStart()
+                            .atZone(ZoneOffset.UTC)
+                            .withZoneSameInstant(zoneId)
+                            .toLocalTime();
 
+                    // 📅 Apply the bookingDate to get actual slot on that date
+                    ZonedDateTime bookedStartZoned = bookingDate.atTime(bookedSlotTime).atZone(zoneId);
+                    ZonedDateTime bookedEndZoned = bookedStartZoned.plusHours(1);
+
+                    ZonedDateTime currentStartZoned = bookingDate.atTime(currentSlotTime).atZone(zoneId);
+                    ZonedDateTime currentEndZoned = currentStartZoned.plusHours(1);
+
+                    // 🔁 Now compare
+                    if (currentStartZoned.isBefore(bookedEndZoned) && bookedStartZoned.isBefore(currentEndZoned)) {
+                        throw new ResourceAlreadyExistsException(OVERLAPS_WITH_EXISTING_BOOKED_SLOT);
                     }
+
+
                 }
             }
 
-            booking.setPaymentStatus("pending");
+            Booking booking = Booking.builder()
+                    .mentorId(bookingDTO.getMentorId())
+                    .menteeId(bookingDTO.getMenteeId())
+                    .timeSlotId(bookingDTO.getTimeSlotId())
+                    .bookedDate(bookedUtcDate) // Stored as UTC
+                    .category(bookingDTO.getCategory())
+                    .connectMethod(bookingDTO.getConnectMethod())
+                    .amount(bookingDTO.getAmount())
+                    .currency(bookingDTO.getCurrency())
+                    .productName(bookingDTO.getProductName())
+                    .quantity(bookingDTO.getQuantity())
+                    .paymentStatus("pending")
+                    .mentorMeetLink(bookingDTO.getMentorMeetLink())
+                    .userMeetLink(bookingDTO.getUserMeetLink())
+                    .menteeTimezone(menteeProfile.getTimeZone())
+                    .build();
+
 
             // we receive date as string but spring converts it into date automatically if date is in this format yyyy-mm-dd
             Booking savedBooking = bookingRepository.save(booking);
 
-            Date startTime = Date.from(currentSlot.getTimeStart().atDate(booking.getBookingDate())
-                    .atZone(ZoneId.systemDefault()).toInstant());
-            Date endTime = Date.from(currentSlot.getTimeEnd().atDate(booking.getBookingDate())
-                    .atZone(ZoneId.systemDefault()).toInstant());
-
             // 4. Get mentor and user emails from DB
-            String userEmail = usersRepository.findById(booking.getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with ID " + booking.getUserId()))
-                    .getEmailId();
+            String menteeEmail = menteeProfile.getEmail();
 
-            String mentorEmail = mentorRepository.findById(booking.getMentorId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with ID " + booking.getMentorId()))
+            // 2. Get slot's local time in mentee's zone
+            LocalTime slotTime = currentSlot.getTimeStart()
+                    .atZone(ZoneOffset.UTC)
+                    .withZoneSameInstant(zoneId)
+                    .toLocalTime();
+
+            // 3. Combine date + time to form ZonedDateTime
+            ZonedDateTime sessionStart = bookingDate.atTime(slotTime).atZone(zoneId);
+            ZonedDateTime sessionEnd = sessionStart.plusHours(1);
+
+            // 4. Convert to ISO strings
+            String sessionStartStr = sessionStart.toString(); // "2025-06-13T14:30:00+05:30"
+            String sessionEndStr = sessionEnd.toString();
+
+            String mentorEmail = mentorProfileRepository.findById(bookingDTO.getMentorId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with ID " + bookingDTO.getMentorId()))
                     .getEmail();
 
             //Stripe session creation
@@ -111,7 +179,7 @@ public class PaymentService {
 
             SessionCreateParams.LineItem.PriceData priceData = SessionCreateParams.LineItem.PriceData.builder()
                     .setCurrency(booking.getCurrency() == null ? "CAD" : booking.getCurrency())
-                    .setUnitAmount(booking.getAmount() * 100) // To paise or cents
+                    .setUnitAmount(Math.round(booking.getAmount() * 100)) // To paise or cents
                     .setProductData(productData)
                     .build();
 
@@ -126,18 +194,15 @@ public class PaymentService {
                     .setCancelUrl(cancelUrl + "/{CHECKOUT_SESSION_ID}")
                     .addLineItem(lineItem)
                     .putMetadata("mentorEmail", mentorEmail)
-                    .putMetadata("userEmail", userEmail)
-                    .putMetadata("startTime", startTime.toString())
-                    .putMetadata("endTime", endTime.toString())
+                    .putMetadata("menteeEmail", menteeEmail)
+                    .putMetadata("sessionStart", sessionStartStr)
+                    .putMetadata("sessionEnd", sessionEndStr)
+                    .putMetadata("menteeTimezone", zoneId.toString())
                     .putMetadata("bookingId", String.valueOf(savedBooking.getId()));
 
             SessionCreateParams params = builder.build();
 
-            try {
-                session = Session.create(params);
-            } catch (StripeException e) {
-                throw new RuntimeException(e.getMessage());
-            }
+            session = Session.create(params);
 
             savedBooking.setStripeSessionId(session.getId());
             bookingRepository.save(savedBooking);
@@ -156,12 +221,20 @@ public class PaymentService {
                     .statusCode(SUCCESS_CODE)
                     .build();
 
-        } catch (BookingOverlapException e){
-            throw e;
+        } catch (ResourceNotFoundException | ResourceAlreadyExistsException | StripeException | InvalidFieldValueException e){
+            throw e; // it will catch by global exception handler
         } catch (Exception e){
             throw new UnexpectedServerException("Error while creating payment session:" + e.getMessage());
         }
 
 
+    }
+
+    private ZoneId resolveZoneId(String timezone) {
+        try {
+            return ZoneId.of(timezone);
+        } catch (DateTimeException e) {
+            return ZoneOffset.UTC;
+        }
     }
 }

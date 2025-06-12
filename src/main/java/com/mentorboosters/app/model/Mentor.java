@@ -31,7 +31,7 @@ public class Mentor extends BaseEntity {
     @Column(nullable = false)
     private String avatarUrl;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String bio;
 
     @Column(nullable = false)

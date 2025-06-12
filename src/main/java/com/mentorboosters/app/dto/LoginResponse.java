@@ -18,18 +18,10 @@ public class LoginResponse {
 
     private String token;
 
-    private Long userId;
-
-    private String name;
-
-    private String emailId;
-
-    private String phoneNumber;
-
-    private String description;
-
-    private List<String> goals;
-
     private Role role;
+
+    private MentorProfileDTO mentorProfile;
+
+    private MenteeProfileDTO menteeProfile;
 
 }

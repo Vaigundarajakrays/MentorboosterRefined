@@ -2,6 +2,7 @@ package com.mentorboosters.app.zoom;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -25,6 +26,10 @@ public class ZoomMeetingService {
     @Autowired
     private JavaMailSender mailSender;
 
+    @Value("${mail.from}")
+    private String mailFrom;
+
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public ZoomMeetingResponse createZoomMeetingAndNotify(String mentorEmail, String userEmail, Date startTime, Date endTime) throws Exception {
@@ -40,8 +45,8 @@ public class ZoomMeetingService {
         meetingDetails.put("topic", "MentorBooster Session");
         meetingDetails.put("type", 2); // Scheduled
         meetingDetails.put("start_time", toISOString(startTime));
-        meetingDetails.put("duration", 30);
-        meetingDetails.put("timezone", "Asia/Kolkata");
+        meetingDetails.put("duration", 60);
+        meetingDetails.put("timezone", "UTC");
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(meetingDetails, headers);
 
@@ -53,16 +58,25 @@ public class ZoomMeetingService {
             String startUrl = (String) responseBody.get("start_url");
             String joinUrl = (String) responseBody.get("join_url");
 
-            String calendarLink = generateGoogleCalendarLink(
+            String mentorCalendarLink = generateGoogleCalendarLink(
                     "MentorBooster Session",
-                    "Zoom meeting with mentor.",
-                    joinUrl,
+                    "Zoom meeting you're hosting.",
+                    startUrl, // <-- host link here
                     startTime,
                     endTime
             );
 
-            String mentorContent = "Start URL: " + startUrl + "\n\nAdd to Calendar:\n" + calendarLink;
-            String userContent = "Join URL: " + joinUrl + "\n\nAdd to Calendar:\n" + calendarLink;
+            String userCalendarLink = generateGoogleCalendarLink(
+                    "MentorBooster Session",
+                    "Zoom meeting with your mentor.",
+                    joinUrl, // <-- public attendee link
+                    startTime,
+                    endTime
+            );
+
+
+            String mentorContent = "Start URL: " + startUrl + "\n\nAdd to Calendar:\n" + mentorCalendarLink;
+            String userContent = "Join URL: " + joinUrl + "\n\nAdd to Calendar:\n" + userCalendarLink;
 
             sendEmail(mentorEmail, "Zoom Meeting Scheduled", mentorContent);
             sendEmail(userEmail, "Zoom Meeting Scheduled", userContent);
@@ -77,6 +91,7 @@ public class ZoomMeetingService {
     }
 
     private String generateGoogleCalendarLink(String title, String details, String joinUrl, Date startTime, Date endTime) {
+        // google expect to be in this format
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         String start = sdf.format(startTime);
@@ -107,7 +122,7 @@ public class ZoomMeetingService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
-        message.setFrom("admin@mentorboosters.com");
+        message.setFrom(mailFrom);
         mailSender.send(message);
     }
 }

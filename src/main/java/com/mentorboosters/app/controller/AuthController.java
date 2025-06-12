@@ -13,7 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/mentorboosters/api/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     private final UsersService usersService;
@@ -24,10 +24,10 @@ public class AuthController {
         this.authService=authService;
     }
 
-    @PostMapping("/signUp")
-    public CommonResponse<Users> signUp(@RequestBody Users users) throws UnexpectedServerException {
-        return usersService.signUp(users);
-    }
+//    @PostMapping("/signUp")
+//    public CommonResponse<Users> signUp(@RequestBody Users users) throws UnexpectedServerException {
+//        return usersService.signUp(users);
+//    }
 
     @PostMapping("/adminSignUp")
     public CommonResponse<Users> adminCreate(@RequestBody Users users) throws UnexpectedServerException {
@@ -39,12 +39,17 @@ public class AuthController {
         return authService.authenticate(loginRequest);
     }
 
-    @GetMapping("/mailVerify/{email}")
-    public CommonResponse<String> sendOtp(@PathVariable String email) throws UnexpectedServerException {
+    @PostMapping("/sendOtp")
+    public CommonResponse<String> sendOtp(@RequestParam String email) throws UnexpectedServerException {
         return authService.sendOtp(email);
     }
 
-    @PostMapping("/changePassword")
+    @PostMapping("/verifyOtp")
+    public CommonResponse<String> verifyOtp(@RequestParam String email, @RequestParam String otp) throws UnexpectedServerException {
+        return authService.verifyOtp(email, otp);
+    }
+
+    @PutMapping("/changePassword")
     public CommonResponse<String> changePassword(@RequestBody ChangePasswordRequest changePasswordRequest) throws UnexpectedServerException, ResourceNotFoundException {
         return authService.changePassword(changePasswordRequest);
     }

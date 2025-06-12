@@ -8,7 +8,7 @@ import com.mentorboosters.app.service.UsersService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/mentorboosters/api")
+@RequestMapping("/api")
 public class UsersController {
 
     private final UsersService usersService;
@@ -20,8 +20,13 @@ public class UsersController {
         return usersService.getUserById(id);
     }
 
-    @PutMapping("updateUser/{id}")
-    public CommonResponse<Users> updateUser(@PathVariable Long id ,@RequestBody Users updatedUser) throws ResourceNotFoundException, UnexpectedServerException {
-        return usersService.updateUser(id, updatedUser);
+//    @PutMapping("updateUser/{id}")
+//    public CommonResponse<Users> updateUser(@PathVariable Long id ,@RequestBody Users updatedUser) throws ResourceNotFoundException, UnexpectedServerException {
+//        return usersService.updateUser(id, updatedUser);
+//    }
+
+    @DeleteMapping("deleteUserById/{id}")
+    public CommonResponse<Users> deleteUserById(@PathVariable Long id) throws ResourceNotFoundException, UnexpectedServerException {
+        return usersService.deleteUserById(id);
     }
 }

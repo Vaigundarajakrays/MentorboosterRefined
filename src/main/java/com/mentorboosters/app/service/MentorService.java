@@ -2,6 +2,7 @@ package com.mentorboosters.app.service;
 
 import com.mentorboosters.app.dto.*;
 import com.mentorboosters.app.enumUtil.Role;
+import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.mapper.DtoMapper;
@@ -75,65 +76,61 @@ public class MentorService {
     }
 
     //Transactional is not used in get method but in save method because after saving certificate if experience table failed, then it will be like some data saved some not. to prevent that.
-    @Transactional
-    public CommonResponse<Mentor> saveMentor(Mentor mentor) throws UnexpectedServerException {
+//    @Transactional
+//    public CommonResponse<Mentor> saveMentor(Mentor mentor) throws UnexpectedServerException {
+//
+//        if (mentorRepository.existsByEmail(mentor.getEmail())) {
+//            throw new ResourceAlreadyExistsException(EMAIL_ALREADY_EXISTS);
+//        }
+//
+//        try {
+//
+////            Mentor mentor = DtoMapper.toMentorEntity(mentorDTO);
+//
+//            List<Category> updatedCategories = mentor.getCategories().stream().map(category -> categoryRepository.findByName(category.getName()).orElse(category)).toList();
+//
+//            // if a category already exists, it has id in the updatedCategory, if its new it doesnt have id. Hibernate if sees id it wont insert it again.
+//            mentor.setCategories(updatedCategories);
+//
+//            // If we dont give this, Hibernate doesn’t know which mentor owns this certificate, exp, timeslot.
+//            mentor.getCertificates().forEach(certificate -> certificate.setMentor(mentor));
+//            mentor.getExperiences().forEach(experience -> experience.setMentor(mentor));
+//            mentor.getTimeSlots().forEach(fixedTimeSlot -> fixedTimeSlot.setMentor(mentor));
+//
+//            Mentor savedMentor = mentorRepository.save(mentor);
+//
+//            String password = commonFiles.generateAlphaPassword(6);
+//            String hashedPassword = passwordEncoder.encode(password);
+//
+//            Users user = Users.builder()
+//                    .name(mentor.getName())
+//                    .emailId(mentor.getEmail())
+//                    .phoneNumber(null)
+//                    .description("Mentor")
+//                    .goals(List.of("mentor"))
+//                    .role(Role.MENTOR)
+//                    .password(hashedPassword)
+//                    .build();
+//
+//            Users savedUser = usersRepository.save(user);
+//
+//            //Send email to mentor
+//            commonFiles.sendPasswordToMentor(mentor, password);
+//
+//            return CommonResponse.<Mentor>builder()
+//                    .message(SUCCESSFULLY_ADDED)
+//                    .status(STATUS_TRUE)
+//                    .data(savedMentor)
+//                    .statusCode(SUCCESS_CODE)
+//                    .build();
+//
+//        } catch (Exception e){
+//            throw new UnexpectedServerException(ERROR_ADDING_MENTORS + e.getMessage());
+//        }
+//
+//    }
 
-        if (mentorRepository.existsByEmail(mentor.getEmail())) {
-            return CommonResponse.<Mentor>builder()
-                    .message(EMAIL_ALREADY_EXISTS)
-                    .status(STATUS_FALSE)
-                    .statusCode(FORBIDDEN_CODE)
-                    .build();
-        }
-
-        try {
-
-//            Mentor mentor = DtoMapper.toMentorEntity(mentorDTO);
-
-            List<Category> updatedCategories = mentor.getCategories().stream().map(category -> categoryRepository.findByName(category.getName()).orElse(category)).toList();
-
-            // if a category already exists, it has id in the updatedCategory, if its new it doesnt have id. Hibernate if sees id it wont insert it again.
-            mentor.setCategories(updatedCategories);
-
-            // If we dont give this, Hibernate doesn’t know which mentor owns this certificate, exp, timeslot.
-            mentor.getCertificates().forEach(certificate -> certificate.setMentor(mentor));
-            mentor.getExperiences().forEach(experience -> experience.setMentor(mentor));
-            mentor.getTimeSlots().forEach(fixedTimeSlot -> fixedTimeSlot.setMentor(mentor));
-
-            Mentor savedMentor = mentorRepository.save(mentor);
-
-            String password = commonFiles.generateAlphaPassword(6);
-            String hashedPassword = passwordEncoder.encode(password);
-
-            Users user = Users.builder()
-                    .name(mentor.getName())
-                    .emailId(mentor.getEmail())
-                    .phoneNumber(null)
-                    .description("Mentor")
-                    .goals(List.of("mentor"))
-                    .role(Role.MENTOR)
-                    .password(hashedPassword)
-                    .build();
-
-            Users savedUser = usersRepository.save(user);
-
-            //Send email to mentor
-            commonFiles.sendPasswordToMentor(mentor, password);
-
-            return CommonResponse.<Mentor>builder()
-                    .message(SUCCESSFULLY_ADDED)
-                    .status(STATUS_TRUE)
-                    .data(savedMentor)
-                    .statusCode(SUCCESS_CODE)
-                    .build();
-
-        } catch (Exception e){
-            throw new UnexpectedServerException(ERROR_ADDING_MENTORS + e.getMessage());
-        }
-
-    }
-
-    // WANNA ADD REVIEW UPDATE TOO
+    // WANNA ADD REVIEW UPDATE TOO MAYBE
     @Transactional
     public CommonResponse<Mentor> updateMentor(Long id, Mentor updatedMentor) throws ResourceNotFoundException, UnexpectedServerException {
 

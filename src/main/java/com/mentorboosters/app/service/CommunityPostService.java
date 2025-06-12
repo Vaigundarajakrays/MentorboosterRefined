@@ -1,5 +1,6 @@
 package com.mentorboosters.app.service;
 
+import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.CommunityPost;
@@ -34,11 +35,7 @@ public class CommunityPostService {
         boolean isExists = communityPostRepository.existsByUserIdAndTitle(post.getUserId(), post.getTitle());
 
         if (isExists) {
-            return CommonResponse.<CommunityPost>builder()
-                    .message(TITLE_ALREADY_EXISTS)
-                    .status(STATUS_FALSE)
-                    .statusCode(CONFLICT_CODE)
-                    .build();
+            throw new ResourceAlreadyExistsException(TITLE_ALREADY_EXISTS);
         }
 
         try {
@@ -94,18 +91,24 @@ public class CommunityPostService {
                 .build();
     }
 
-    public CommonResponse<Void> deletePost(Long id) throws ResourceNotFoundException {
+    public CommonResponse<Void> deletePost(Long id) throws ResourceNotFoundException, UnexpectedServerException {
         if (!communityPostRepository.existsById(id)) {
             throw new ResourceNotFoundException(POST_NOT_FOUND_WITH_ID + id);
         }
 
-        communityPostRepository.deleteById(id);
+        try {
 
-        return CommonResponse.<Void>builder()
-                .message(POSTS_DELETED_SUCCESSFULLY)
-                .status(STATUS_TRUE)
-                .statusCode(SUCCESS_CODE)
-                .build();
+            communityPostRepository.deleteById(id);
+
+            return CommonResponse.<Void>builder()
+                    .message(POSTS_DELETED_SUCCESSFULLY)
+                    .status(STATUS_TRUE)
+                    .statusCode(SUCCESS_CODE)
+                    .build();
+
+        } catch (Exception e){
+            throw new UnexpectedServerException("Error while deleting posts: " + e.getMessage());
+        }
     }
 
 

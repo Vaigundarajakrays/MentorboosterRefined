@@ -1,5 +1,6 @@
 package com.mentorboosters.app.service;
 
+import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.Category;
@@ -50,11 +51,7 @@ public class CategoryService {
     public CommonResponse<Category> saveCategory(Category category) throws UnexpectedServerException {
 
         if(categoryRepository.existsByNameIgnoreCase(category.getName())){
-            return CommonResponse.<Category>builder()
-                    .message(CATEGORY_ALREADY_EXISTS)
-                    .status(STATUS_FALSE)
-                    .statusCode(FORBIDDEN_CODE)
-                    .build();
+            throw new ResourceAlreadyExistsException(CATEGORY_ALREADY_EXISTS);
         }
 
         try {
@@ -77,11 +74,7 @@ public class CategoryService {
 
         // Check if a category with the same name (case-insensitive) exists excluding the current category by ID
         if(categoryRepository.existsByNameIgnoreCaseAndIdNot(category.getName(), id)){
-            return CommonResponse.<Category>builder()
-                    .message(CATEGORY_ALREADY_EXISTS)
-                    .status(STATUS_FALSE)
-                    .statusCode(FORBIDDEN_CODE)
-                    .build();
+            throw new ResourceAlreadyExistsException(CATEGORY_ALREADY_EXISTS);
         }
 
         Category existingCategory = categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_WITH_ID + id));

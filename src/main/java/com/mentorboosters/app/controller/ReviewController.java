@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/mentorboosters/api")
+@RequestMapping("/api")
 public class ReviewController {
 
     private final ReviewService reviewService;
 
     public ReviewController(ReviewService reviewService){this.reviewService=reviewService;}
 
-    @PostMapping("/saveReview")
-    public CommonResponse<Review> saveReview(@RequestBody ReviewDTO reviewDTO) throws UnexpectedServerException, ResourceNotFoundException {
-        return reviewService.saveReview(reviewDTO);
-    }
+//    @PostMapping("/saveReview")
+//    public CommonResponse<Review> saveReview(@RequestBody ReviewDTO reviewDTO) throws UnexpectedServerException, ResourceNotFoundException {
+//        return reviewService.saveReview(reviewDTO);
+//    }
 }

@@ -1,5 +1,6 @@
 package com.mentorboosters.app.service;
 
+import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.Category;
@@ -39,11 +40,7 @@ public class SeminarNotesService {
         boolean isSaved = seminarNotesRepository.existsByUserIdAndTitle(seminarNotes.getUserId(),seminarNotes.getTitle());
 
         if(isSaved){
-            return CommonResponse.<SeminarNotes>builder()
-                    .message(TITLE_ALREADY_EXISTS)
-                    .status(STATUS_FALSE)
-                    .statusCode(CONFLICT_CODE)
-                    .build();
+            throw new ResourceAlreadyExistsException(TITLE_ALREADY_EXISTS);
         }
 
         try {
@@ -75,11 +72,7 @@ public class SeminarNotesService {
         boolean isSaved = seminarNotesRepository.existsByUserIdAndTitle(seminarNotes.getUserId(),seminarNotes.getTitle());
 
         if(isSaved){
-            return CommonResponse.<SeminarNotes>builder()
-                    .message(TITLE_ALREADY_EXISTS)
-                    .status(STATUS_FALSE)
-                    .statusCode(CONFLICT_CODE)
-                    .build();
+            throw new ResourceAlreadyExistsException(TITLE_ALREADY_EXISTS);
         }
 
         SeminarNotes existingNotes = seminarNotesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(NOTES_NOT_FOUND_WITH_ID + seminarNotes.getId()));

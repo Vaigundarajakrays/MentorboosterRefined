@@ -3,6 +3,7 @@ package com.mentorboosters.app.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @AllArgsConstructor
@@ -12,8 +13,9 @@ import java.time.LocalDate;
 @Entity
 @EqualsAndHashCode(callSuper = true)
 @Table(name = "bookings")
-public class Booking extends BaseEntity{
+public class Booking extends BaseEntity {
 
+    // Create a dto include timezone and local date and session id?
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,13 +24,19 @@ public class Booking extends BaseEntity{
     private Long mentorId;
 
     @Column(nullable = false)
-    private Long userId;
+    private Long menteeId;
 
     @Column(nullable = false)
     private Long timeSlotId;
 
+    // This is the new field you'll use to store the exact booking time in UTC
     @Column(nullable = false)
-    private LocalDate bookingDate;
+    private Instant bookedDate;
+
+    @Column(nullable = false)
+    private String menteeTimezone;
+
+    private String stripeSessionId;
 
     @Column(nullable = false)
     private String category;
@@ -37,7 +45,7 @@ public class Booking extends BaseEntity{
     private String connectMethod;
 
     @Column(nullable = false)
-    private Long amount;
+    private Double amount;
 
     @Column(nullable = false)
     private String currency;
@@ -47,8 +55,6 @@ public class Booking extends BaseEntity{
 
     @Column(nullable = false)
     private Long quantity;
-
-    private String stripeSessionId;
 
     private String paymentStatus;
 

@@ -1,5 +1,6 @@
 package com.mentorboosters.app.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,25 +15,31 @@ import java.time.LocalTime;
 @Builder
 public class BookingDTO {
 
-    private Long id;
-
     private Long mentorId;
 
-    private String mentorName;
+    private Long menteeId;
 
-    private Long userId;
+    private Long timeSlotId;
 
-    private String userName;
+    private String bookingDate;
 
-    private LocalTime timeSlotStart;
-
-    private LocalTime timeSlotEnd;
-
-    private LocalDate bookingDate;
+    private String stripeSessionId;
 
     private String category;
 
     private String connectMethod;
 
-    private String zoomMeetLink;
+    private Double amount;
+
+    private String currency;
+
+    private String productName;
+
+    private Long quantity;
+
+    private String paymentStatus;
+
+    private String mentorMeetLink;
+
+    private String userMeetLink;
 }

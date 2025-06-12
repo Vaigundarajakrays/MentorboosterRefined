@@ -1,15 +1,12 @@
 package com.mentorboosters.app.security;
 
 
-import com.mentorboosters.app.model.Users;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -27,6 +24,17 @@ public class  JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    private final HandlerExceptionResolver handlerExceptionResolver;
+
+    // not used constructor because we used @RequiredArgsConstructor
+
+
+
+    // jwt expired, invalid, exceptions are in global exception handler
+
+    //GLOBAL EXCEPTION HANDLER ONLY CATCHES EXCEPTION FROM CONTROLLER LAYER
+    //JWT BASED EXCEPTION ARE NOT CATCH BY GLOBAL EXCEPTION HANDLER, IT IS PART OF THE FILTER LAYER
+    //THAT'S WHY WE USED HandlerExceptionResolver
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -36,12 +44,13 @@ public class  JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String username;
 
-        try {
 
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        try {
 
             jwt = authHeader.substring(7);
             username = jwtService.extractUsername(jwt);
@@ -62,15 +71,9 @@ public class  JwtAuthenticationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
 
-        } catch (io.jsonwebtoken.ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Token expired\"}");
-
-        } catch (io.jsonwebtoken.MalformedJwtException | io.jsonwebtoken.SignatureException | IllegalArgumentException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Invalid token\"}");
+        } catch (Exception e){
+            handlerExceptionResolver.resolveException(request, response, null, e);
         }
+
     }
 }

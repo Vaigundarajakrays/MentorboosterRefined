@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/mentorboosters/api")
+@RequestMapping("/api")
 public class NotificationController {
 
     private final NotificationService notificationService;
 
     public NotificationController(NotificationService notificationService){this.notificationService=notificationService;}
 
-    @PostMapping("/saveNotification")
-    public CommonResponse<Notification> saveNotification(@RequestBody NotificationDTO notificationDTO) throws UnexpectedServerException, ResourceNotFoundException {
-        return notificationService.saveNotification(notificationDTO);
-    }
+//    @PostMapping("/saveNotification")
+//    public CommonResponse<Notification> saveNotification(@RequestBody NotificationDTO notificationDTO) throws UnexpectedServerException, ResourceNotFoundException {
+//        return notificationService.saveNotification(notificationDTO);
+//    }
 
     @GetMapping("/getAllNotificationsByMentorId/{mentorId}")
     public CommonResponse<List<Notification>> getAllNotificationByMentorId(@PathVariable Long mentorId) throws UnexpectedServerException {

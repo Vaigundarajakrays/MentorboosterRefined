@@ -25,37 +25,37 @@ public class NotificationService {
         this.usersRepository=usersRepository;
     }
 
-    public CommonResponse<Notification> saveNotification(NotificationDTO notificationDTO) throws UnexpectedServerException, ResourceNotFoundException {
-
-        String recipientName = usersRepository.findNameById(notificationDTO.getRecipientId());
-
-        if (recipientName == null) {
-            throw new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID + notificationDTO.getRecipientId());
-        }
-
-        try {
-            Notification notification = Notification.builder()
-                    .mentorId(notificationDTO.getMentorId())
-                    .recipientId(notificationDTO.getRecipientId())
-                    .recipientName(recipientName)
-                    .title(notificationDTO.getTitle())
-                    .message(notificationDTO.getMessage())
-                    .build();
-
-            Notification savedNotification = notificationRepository.save(notification);
-
-            return CommonResponse.<Notification>builder()
-                    .message(SUCCESSFULLY_ADDED)
-                    .status(STATUS_TRUE)
-                    .data(savedNotification)
-                    .statusCode(SUCCESS_CODE)
-                    .build();
-
-        } catch (Exception e) {
-            throw new UnexpectedServerException(ERROR_ADDING_NOTIFICATION + e.getMessage());
-        }
-
-    }
+//    public CommonResponse<Notification> saveNotification(NotificationDTO notificationDTO) throws UnexpectedServerException, ResourceNotFoundException {
+//
+//        String recipientName = usersRepository.findNameById(notificationDTO.getRecipientId());
+//
+//        if (recipientName == null) {
+//            throw new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID + notificationDTO.getRecipientId());
+//        }
+//
+//        try {
+//            Notification notification = Notification.builder()
+//                    .mentorId(notificationDTO.getMentorId())
+//                    .recipientId(notificationDTO.getRecipientId())
+//                    .recipientName(recipientName)
+//                    .title(notificationDTO.getTitle())
+//                    .message(notificationDTO.getMessage())
+//                    .build();
+//
+//            Notification savedNotification = notificationRepository.save(notification);
+//
+//            return CommonResponse.<Notification>builder()
+//                    .message(SUCCESSFULLY_ADDED)
+//                    .status(STATUS_TRUE)
+//                    .data(savedNotification)
+//                    .statusCode(SUCCESS_CODE)
+//                    .build();
+//
+//        } catch (Exception e) {
+//            throw new UnexpectedServerException(ERROR_ADDING_NOTIFICATION + e.getMessage());
+//        }
+//
+//    }
 
     public CommonResponse<List<Notification>> getAllNotificationByMentorId(Long mentorId, Boolean isRead) throws UnexpectedServerException {
 

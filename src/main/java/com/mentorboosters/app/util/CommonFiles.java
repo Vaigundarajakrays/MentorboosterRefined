@@ -1,7 +1,8 @@
 package com.mentorboosters.app.util;
 
 import com.mentorboosters.app.model.Mentor;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mentorboosters.app.model.MentorProfile;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,10 @@ public class CommonFiles {
 
 
     private final JavaMailSender mailSender;
+
+    @Value("${mail.from}")
+    private String mailFrom;
+
 
     public CommonFiles(JavaMailSender mailSender){this.mailSender=mailSender;}
 
@@ -58,6 +63,25 @@ public class CommonFiles {
         mailSender.send(message);
     }
 
+    public void sendPasswordToMentorNew(MentorProfile mentor, String password) {
+        String emailBody = "Dear " + mentor.getName() + ",\n\n" +
+                "Welcome to Mentor Boosters! We’re thrilled to have you join us as a mentor and look forward to your valuable contributions to our community.\n\n" +
+                "Below are your login credentials for accessing our portal:\n\n" +
+                "Email Id : " + mentor.getEmail() + "\n" +
+                "Password : " + password + "\n\n" +
+                "To log in, please visit: " + "https://www.mentorboosters.com/#/home " + "\n\n" +
+                "For your security, we recommend updating your password upon your first login.\n\n" +
+                "Thank you for joining our mission, and we look forward to working with you!\n\n" +
+                "Best regards,\nMentor Boosters Team";
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(mentor.getEmail());
+        message.setSubject("Welcome to MentorBoosters - Your Login Details");
+        message.setText(emailBody);
+        message.setFrom("vaigundaraja.krays@gmail.com");
+        mailSender.send(message);
+    }
+
     public void sendOTPUser(String email, String otp) {
         String emailBody = "Dear User,\n\n"
                 + "Thank you for registering with Mentor Boosters. To verify your email address, please use the One-Time Password (OTP) below:\n\n"
@@ -69,7 +93,7 @@ public class CommonFiles {
         message.setTo(email);
         message.setSubject("Verify Your Email Address");
         message.setText(emailBody);
-        message.setFrom("admin@mentorboosters.com");
+        message.setFrom(mailFrom);
         mailSender.send(message);
     }
 
