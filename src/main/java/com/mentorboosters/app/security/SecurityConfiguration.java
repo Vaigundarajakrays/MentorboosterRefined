@@ -43,14 +43,18 @@ public class SecurityConfiguration {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/mentorboosters/api/stripe/webhook").permitAll()
-                        .requestMatchers("/mentorboosters/api/auth/signUp",
-                                "/mentorboosters/api/auth/adminSignUp",
-                                "/mentorboosters/api/auth/login",
-                                "/mentorboosters/api/auth/mailVerify/**", "/oauth2/**", "/calendar/**",
-                                "/mentorboosters/api/getAllCategories", "/mentorboosters/api/getTopRatedMentors",
-                                "/mentorboosters/api/getVerifiedMentors", "/mentorboosters/api/getTopMentors",
-                                "/mentorboosters/api/searchMentors").permitAll()
+                        .requestMatchers("/api/stripe/webhook").permitAll()
+                        .requestMatchers("/api/auth/signUp",
+                                "/api/auth/adminSignUp",
+                                "/api/mentor/register",
+                                "/api/mentee/register",
+                                "/api/s3/upload/**",
+                                "/api/auth/changePassword",
+                                "/api/auth/login",
+                                "/api/auth/sendOtp", "/api/auth/verifyOtp" ,"/oauth2/**", "/calendar/**",
+                                "/api/getAllCategories", "/api/getTopRatedMentors",
+                                "/api/getVerifiedMentors", "/api/getTopMentors",
+                                "/api/searchMentors").permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider)

@@ -19,7 +19,7 @@ public class Notification extends BaseEntity {
 
     private String title;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
     @Column(nullable = false)

@@ -14,8 +14,8 @@ public interface UsersRepository extends JpaRepository<Users, Long> {
 
     void deleteByEmailId(String email);
 
-    @Query("SELECT u.name from Users u where u.id = :recipientId")
-    String findNameById(@Param("recipientId") Long recipientId);
+//    @Query("SELECT u.name from Users u where u.id = :recipientId")
+//    String findNameById(@Param("recipientId") Long recipientId);
 
-    boolean existsByEmailIdOrPhoneNumber(String emailId, String phoneNumber);
+//    boolean existsByEmailIdOrPhoneNumber(String emailId, String phoneNumber);
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/mentorboosters/api")
+@RequestMapping("/api")
 public class CommunityPostController {
 
     private final CommunityPostService communityPostService;
@@ -36,7 +36,7 @@ public class CommunityPostController {
     }
 
     @DeleteMapping("/deletePostById/{id}")
-    public CommonResponse<Void> deletePost(@PathVariable Long id) throws ResourceNotFoundException {
+    public CommonResponse<Void> deletePost(@PathVariable Long id) throws ResourceNotFoundException, UnexpectedServerException {
         return communityPostService.deletePost(id);
     }
 }

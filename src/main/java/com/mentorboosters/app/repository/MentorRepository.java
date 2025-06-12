@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface MentorRepository extends JpaRepository<Mentor, Long> {
 
-    boolean existsByEmail(String email);
+//    boolean existsByEmail(String email);
 
     @Query(value = """
         SELECT m.name AS name,

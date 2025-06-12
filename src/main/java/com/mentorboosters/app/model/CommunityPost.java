@@ -18,7 +18,7 @@ public class CommunityPost extends BaseEntity {
 
     private String title;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 }
 

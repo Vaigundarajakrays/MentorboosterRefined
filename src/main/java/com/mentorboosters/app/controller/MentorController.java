@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/mentorboosters/api")
+@RequestMapping("/api")
 public class MentorController {
 
     private final MentorService mentorService;
@@ -24,9 +24,11 @@ public class MentorController {
     @GetMapping("/getAllMentorsWithSlots")
     public CommonResponse<List<Mentor>> findAllMentorsWithSlots() throws UnexpectedServerException {return mentorService.findAllMentorsWithSlots();}
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PostMapping("/saveMentor")
-    public CommonResponse<Mentor> saveMentorDetails(@RequestBody Mentor mentor) throws UnexpectedServerException {return mentorService.saveMentor(mentor);}
+//    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+//    @PostMapping("/saveMentor")
+//    public CommonResponse<Mentor> saveMentorDetails(@RequestBody Mentor mentor) throws UnexpectedServerException {
+//        return mentorService.saveMentor(mentor);
+//    }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @PutMapping("/updateMentor/{id}")

@@ -11,6 +11,7 @@ import com.stripe.model.Event;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,10 +20,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 @RestController
-@RequestMapping("/mentorboosters/api")
+@RequiredArgsConstructor
+@RequestMapping("/api")
 public class StripeWebhookController {
 
     @Value("${stripe.webhook.secret}")
@@ -33,14 +39,6 @@ public class StripeWebhookController {
     private final ZoomMeetingService zoomMeetingService;
 
     private static final Logger logger = LoggerFactory.getLogger(StripeWebhookController.class);
-
-    public StripeWebhookController(ObjectMapper objectMapper,
-                                   BookingRepository bookingRepository,
-                                   ZoomMeetingService zoomMeetingService) {
-        this.objectMapper = objectMapper;
-        this.bookingRepository = bookingRepository;
-        this.zoomMeetingService = zoomMeetingService;
-    }
 
     @PostMapping("/stripe/webhook")
     @Transactional
@@ -106,29 +104,25 @@ public class StripeWebhookController {
             // Set status
             booking.setPaymentStatus(statusToSet);
 
-
-            String mentorEmail = metadata.get("mentorEmail").asText();
-
-            String userEmail = metadata.get("userEmail").asText();
-
-            String startTimeStr = metadata.get("startTime").asText();
-
-            String endTimeStr = metadata.get("endTime").asText();
-
-            // Convert start and end time back to java.util.Date
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
-            Date startTime = sdf.parse(startTimeStr);
-            Date endTime = sdf.parse(endTimeStr);
-
             if ("completed".equalsIgnoreCase(statusToSet)) {
+
+                String mentorEmail = metadata.get("mentorEmail").asText();
+                String menteeEmail = metadata.get("menteeEmail").asText();
+                String menteeTimezone = metadata.get("menteeTimezone").asText();
+
+                ZonedDateTime sessionStart = ZonedDateTime.parse(metadata.get("sessionStart").asText());
+                ZonedDateTime sessionEnd = ZonedDateTime.parse(metadata.get("sessionEnd").asText());
+
+                Date sessionStartDate = Date.from(sessionStart.toInstant());
+                Date sessionEndDate = Date.from(sessionEnd.toInstant());
 
                 // Create Zoom meeting and get links
                 ZoomMeetingResponse zoomLinks = zoomMeetingService
-                        .createZoomMeetingAndNotify(mentorEmail, userEmail, startTime, endTime);
+                        .createZoomMeetingAndNotify(mentorEmail, menteeEmail, sessionStartDate, sessionEndDate);
 
                 booking.setMentorMeetLink(zoomLinks.getStartUrl());
                 booking.setUserMeetLink(zoomLinks.getJoinUrl());
-                logger.info("Zoom meeting created for booking ID {} - mentor: {}, user: {}", bookingIdStr, mentorEmail, userEmail);
+                logger.info("Zoom meeting created for booking ID {} - mentor: {}, user: {}", bookingIdStr, mentorEmail, menteeEmail);
 
             }
 

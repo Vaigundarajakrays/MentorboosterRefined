@@ -95,6 +95,7 @@ public final class Constant {
     //User messages
     public static final String LOADED_USER_DETAILS = "Loaded user details.";
     public static final String USER_UPDATED = "User updated successfully.";
+    public static final String USER_DELETED = "User deleted successfully.";
 
     //Payment massages
     public static final String LOADED_SESSION_URL = "Successfully loaded session url";
@@ -129,6 +130,34 @@ public final class Constant {
     public static final String ERROR_SENDING_OTP = "Error while sending OTP: ";
     public static final String EMAIL_OR_PHONE_NUMBER_ALREADY_EXISTS = "Email or phone number Already Exists";
     public static final String PHONE_NUMBER_REQUIRED = "Phone number required";
+
+    // Authentication Errors
+    public static final String TOKEN_EXPIRED = "Token Expired";
+    public static final String SESSION_EXPIRED = "Your session has expired.";
+    public static final String AUTHENTICATION_ERROR = "Authentication Error";
+    public static final String AUTHENTICATION_FAILED = "Authentication failed";
+    public static final String USER_NOT_FOUND = "User not found";
+    public static final String INCORRECT_PASSWORD = "Incorrect password";
+    public static final String ERROR = "Error occured";
+
+    // Email Errors
+    public static final String EMAIL_AUTH_FAILED_SENDER = "Email authentication failed: Invalid sender address";
+    public static final String EMAIL_AUTH_FAILED_RECIPIENT = "Email authentication failed: Verify recipient email";
+    public static final String EMAIL_SENDING_FAILED = "Unable to send email";
+
+    // Payment Errors
+    public static final String PAYMENT_ERROR = "Something went wrong with payment. Please try again";
+    public static final String PAYMENT_SESSION_CREATION_FAILED = "Unable to create payment Session";
+    public static final String PAYMENT_FAILED_ERROR="Payment process failed";
+
+
+    // JWT Errors
+    public static final String JWT_SIGNATURE_MISMATCH = "JWT signature does not match";
+    public static final String INVALID_JWT_SIGNATURE = "Invalid JWT Signature";
+    public static final String JWT_FORMAT_INCORRECT = "JWT token format is incorrect.";
+    public static final String MALFORMED_JWT_TOKEN = "Malformed JWT Token";
+    public static final String UNSUPPORTED_JWT_TOKEN = "Unsupported JWT Token";
+    public static final String JWT_NOT_SUPPORTED = "JWT token is not supported.";
 
     //Mentor Errors
     public static final String ERROR_FETCHING_MENTORS = "Error while fetching mentors: ";
@@ -178,6 +207,7 @@ public final class Constant {
     public static final String USER_NOT_FOUND_WITH_ID = "User not found with ID: ";
     public static final String ERROR_UPDATING_USER = "Error while updating user: ";
     public static final String USER_NOT_FOUND_WITH_EMAIL = "User not found with email: ";
+    public static final String ERROR_DELETING_USER = "Error while deleting user: ";
 
     //Chat message errors
     public static final String ERROR_ADDING_CHAT_MESSAGE = "Error while adding chat message: ";

@@ -19,6 +19,7 @@ public class ChatMessage extends BaseEntity{
 
     private Long recipientId;
 
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private boolean read;

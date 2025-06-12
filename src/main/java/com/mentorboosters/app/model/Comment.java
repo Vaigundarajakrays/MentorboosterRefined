@@ -18,7 +18,7 @@ public class Comment extends BaseEntity {
 
     private Long postId;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String text;
 }
 

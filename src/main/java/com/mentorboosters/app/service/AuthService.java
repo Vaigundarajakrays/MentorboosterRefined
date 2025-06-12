@@ -1,18 +1,29 @@
 package com.mentorboosters.app.service;
 
-import com.mentorboosters.app.dto.ChangePasswordRequest;
-import com.mentorboosters.app.dto.LoginRequest;
-import com.mentorboosters.app.dto.LoginResponse;
+import com.mentorboosters.app.dto.*;
+import com.mentorboosters.app.enumUtil.Role;
+import com.mentorboosters.app.exceptionHandling.OtpException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
+import com.mentorboosters.app.model.MenteeProfile;
+import com.mentorboosters.app.model.MentorProfile;
+import com.mentorboosters.app.model.Otp;
 import com.mentorboosters.app.model.Users;
+import com.mentorboosters.app.repository.MenteeProfileRepository;
+import com.mentorboosters.app.repository.MentorProfileRepository;
+import com.mentorboosters.app.repository.OtpRepository;
 import com.mentorboosters.app.repository.UsersRepository;
 import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.security.JwtService;
 import com.mentorboosters.app.util.CommonFiles;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +33,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +41,7 @@ import java.util.Map;
 import static com.mentorboosters.app.util.Constant.*;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
@@ -38,40 +51,78 @@ public class AuthService {
     private final JwtService jwtService;
     private final CommonFiles commonFiles;
     private final PasswordEncoder passwordEncoder;
-
-    public AuthService( CommonFiles commonFiles, UsersRepository usersRepository, AuthenticationManager authenticationManager, JwtService jwtService, PasswordEncoder passwordEncoder){
-        this.usersRepository=usersRepository;
-        this.authenticationManager=authenticationManager;
-        this.jwtService=jwtService;
-        this.commonFiles=commonFiles;
-        this.passwordEncoder=passwordEncoder;
-    }
+    private final OtpRepository otpRepository;
+    private final MenteeProfileRepository menteeProfileRepository;
+    private final MentorProfileRepository mentorProfileRepository;
 
     public CommonResponse<LoginResponse> authenticate(LoginRequest request) throws UnexpectedServerException, ResourceNotFoundException {
 
         Users user = usersRepository.findByEmailId(request.getEmailId());
 
         if (user == null) {
-            throw new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL + request.getEmailId()); // Don't use user-name-not-found-exception because that exception will not throw instead only give 403 forbidden
+            throw new ResourceNotFoundException(USER_NOT_FOUND_WITH_EMAIL + request.getEmailId());
         }
 
         try {
-
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getEmailId(), request.getPassword())
             );
 
             String token = jwtService.generateToken(user);
 
-            var loginResponse = LoginResponse.builder()
+            MentorProfileDTO mentorProfileDTO = null;
+            MenteeProfileDTO menteeProfileDTO = null;
+
+            if (user.getRole() == Role.USER) {
+                MenteeProfile mentee = menteeProfileRepository.findByEmail(user.getEmailId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Mentee not found with this email: " + user.getEmailId()));
+
+                menteeProfileDTO = MenteeProfileDTO.builder()
+                        .menteeId(mentee.getId())
+                        .name(mentee.getName())
+                        .email(mentee.getEmail())
+                        .phone(mentee.getPhone())
+                        .description(mentee.getDescription())
+                        .languages(mentee.getLanguages())
+                        .timezone(mentee.getTimeZone())
+                        .subscriptionPlan(mentee.getSubscriptionPlan())
+                        .customerId(mentee.getId())
+                        .joinDate(mentee.getCreatedAt().toLocalDate().toString())
+                        .industry(mentee.getIndustry())
+                        .location(mentee.getLocation())
+                        .goals(mentee.getGoals())
+                        .status(mentee.getStatus())
+                        .build();
+            }
+
+            if (user.getRole() == Role.MENTOR) {
+                MentorProfile mentor = mentorProfileRepository.findByEmail(user.getEmailId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with this email: " + user.getEmailId()));
+
+                mentorProfileDTO = MentorProfileDTO.builder()
+                        .mentorId(mentor.getId())
+                        .name(mentor.getName())
+                        .email(mentor.getEmail())
+                        .phone(mentor.getPhone())
+                        .linkedinUrl(mentor.getLinkedinUrl())
+                        .profileUrl(mentor.getProfileUrl())
+                        .resumeUrl(mentor.getResumeUrl())
+                        .yearsOfExperience(mentor.getYearsOfExperience())
+                        .categories(mentor.getCategories())
+                        .summary(mentor.getSummary())
+                        .amount(mentor.getAmount())
+                        .terms(mentor.getTerms())
+                        .termsAndConditions(mentor.getTermsAndConditions())
+                        .timezone(mentor.getTimezone())
+                        .status(mentor.getStatus())
+                        .build();
+            }
+
+            LoginResponse loginResponse = LoginResponse.builder()
                     .token(token)
-                    .userId(user.getId())
-                    .emailId(user.getEmailId())
-                    .name(user.getName())
-                    .phoneNumber(user.getPhoneNumber())
-                    .description(user.getDescription())
-                    .goals(user.getGoals())
                     .role(user.getRole())
+                    .menteeProfile(menteeProfileDTO)
+                    .mentorProfile(mentorProfileDTO)
                     .build();
 
             return CommonResponse.<LoginResponse>builder()
@@ -81,30 +132,69 @@ public class AuthService {
                     .statusCode(SUCCESS_CODE)
                     .build();
 
+        } catch (UsernameNotFoundException | BadCredentialsException e) {
+            throw e;
         } catch (Exception e) {
             throw new UnexpectedServerException(ERROR_LOGGING_IN + e.getMessage());
         }
-
-
     }
+
 
     public CommonResponse<String> sendOtp(String email) throws UnexpectedServerException {
 
         try {
 
             String otp = commonFiles.generateOTP(6);
+            LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5);
+
+            Otp otpEntity = otpRepository.findByEmail(email)
+                    .map(existingOtp -> {
+                        existingOtp.setOtp(otp);
+                        existingOtp.setExpiryTime(expiryTime);
+                        return existingOtp;
+                    })
+                    .orElse(new Otp(email, otp, expiryTime));
+
+            otpRepository.save(otpEntity);
+
             commonFiles.sendOTPUser(email, otp);
 
             return CommonResponse.<String>builder()
                     .message(OTP_SENT_SUCCESS)
                     .status(STATUS_TRUE)
-                    .data(otp)
                     .statusCode(SUCCESS_CODE)
                     .build();
 
+        } catch (MailAuthenticationException | MailSendException e){
+            throw e;
         } catch (Exception e) {
             throw new UnexpectedServerException(ERROR_SENDING_OTP + e.getMessage());
         }
+    }
+
+    public CommonResponse<String> verifyOtp(String email, String otp) throws UnexpectedServerException {
+
+        try {
+
+            Otp otpEntity = otpRepository.findByEmailAndOtp(email, otp)
+                    .orElseThrow(() -> new OtpException("Invalid OTP", "INVALID_OTP"));
+
+            if (otpEntity.getExpiryTime().isBefore(LocalDateTime.now())) {
+                throw new OtpException("OTP expired", "OTP_EXPIRED");
+            }
+
+            return CommonResponse.<String>builder()
+                    .status(true)
+                    .message("OTP verified successfully")
+                    .statusCode(SUCCESS_CODE)
+                    .build();
+
+        } catch (OtpException e){
+            throw e;
+        } catch (Exception e){
+            throw new UnexpectedServerException("Error while verifying otp: " + e.getMessage());
+        }
+
     }
 
     public CommonResponse<String> changePassword(ChangePasswordRequest changePasswordRequest) throws ResourceNotFoundException, UnexpectedServerException {
@@ -133,4 +223,6 @@ public class AuthService {
             throw new UnexpectedServerException(ERROR_UPDATING_NEW_PASSWORD + e.getMessage());
         }
     }
+
+
 }

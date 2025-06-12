@@ -1,14 +1,10 @@
 package com.mentorboosters.app.service;
 
 import com.mentorboosters.app.enumUtil.Role;
-import com.mentorboosters.app.exceptionHandling.EmailOrPhoneAlreadyExistsException;
-import com.mentorboosters.app.exceptionHandling.PhoneNumberRequiredException;
-import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
-import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
+import com.mentorboosters.app.exceptionHandling.*;
 import com.mentorboosters.app.model.Users;
 import com.mentorboosters.app.repository.UsersRepository;
 import com.mentorboosters.app.response.CommonResponse;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,57 +21,57 @@ public class UsersService {
         this.passwordEncoder=passwordEncoder;
     }
 
-    public CommonResponse<Users> signUp(Users users) throws UnexpectedServerException {
-
-        if(users.getPhoneNumber()==null){
-            throw new PhoneNumberRequiredException("Phone number is required");
-        }
-
-        try {
-
-            boolean exists = usersRepository.existsByEmailIdOrPhoneNumber(users.getEmailId(), users.getPhoneNumber());
-
-            if (exists) {
-                throw new EmailOrPhoneAlreadyExistsException("Email or phone number already exists");
-            }
-
-            String hashedPassword = passwordEncoder.encode(users.getPassword());
-            users.setPassword(hashedPassword);
-            users.setRole(Role.USER);
-
-            Users savedUser = usersRepository.save(users);
-
-            return CommonResponse.<Users>builder()
-                    .message(SUCCESSFULLY_ADDED)
-                    .status(STATUS_TRUE)
-                    .data(savedUser)
-                    .statusCode(SUCCESS_CODE)
-                    .build();
-
-
-        } catch (EmailOrPhoneAlreadyExistsException | PhoneNumberRequiredException e){
-            throw e;
-        } catch (Exception e){
-            throw new UnexpectedServerException(ERROR_DURING_SIGN_UP + e.getMessage());
-        }
-
-
-    }
+//    public CommonResponse<Users> signUp(Users users) throws UnexpectedServerException {
+//
+//        if (users.getPhoneNumber() == null || users.getPhoneNumber().trim().isEmpty()) {
+//            throw new InvalidFieldValueException("Phone number is required");
+//        }
+//
+//
+//        try {
+//
+//            boolean exists = usersRepository.existsByEmailIdOrPhoneNumber(users.getEmailId(), users.getPhoneNumber());
+//
+//            if (exists) {
+//                throw new ResourceAlreadyExistsException("Email or phone number already exists");
+//            }
+//
+//            String hashedPassword = passwordEncoder.encode(users.getPassword());
+//            users.setPassword(hashedPassword);
+//            users.setRole(Role.USER);
+//
+//            Users savedUser = usersRepository.save(users);
+//
+//            return CommonResponse.<Users>builder()
+//                    .message(SUCCESSFULLY_ADDED)
+//                    .status(STATUS_TRUE)
+//                    .data(savedUser)
+//                    .statusCode(SUCCESS_CODE)
+//                    .build();
+//
+//
+//        } catch (ResourceAlreadyExistsException e){
+//            throw e;
+//        } catch (Exception e){
+//            throw new UnexpectedServerException(ERROR_DURING_SIGN_UP + e.getMessage());
+//        }
+//
+//
+//    }
 
     public CommonResponse<Users> adminCreate(Users users) throws UnexpectedServerException {
 
+        boolean exists = usersRepository.existsByEmailId(users.getEmailId());
+
+        if (exists) {
+            throw new ResourceAlreadyExistsException("Email already exists");
+        }
+
         try {
-
-            boolean exists = usersRepository.existsByEmailIdOrPhoneNumber(users.getEmailId(), users.getPhoneNumber());
-
-            if (exists) {
-                throw new EmailOrPhoneAlreadyExistsException("Email or phone number already exists");
-            }
 
             String hashedPassword = passwordEncoder.encode(users.getPassword());
             users.setPassword(hashedPassword);
             users.setRole(Role.ADMIN);
-            users.setPhoneNumber(null);
 
             Users savedUser = usersRepository.save(users);
 
@@ -105,30 +101,52 @@ public class UsersService {
 
     }
 
-    public CommonResponse<Users> updateUser(Long id, Users updatedUser) throws ResourceNotFoundException, UnexpectedServerException {
+    //WANNA CHECK IF EMAIL PHONE EXISTS
+//    public CommonResponse<Users> updateUser(Long id, Users updatedUser) throws ResourceNotFoundException, UnexpectedServerException {
+//
+//        Users existingUser = usersRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID + id));
+//
+//        try {
+//
+//            existingUser.setName(updatedUser.getName());
+//            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
+//            existingUser.setEmailId(updatedUser.getEmailId());
+//            existingUser.setDescription(updatedUser.getDescription());
+//            existingUser.setGoals(updatedUser.getGoals());
+//
+//            Users updated = usersRepository.save(existingUser);
+//
+//            return CommonResponse.<Users>builder()
+//                    .message(USER_UPDATED)
+//                    .status(STATUS_TRUE)
+//                    .data(updated)
+//                    .statusCode(SUCCESS_CODE)
+//                    .build();
+//
+//        } catch (Exception e) {
+//            throw new UnexpectedServerException(ERROR_UPDATING_USER + e.getMessage());
+//        }
+//
+//    }
 
-        Users existingUser = usersRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID + id));
+    public CommonResponse<Users> deleteUserById(Long id) throws ResourceNotFoundException, UnexpectedServerException {
+
+        if(!usersRepository.existsById(id)){
+            throw new ResourceNotFoundException(USER_NOT_FOUND_WITH_ID + id);
+        }
 
         try {
 
-            existingUser.setName(updatedUser.getName());
-            existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
-            existingUser.setEmailId(updatedUser.getEmailId());
-            existingUser.setDescription(updatedUser.getDescription());
-            existingUser.setGoals(updatedUser.getGoals());
-
-            Users updated = usersRepository.save(existingUser);
+            usersRepository.deleteById(id);
 
             return CommonResponse.<Users>builder()
-                    .message(USER_UPDATED)
-                    .status(STATUS_TRUE)
-                    .data(updated)
+                    .message(USER_DELETED)
                     .statusCode(SUCCESS_CODE)
+                    .status(STATUS_TRUE)
                     .build();
 
-        } catch (Exception e) {
-            throw new UnexpectedServerException(ERROR_UPDATING_USER + e.getMessage());
+        } catch (Exception e){
+            throw new UnexpectedServerException(ERROR_DELETING_USER + e.getMessage());
         }
-
     }
 }
