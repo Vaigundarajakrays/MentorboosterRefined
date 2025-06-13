@@ -89,7 +89,12 @@ public class StripeWebhookController {
             String sessionId = data.get("id").asText();
             JsonNode metadata = data.get("metadata");
 
-            String bookingIdStr = metadata != null && metadata.has("bookingId")
+            if(metadata==null){
+                logger.warn("Metadata should not be null");
+                return;
+            }
+
+            String bookingIdStr = metadata.has("bookingId")
                     ? metadata.get("bookingId").asText()
                     : null;
 
@@ -108,20 +113,17 @@ public class StripeWebhookController {
 
                 String mentorEmail = metadata.get("mentorEmail").asText();
                 String menteeEmail = metadata.get("menteeEmail").asText();
-                String menteeTimezone = metadata.get("menteeTimezone").asText();
 
-                ZonedDateTime sessionStart = ZonedDateTime.parse(metadata.get("sessionStart").asText());
-                ZonedDateTime sessionEnd = ZonedDateTime.parse(metadata.get("sessionEnd").asText());
-
-                Date sessionStartDate = Date.from(sessionStart.toInstant());
-                Date sessionEndDate = Date.from(sessionEnd.toInstant());
+                Instant sessionStart = Instant.parse(metadata.get("sessionStart").asText());
+                Instant sessionEnd = Instant.parse(metadata.get("sessionEnd").asText());
 
                 // Create Zoom meeting and get links
                 ZoomMeetingResponse zoomLinks = zoomMeetingService
-                        .createZoomMeetingAndNotify(mentorEmail, menteeEmail, sessionStartDate, sessionEndDate);
+                        .createZoomMeetingAndNotify(mentorEmail, menteeEmail, sessionStart, sessionEnd);
 
                 booking.setMentorMeetLink(zoomLinks.getStartUrl());
                 booking.setUserMeetLink(zoomLinks.getJoinUrl());
+                booking.setSessionStartTime(sessionStart);
                 logger.info("Zoom meeting created for booking ID {} - mentor: {}, user: {}", bookingIdStr, mentorEmail, menteeEmail);
 
             }
