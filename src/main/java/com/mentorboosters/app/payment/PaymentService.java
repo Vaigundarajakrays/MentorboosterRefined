@@ -73,18 +73,25 @@ public class PaymentService {
             }
 
 
-            // Converting the booking date to utc
             final ZoneId zoneId = resolveZoneId(menteeProfile.getTimeZone());
 
-            LocalDate date = bookingDate;
-            ZonedDateTime startOfDayZoned = date.atStartOfDay(zoneId);
-            Instant bookedUtcDate = startOfDayZoned.toInstant();
+            // Converting the booked date to utc
+            LocalDate date = bookingDate;                               // 2025-11-06
+            ZonedDateTime startOfDayZoned = date.atStartOfDay(zoneId);  // 2025-11-06T00:00+05:30[Asia/Kolkata]
+            Instant bookedUtcDate = startOfDayZoned.toInstant();        // 2025-11-05T18:30:00Z
 
-            // Finished
+            // Converting current slot in UTC to current slot in mentee time zone with date
+            LocalTime currentSlotTime = currentSlot.getTimeStart()
+                    .atZone(ZoneOffset.UTC)
+                    .withZoneSameInstant(zoneId)
+                    .toLocalTime();
+            ZonedDateTime currentSlotStartDateTime = bookingDate.atTime(currentSlotTime).atZone(zoneId);
+            ZonedDateTime currentSlotEndDateTime = currentSlotStartDateTime.plusHours(1);
 
+
+            // For DB CHECKING
             ZonedDateTime dayStartZoned = date.atStartOfDay(zoneId);
             ZonedDateTime dayEndZoned = dayStartZoned.plusDays(1);
-
             Instant utcStart = dayStartZoned.toInstant();
             Instant utcEnd = dayEndZoned.toInstant();
 
@@ -100,28 +107,17 @@ public class PaymentService {
 
                 for (FixedTimeSlotNew bookedSlot : bookedSlots) {
 
-                    //I don’t care what date the mentor originally picked when registering —
-                    // I’m applying that slot’s time to the booking date, and checking if the user is trying to reuse the same time.
-                    // ⏰ Get slotTime (like 17:00) in user's zone
+                    // Converting booked slot in UTC to booked slot in mentee time zone with date
                     LocalTime bookedSlotTime = bookedSlot.getTimeStart()
                             .atZone(ZoneOffset.UTC)
                             .withZoneSameInstant(zoneId)
                             .toLocalTime();
 
-                    LocalTime currentSlotTime = currentSlot.getTimeStart()
-                            .atZone(ZoneOffset.UTC)
-                            .withZoneSameInstant(zoneId)
-                            .toLocalTime();
-
-                    // 📅 Apply the bookingDate to get actual slot on that date
                     ZonedDateTime bookedStartZoned = bookingDate.atTime(bookedSlotTime).atZone(zoneId);
                     ZonedDateTime bookedEndZoned = bookedStartZoned.plusHours(1);
 
-                    ZonedDateTime currentStartZoned = bookingDate.atTime(currentSlotTime).atZone(zoneId);
-                    ZonedDateTime currentEndZoned = currentStartZoned.plusHours(1);
-
-                    // 🔁 Now compare
-                    if (currentStartZoned.isBefore(bookedEndZoned) && bookedStartZoned.isBefore(currentEndZoned)) {
+                    // Now comparing the booked slot in mentee time zone with current slot in mentee time zone
+                    if (currentSlotStartDateTime.isBefore(bookedEndZoned) && bookedStartZoned.isBefore(currentSlotEndDateTime)) {
                         throw new ResourceAlreadyExistsException(OVERLAPS_WITH_EXISTING_BOOKED_SLOT);
                     }
 
@@ -153,18 +149,11 @@ public class PaymentService {
             // 4. Get mentor and user emails from DB
             String menteeEmail = menteeProfile.getEmail();
 
-            // 2. Get slot's local time in mentee's zone
-            LocalTime slotTime = currentSlot.getTimeStart()
-                    .atZone(ZoneOffset.UTC)
-                    .withZoneSameInstant(zoneId)
-                    .toLocalTime();
-
-            // 3. Combine date + time to form ZonedDateTime
-            ZonedDateTime sessionStart = bookingDate.atTime(slotTime).atZone(zoneId);
-            ZonedDateTime sessionEnd = sessionStart.plusHours(1);
+            Instant sessionStart = currentSlotStartDateTime.toInstant();
+            Instant sessionEnd = currentSlotEndDateTime.toInstant();
 
             // 4. Convert to ISO strings
-            String sessionStartStr = sessionStart.toString(); // "2025-06-13T14:30:00+05:30"
+            String sessionStartStr = sessionStart.toString();
             String sessionEndStr = sessionEnd.toString();
 
             String mentorEmail = mentorProfileRepository.findById(bookingDTO.getMentorId())
@@ -197,7 +186,6 @@ public class PaymentService {
                     .putMetadata("menteeEmail", menteeEmail)
                     .putMetadata("sessionStart", sessionStartStr)
                     .putMetadata("sessionEnd", sessionEndStr)
-                    .putMetadata("menteeTimezone", zoneId.toString())
                     .putMetadata("bookingId", String.valueOf(savedBooking.getId()));
 
             SessionCreateParams params = builder.build();

@@ -12,6 +12,9 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +35,7 @@ public class ZoomMeetingService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public ZoomMeetingResponse createZoomMeetingAndNotify(String mentorEmail, String userEmail, Date startTime, Date endTime) throws Exception {
+    public ZoomMeetingResponse createZoomMeetingAndNotify(String mentorEmail, String userEmail, Instant startTime, Instant endTime) throws Exception {
         String accessToken = zoomTokenService.getAccessToken();
 
         RestTemplate restTemplate = new RestTemplate();
@@ -41,10 +44,11 @@ public class ZoomMeetingService {
         headers.setBearerAuth(accessToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
+        // Zoom expects start time to be in ISO-8601 format: 2025-11-06T04:00:00Z. So instant.toString is crt.
         Map<String, Object> meetingDetails = new HashMap<>();
         meetingDetails.put("topic", "MentorBooster Session");
         meetingDetails.put("type", 2); // Scheduled
-        meetingDetails.put("start_time", toISOString(startTime));
+        meetingDetails.put("start_time", startTime.toString());
         meetingDetails.put("duration", 60);
         meetingDetails.put("timezone", "UTC");
 
@@ -90,27 +94,28 @@ public class ZoomMeetingService {
         }
     }
 
-    private String generateGoogleCalendarLink(String title, String details, String joinUrl, Date startTime, Date endTime) {
-        // google expect to be in this format
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss'Z'");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String start = sdf.format(startTime);
-        String end = sdf.format(endTime);
+    private String generateGoogleCalendarLink(String title, String details, String joinUrl, Instant startTime, Instant endTime) {
+
+        // 🔬 Why Instant.toString() fails here?
+        // Because it returns: 2025-11-06T04:00:00Z
+        // But Google wants: 20251106T040000Z
+        String startStr = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
+                .withZone(ZoneOffset.UTC)
+                .format(startTime);
+
+        String endStr = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'")
+                .withZone(ZoneOffset.UTC)
+                .format(endTime);
+
 
         return String.format(
                 "https://calendar.google.com/calendar/r/eventedit?text=%s&details=%s%%0AJoin+Here:%%20%s&location=Zoom&dates=%s/%s",
                 encode(title),
                 encode(details),
                 encode(joinUrl),
-                start,
-                end
+                startStr,
+                endStr
         );
-    }
-
-    private String toISOString(Date date) {
-        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return isoFormat.format(date);
     }
 
     private String encode(String value) {
