@@ -114,7 +114,7 @@ public class AuthService {
                         .terms(mentor.getTerms())
                         .termsAndConditions(mentor.getTermsAndConditions())
                         .timezone(mentor.getTimezone())
-                        .status(mentor.getStatus())
+                        .accountStatus(mentor.getAccountStatus())
                         .build();
             }
 

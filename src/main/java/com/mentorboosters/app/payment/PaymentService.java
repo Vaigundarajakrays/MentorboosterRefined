@@ -143,6 +143,7 @@ public class PaymentService {
                     .build();
 
 
+            // To send the booking id in meta data we are saving it only some details first
             // we receive date as string but spring converts it into date automatically if date is in this format yyyy-mm-dd
             Booking savedBooking = bookingRepository.save(booking);
 
@@ -193,6 +194,7 @@ public class PaymentService {
             session = Session.create(params);
 
             savedBooking.setStripeSessionId(session.getId());
+            savedBooking.setSessionStartTime(sessionStart);
             bookingRepository.save(savedBooking);
 
             PaymentResponse paymentResponse = PaymentResponse.builder()

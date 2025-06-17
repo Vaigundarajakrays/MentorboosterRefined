@@ -1,9 +1,11 @@
 package com.mentorboosters.app.repository;
 
+import com.mentorboosters.app.enumUtil.ApprovalStatus;
 import com.mentorboosters.app.model.MenteeProfile;
 import com.mentorboosters.app.model.MentorProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface MentorProfileRepository extends JpaRepository<MentorProfile, Long> {
@@ -13,4 +15,8 @@ public interface MentorProfileRepository extends JpaRepository<MentorProfile, Lo
     boolean existsByEmailOrPhone(String email, String phone);
 
     Optional<MentorProfile> findByEmail(String emailId);
+
+    Long countByApprovalStatus(ApprovalStatus approvalStatus);
+
+    List<MentorProfile> findByApprovalStatus(ApprovalStatus approvalStatus);
 }

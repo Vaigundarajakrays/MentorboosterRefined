@@ -1,13 +1,17 @@
 package com.mentorboosters.app.service;
 
+import com.mentorboosters.app.dto.MenteeDashboardDTO;
 import com.mentorboosters.app.dto.MenteeProfileDTO;
 import com.mentorboosters.app.enumUtil.Role;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
+import com.mentorboosters.app.model.Booking;
 import com.mentorboosters.app.model.MenteeProfile;
+import com.mentorboosters.app.model.MentorProfile;
 import com.mentorboosters.app.model.Users;
+import com.mentorboosters.app.repository.BookingRepository;
 import com.mentorboosters.app.repository.MenteeProfileRepository;
 import com.mentorboosters.app.repository.MentorProfileRepository;
 import com.mentorboosters.app.repository.UsersRepository;
@@ -16,6 +20,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.mentorboosters.app.util.Constant.*;
 
@@ -27,6 +39,7 @@ public class MenteeProfileService {
     private final PasswordEncoder passwordEncoder;
     private final MentorProfileRepository mentorNewRepository;
     private final UsersRepository usersRepository;
+    private final BookingRepository bookingRepository;
 
     @Transactional
     public CommonResponse<MenteeProfile> registerMentee(MenteeProfileDTO menteeDto) throws UnexpectedServerException {
@@ -182,4 +195,75 @@ public class MenteeProfileService {
         }
     }
 
+    public CommonResponse<List<MenteeDashboardDTO>> getAppointments(Long menteeId) throws ResourceNotFoundException, UnexpectedServerException {
+
+        try {
+
+            MenteeProfile mentee = menteeProfileRepository.findById(menteeId).orElseThrow(() -> new ResourceNotFoundException("Mentee not found with id: " + menteeId));
+
+            List<Booking> bookings = bookingRepository.findByMenteeIdAndPaymentStatus(menteeId, "completed");
+
+            if (bookings.isEmpty()) {
+                return CommonResponse.<List<MenteeDashboardDTO>>builder()
+                        .status(STATUS_TRUE)
+                        .statusCode(SUCCESS_CODE)
+                        .message("Mentee don't have any appointments")
+                        .data(List.of())
+                        .build();
+            }
+
+            var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
+
+            Instant timeNow = Instant.now();
+
+            // I didn't used stream because
+            // The issue is that you're using orElseThrow(...) inside a lambda in a stream() — and that method throws a checked exception (ResourceNotFoundException).
+            // Java doesn't allow checked exceptions to be thrown from inside lambda expressions unless you handle them.
+
+            List<MenteeDashboardDTO> appointments = new ArrayList<>();
+            for (Booking booking : bookings) {
+
+                // To find mentor name
+                MentorProfile mentor = mentorNewRepository.findById(booking.getMentorId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with id: " + booking.getMentorId() + "for the booking id: " + booking.getId()));
+
+                // To find the status
+                Instant sessionStartTime = booking.getSessionStartTime();
+                Instant sessionEndTime = sessionStartTime.plus(Duration.ofMinutes(60));
+                String status;
+                if (timeNow.isBefore(sessionStartTime)) {
+                    status = "Upcoming";
+                } else if (timeNow.isAfter(sessionEndTime)) {
+                    status = "Completed";
+                } else {
+                    status = "Ongoing";
+                }
+
+
+                // To find session time in mentee time zone
+                ZonedDateTime sessionTime = sessionStartTime.atZone(ZoneId.of(mentee.getTimeZone()));
+                String session = sessionTime.format(formatter);
+
+                appointments.add(MenteeDashboardDTO.builder()
+                        .mentorName(mentor.getName())
+                        .sessionTime(session)
+                        .meetType(booking.getConnectMethod())
+                        .status(status)
+                        .build());
+            }
+
+            return CommonResponse.<List<MenteeDashboardDTO>>builder()
+                    .statusCode(SUCCESS_CODE)
+                    .message("Loaded mentee appointments")
+                    .data(appointments)
+                    .status(STATUS_TRUE)
+                    .build();
+
+        } catch (ResourceNotFoundException e){
+            throw e;
+        } catch (Exception e){
+            throw new UnexpectedServerException("Error while loading appointments of mentee: " + e.getMessage());
+        }
+
+    }
 }

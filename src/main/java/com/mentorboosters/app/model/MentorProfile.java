@@ -1,6 +1,8 @@
 package com.mentorboosters.app.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mentorboosters.app.enumUtil.AccountStatus;
+import com.mentorboosters.app.enumUtil.ApprovalStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -62,7 +64,26 @@ public class MentorProfile extends BaseEntity {
     @Column(nullable = false)
     private String timezone;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ApprovalStatus approvalStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    // When you use the Builder pattern (via @Builder), it bypasses default field values unless you explicitly include them in the builder call.
+    // private AccountStatus accountStatus = AccountStatus.INACTIVE;
+    private AccountStatus accountStatus;
+
+    @PrePersist
+    protected void onCreate() {
+        if (approvalStatus == null) {
+            approvalStatus = ApprovalStatus.PENDING;
+        }
+        if (accountStatus == null) {
+            accountStatus = AccountStatus.INACTIVE;
+        }
+    }
+
 
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FixedTimeSlotNew> timeSlots;

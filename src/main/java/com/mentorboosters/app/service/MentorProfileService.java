@@ -1,14 +1,15 @@
 package com.mentorboosters.app.service;
 
+import com.mentorboosters.app.dto.MenteeDashboardDTO;
+import com.mentorboosters.app.dto.MentorDashboardDTO;
 import com.mentorboosters.app.dto.MentorProfileDTO;
 import com.mentorboosters.app.enumUtil.Role;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
-import com.mentorboosters.app.model.FixedTimeSlotNew;
-import com.mentorboosters.app.model.MentorProfile;
-import com.mentorboosters.app.model.Users;
+import com.mentorboosters.app.model.*;
+import com.mentorboosters.app.repository.BookingRepository;
 import com.mentorboosters.app.repository.MenteeProfileRepository;
 import com.mentorboosters.app.repository.MentorProfileRepository;
 import com.mentorboosters.app.repository.UsersRepository;
@@ -20,7 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.mentorboosters.app.util.Constant.*;
@@ -34,11 +37,12 @@ public class MentorProfileService {
     private final UsersRepository usersRepository;
     private final CommonFiles commonFiles;
     private final MenteeProfileRepository menteeProfileRepository;
+    private final BookingRepository bookingRepository;
 
     //@Transactional
     //Spring only rolls back for unchecked exceptions (aka runtime exceptions) unless you explicitly tell it otherwise.
     @Transactional
-    public CommonResponse<MentorProfile> registerMentor(MentorProfileDTO mentorDto) throws UnexpectedServerException {
+    public CommonResponse<String> registerMentor(MentorProfileDTO mentorDto) throws UnexpectedServerException {
         try {
             if (mentorNewRepository.existsByEmailOrPhone(mentorDto.getEmail(), mentorDto.getPhone())) {
                 throw new ResourceAlreadyExistsException("Email or phone number already exists!");
@@ -108,11 +112,11 @@ public class MentorProfileService {
             // Send welcome mail
 //            commonFiles.sendPasswordToMentorNew(mentor, mentorDto.getPassword());
 
-            return CommonResponse.<MentorProfile>builder()
+            return CommonResponse.<String>builder()
                     .message("Mentor registered successfully")
                     .status(STATUS_TRUE)
                     .statusCode(SUCCESS_CODE)
-                    .data(savedMentor)
+                    .data("Role: " + user.getRole().toString())
                     .build();
 
         } catch (ResourceAlreadyExistsException | InvalidFieldValueException e) {
@@ -153,7 +157,7 @@ public class MentorProfileService {
                     .profileUrl(mentorNew.getProfileUrl())
                     .timezone(mentorNew.getTimezone())
                     .timeSlots(timeSlots)
-                    .status("Active")
+                    .accountStatus(mentorNew.getAccountStatus())
                     .build();
 
 
@@ -243,7 +247,7 @@ public class MentorProfileService {
                     .termsAndConditions(updatedMentor.getTermsAndConditions())
                     .timezone(updatedMentor.getTimezone())
                     .timeSlots(updatedTimeSlotsStr)
-                    .status("Active")
+                    .accountStatus(updatedMentor.getAccountStatus())
                     .build();
 
             return CommonResponse.<MentorProfileDTO>builder()
@@ -261,6 +265,77 @@ public class MentorProfileService {
     }
 
 
+    public CommonResponse<List<MentorDashboardDTO>> getAppointments(Long mentorId) throws ResourceNotFoundException, UnexpectedServerException {
+
+        try {
+
+            MentorProfile mentor = mentorNewRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor not found with id: " + mentorId));
+
+            List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorId, "completed");
+
+            if (bookings.isEmpty()) {
+                return CommonResponse.<List<MentorDashboardDTO>>builder()
+                        .status(STATUS_TRUE)
+                        .statusCode(SUCCESS_CODE)
+                        .message("Mentor don't have any appointments")
+                        .data(List.of())
+                        .build();
+            }
+
+            var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy hh:mm a");
+
+            Instant timeNow = Instant.now();
+
+            // I didn't used stream because
+            // The issue is that you're using orElseThrow(...) inside a lambda in a stream() — and that method throws a checked exception (ResourceNotFoundException).
+            // Java doesn't allow checked exceptions to be thrown from inside lambda expressions unless you handle them.
+
+            List<MentorDashboardDTO> appointments = new ArrayList<>();
+            for (Booking booking : bookings) {
+
+                // To find mentee name
+                MenteeProfile mentee = menteeProfileRepository.findById(booking.getMenteeId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Mentee not found with id: " + booking.getMenteeId() + "for the booking id: " + booking.getId()));
+
+                // To find the status
+                Instant sessionStartTime = booking.getSessionStartTime();
+                Instant sessionEndTime = sessionStartTime.plus(Duration.ofMinutes(60));
+                String status;
+                if (timeNow.isBefore(sessionStartTime)) {
+                    status = "Upcoming";
+                } else if (timeNow.isAfter(sessionEndTime)) {
+                    status = "Completed";
+                } else {
+                    status = "Ongoing";
+                }
 
 
+                // To find session time in mentor time zone
+                ZonedDateTime sessionTime = sessionStartTime.atZone(ZoneId.of(mentor.getTimezone()));
+                String session = sessionTime.format(formatter);
+
+                appointments.add(MentorDashboardDTO.builder()
+                        .menteeName(mentee.getName())
+                        .sessionTime(session)
+                        .sessionName(booking.getCategory())
+                        .sessionDuration("1 Hr")
+                        .meetType(booking.getConnectMethod())
+                        .status(status)
+                        .mentorMeetLink(booking.getMentorMeetLink())
+                        .build());
+            }
+
+            return CommonResponse.<List<MentorDashboardDTO>>builder()
+                    .statusCode(SUCCESS_CODE)
+                    .message("Loaded mentor appointments")
+                    .data(appointments)
+                    .status(STATUS_TRUE)
+                    .build();
+
+        } catch (ResourceNotFoundException e){
+            throw e;
+        } catch (Exception e){
+            throw new UnexpectedServerException("Error while loading appointments of mentor: " + e.getMessage());
+        }
+    }
 }

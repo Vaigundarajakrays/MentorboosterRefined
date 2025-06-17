@@ -123,7 +123,6 @@ public class StripeWebhookController {
 
                 booking.setMentorMeetLink(zoomLinks.getStartUrl());
                 booking.setUserMeetLink(zoomLinks.getJoinUrl());
-                booking.setSessionStartTime(sessionStart);
                 logger.info("Zoom meeting created for booking ID {} - mentor: {}, user: {}", bookingIdStr, mentorEmail, menteeEmail);
 
             }

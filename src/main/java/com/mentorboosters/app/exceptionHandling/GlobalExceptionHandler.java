@@ -14,10 +14,14 @@ import org.springframework.mail.MailSendException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.mentorboosters.app.util.Constant.*;
 
@@ -89,6 +93,31 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    // Spring's multipart resolver (the thing that processes file uploads) is configured as a bean in the application context.
+    //And when it throws MaxUploadSizeExceededException, it’s still inside the Spring MVC pipeline,
+    // which allows @ControllerAdvice's @ExceptionHandler to catch it — as long as the exception bubbles up and isn't swallowed.
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleMaxSizeException(MaxUploadSizeExceededException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "File size too large! " + ex.getMessage(),
+                SERVER_ERROR,
+                STATUS_FALSE,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.PAYLOAD_TOO_LARGE);
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleUnsupportedMediaType(HttpMediaTypeNotSupportedException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+                "Unsupported Media Type: " + ex.getMessage(),
+                SERVER_ERROR,
+                STATUS_FALSE,
+                LocalDateTime.now()
+        );
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
 
 
