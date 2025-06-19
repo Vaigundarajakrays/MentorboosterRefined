@@ -2,30 +2,23 @@ package com.mentorboosters.app.service;
 
 import com.mentorboosters.app.dto.MenteeDashboardDTO;
 import com.mentorboosters.app.dto.MenteeProfileDTO;
+import com.mentorboosters.app.dto.RescheduleDTO;
 import com.mentorboosters.app.enumUtil.Role;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
-import com.mentorboosters.app.model.Booking;
-import com.mentorboosters.app.model.MenteeProfile;
-import com.mentorboosters.app.model.MentorProfile;
-import com.mentorboosters.app.model.Users;
-import com.mentorboosters.app.repository.BookingRepository;
-import com.mentorboosters.app.repository.MenteeProfileRepository;
-import com.mentorboosters.app.repository.MentorProfileRepository;
-import com.mentorboosters.app.repository.UsersRepository;
+import com.mentorboosters.app.model.*;
+import com.mentorboosters.app.repository.*;
 import com.mentorboosters.app.response.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +33,7 @@ public class MenteeProfileService {
     private final MentorProfileRepository mentorNewRepository;
     private final UsersRepository usersRepository;
     private final BookingRepository bookingRepository;
+    private final FixedTimeSlotNewRepository fixedTimeSlotNewRepository;
 
     @Transactional
     public CommonResponse<MenteeProfile> registerMentee(MenteeProfileDTO menteeDto) throws UnexpectedServerException {
@@ -109,6 +103,8 @@ public class MenteeProfileService {
 
             MenteeProfile mentee = menteeProfileRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Mentee not found with the id: " + id));
 
+            var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+
             var menteeProfileDTO = MenteeProfileDTO.builder()
                     .menteeId(mentee.getId())
                     .name(mentee.getName())
@@ -119,7 +115,7 @@ public class MenteeProfileService {
                     .profileUrl(mentee.getProfileUrl())
                     .subscriptionPlan(mentee.getSubscriptionPlan())
                     .customerId(mentee.getId())
-                    .joinDate(mentee.getCreatedAt().toLocalDate().toString())
+                    .joinDate(mentee.getCreatedAt().atZone(ZoneId.of(mentee.getTimeZone())).format(formatter))
                     .industry(mentee.getIndustry())
                     .location(mentee.getLocation())
                     .goals(mentee.getGoals())
@@ -147,6 +143,8 @@ public class MenteeProfileService {
 
             MenteeProfile mentee = menteeProfileRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Mentee not found with id: " + id));
 
+            var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+
             // Only update non-null fields
             if (dto.getName() != null) mentee.setName(dto.getName());
             if (dto.getEmail() != null) mentee.setEmail(dto.getEmail());
@@ -163,7 +161,7 @@ public class MenteeProfileService {
             MenteeProfile updated = menteeProfileRepository.save(mentee);
 
             // Convert createdAt to date string (e.g. "2025-05-01")
-            String joinDate = updated.getCreatedAt() != null ? updated.getCreatedAt().toLocalDate().toString() : null;
+            String joinDate = updated.getCreatedAt().atZone(ZoneId.of(mentee.getTimeZone())).format(formatter);
 
             MenteeProfileDTO responseDto = MenteeProfileDTO.builder()
                     .name(updated.getName())
@@ -247,6 +245,7 @@ public class MenteeProfileService {
                 appointments.add(MenteeDashboardDTO.builder()
                         .mentorName(mentor.getName())
                         .sessionTime(session)
+                        .bookingId(booking.getId())
                         .meetType(booking.getConnectMethod())
                         .status(status)
                         .build());
@@ -266,4 +265,42 @@ public class MenteeProfileService {
         }
 
     }
+
+//    public CommonResponse<MenteeDashboardDTO> rescheduleBooking(Long bookingId, RescheduleDTO rescheduleDTO) throws ResourceNotFoundException {
+//
+//        Booking booking = bookingRepository.findById(bookingId).orElseThrow(()-> new ResourceNotFoundException("Booking not found with id: " + bookingId));
+//
+//        FixedTimeSlotNew currentSlot = fixedTimeSlotNewRepository.findById(rescheduleDTO.getTimeSlotId()).orElseThrow(()-> new ResourceNotFoundException("Time slot not found for this id: " + rescheduleDTO.getTimeSlotId()));
+//
+//        MentorProfile mentorProfile = mentorNewRepository.findById(booking.getMentorId()).orElseThrow(()-> new ResourceNotFoundException("Booked mentor not found for the id: " + booking.getMentorId()));
+//
+//        MenteeProfile menteeProfile = menteeProfileRepository.findById(booking.getMenteeId()).orElseThrow(()-> new ResourceNotFoundException("Mentee not found for the id: " + booking.getMenteeId()));
+//
+//        var dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//
+//        LocalDate date;
+//        try {
+//            date = LocalDate.parse(rescheduleDTO.getDate(), dateFormatter);
+//        } catch (DateTimeParseException e) {
+//            throw new InvalidFieldValueException("Invalid booking date format. Expected yyyy-MM-dd.");
+//        }
+//
+//        ZoneId zoneId;
+//        try{
+//            zoneId=ZoneId.of(menteeProfile.getTimeZone());
+//        } catch (DateTimeException e){
+//            throw new InvalidFieldValueException("Invalid time zone");
+//        }
+//
+//        Instant bookingDate = date.atStartOfDay(zoneId).toInstant();
+//
+//        LocalTime localTimeSlotInMenteeTimezone = currentSlot.getTimeStart().atZone(zoneId).toLocalTime();
+//
+//        Instant sessionStartTime = date.atTime(localTimeSlotInMenteeTimezone).atZone(zoneId).toInstant();
+//
+//
+//
+//
+//
+//    }
 }

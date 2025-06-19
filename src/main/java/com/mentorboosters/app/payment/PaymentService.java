@@ -72,8 +72,12 @@ public class PaymentService {
                 throw new InvalidFieldValueException("Invalid booking date format. Expected yyyy-MM-dd.");
             }
 
-
-            final ZoneId zoneId = resolveZoneId(menteeProfile.getTimeZone());
+            final ZoneId zoneId;
+            try {
+                zoneId = ZoneId.of(menteeProfile.getTimeZone());
+            } catch (DateTimeException e){
+                throw new InvalidFieldValueException("Invalid time zone");
+            }
 
             // Converting the booked date to utc
             LocalDate date = bookingDate;                               // 2025-11-06
@@ -82,7 +86,7 @@ public class PaymentService {
 
             // Converting current slot in UTC to current slot in mentee time zone with date
             LocalTime currentSlotTime = currentSlot.getTimeStart()
-                    .atZone(ZoneOffset.UTC)
+                    .atZone(ZoneOffset.UTC)         // this line not needed. It says java that treat the current slot as UTC. but we already storing it as UTC. i think this line is redundant.
                     .withZoneSameInstant(zoneId)
                     .toLocalTime();
             ZonedDateTime currentSlotStartDateTime = bookingDate.atTime(currentSlotTime).atZone(zoneId);
@@ -220,11 +224,11 @@ public class PaymentService {
 
     }
 
-    private ZoneId resolveZoneId(String timezone) {
-        try {
-            return ZoneId.of(timezone);
-        } catch (DateTimeException e) {
-            return ZoneOffset.UTC;
-        }
-    }
+//    private ZoneId resolveZoneId(String timezone) {
+//        try {
+//            return ZoneId.of(timezone);
+//        } catch (DateTimeException e) {
+//            return ZoneOffset.UTC;
+//        }
+//    }
 }

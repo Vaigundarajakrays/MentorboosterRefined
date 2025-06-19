@@ -1,8 +1,7 @@
 package com.mentorboosters.app.controller;
 
-import com.mentorboosters.app.dto.AdminDashboardDTO;
-import com.mentorboosters.app.dto.MentorAppointmentsDTO;
-import com.mentorboosters.app.dto.MentorDashboardDTO;
+import com.mentorboosters.app.dto.*;
+import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.service.AdminService;
@@ -25,10 +24,26 @@ public class AdminController {
         return adminService.getAdminDashboardDetails();
     }
 
-//    @GetMapping("/getAllMentorSessions")
-//    public CommonResponse<List<MentorAppointmentsDTO>> getAllMentorSessions(){
-//        return adminService.getAllMentorSessions();
-//    }
+    @GetMapping("/getAllMentorSessions")
+    public CommonResponse<List<MentorAppointmentsDTO>> getAllMentorSessions() throws UnexpectedServerException, ResourceNotFoundException {
+        return adminService.getAllMentorSessions();
+    }
+
+    @GetMapping("/getAllMenteeSessions")
+    public CommonResponse<List<MenteeAppointmentsDTO>> getAllMenteeSessions() throws UnexpectedServerException, ResourceNotFoundException {
+        return adminService.getAllMenteeSessions();
+    }
+
+    @GetMapping("/mentors/overview")
+    public CommonResponse<List<MentorOverviewDTO>> getMentorsOverview() throws UnexpectedServerException {
+        return adminService.getMentorsOverview();
+    }
+
+    @GetMapping("/mentees/overview")
+    public CommonResponse<List<MenteeOverviewDTO>> getMenteesOverview() throws UnexpectedServerException {
+        return adminService.getMenteesOverview();
+    }
+
 
 
 }

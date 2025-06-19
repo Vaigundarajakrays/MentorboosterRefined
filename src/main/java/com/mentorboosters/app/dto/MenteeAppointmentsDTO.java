@@ -5,19 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
-public class MenteeDashboardDTO {
+public class MenteeAppointmentsDTO {
 
-    private Long bookingId;
+    private Long menteeId;
 
-    private String sessionTime;
+    private String menteeName;
 
-    private String mentorName;
-
-    private String meetType;
-
-    private String status;
+    private List<MenteeDashboardDTO> menteeDashboardDTOS;
 }

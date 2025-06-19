@@ -34,6 +34,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +75,8 @@ public class AuthService {
             MentorProfileDTO mentorProfileDTO = null;
             MenteeProfileDTO menteeProfileDTO = null;
 
+            var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+
             if (user.getRole() == Role.USER) {
                 MenteeProfile mentee = menteeProfileRepository.findByEmail(user.getEmailId())
                         .orElseThrow(() -> new ResourceNotFoundException("Mentee not found with this email: " + user.getEmailId()));
@@ -87,7 +91,7 @@ public class AuthService {
                         .timezone(mentee.getTimeZone())
                         .subscriptionPlan(mentee.getSubscriptionPlan())
                         .customerId(mentee.getId())
-                        .joinDate(mentee.getCreatedAt().toLocalDate().toString())
+                        .joinDate(mentee.getCreatedAt().atZone(ZoneId.of(mentee.getTimeZone())).format(formatter))
                         .industry(mentee.getIndustry())
                         .location(mentee.getLocation())
                         .goals(mentee.getGoals())

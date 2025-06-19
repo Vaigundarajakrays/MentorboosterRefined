@@ -81,7 +81,7 @@ public class FixedTimeSlotNewService {
 
             List<TimeSlotDTO> timeSlotDTOS = slots.stream()
                     .map(slot -> {
-                        // converting the mentor registration time to mentee local time
+                        // converting the mentor slot's start time to mentee local time
                         LocalTime slotTime = slot.getTimeStart()
                                 .atZone(ZoneOffset.UTC)
                                 .withZoneSameInstant(zoneId)

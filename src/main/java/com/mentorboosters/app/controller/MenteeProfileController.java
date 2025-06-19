@@ -3,6 +3,7 @@ package com.mentorboosters.app.controller;
 import com.mentorboosters.app.dto.MenteeDashboardDTO;
 import com.mentorboosters.app.dto.MenteeProfileDTO;
 import com.mentorboosters.app.dto.MentorProfileDTO;
+import com.mentorboosters.app.dto.RescheduleDTO;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.MenteeProfile;
@@ -40,4 +41,9 @@ public class MenteeProfileController {
     public CommonResponse<List<MenteeDashboardDTO>> getAppointments(@PathVariable Long menteeId) throws ResourceNotFoundException, UnexpectedServerException {
         return menteeProfileService.getAppointments(menteeId);
     }
+
+//    @PatchMapping("/bookings/{bookingId}/reschedule")
+//    public CommonResponse<MenteeDashboardDTO> rescheduleBooking(@PathVariable Long bookingId, @RequestBody RescheduleDTO rescheduleDTO) throws ResourceNotFoundException {
+//        return menteeProfileService.rescheduleBooking(bookingId, rescheduleDTO);
+//    }
 }
