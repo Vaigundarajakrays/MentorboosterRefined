@@ -79,7 +79,7 @@ public class AuthService {
 
             if (user.getRole() == Role.USER) {
                 MenteeProfile mentee = menteeProfileRepository.findByEmail(user.getEmailId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Mentee not found with this email: " + user.getEmailId()));
+                        .orElseThrow(() -> new ResourceNotFoundException(MENTEE_NOT_FOUND_EMAIL + user.getEmailId()));
 
                 menteeProfileDTO = MenteeProfileDTO.builder()
                         .menteeId(mentee.getId())
@@ -101,7 +101,7 @@ public class AuthService {
 
             if (user.getRole() == Role.MENTOR) {
                 MentorProfile mentor = mentorProfileRepository.findByEmail(user.getEmailId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with this email: " + user.getEmailId()));
+                        .orElseThrow(() -> new ResourceNotFoundException(MENTEE_NOT_FOUND_EMAIL + user.getEmailId()));
 
                 mentorProfileDTO = MentorProfileDTO.builder()
                         .mentorId(mentor.getId())
@@ -181,22 +181,22 @@ public class AuthService {
         try {
 
             Otp otpEntity = otpRepository.findByEmailAndOtp(email, otp)
-                    .orElseThrow(() -> new OtpException("Invalid OTP", "INVALID_OTP"));
+                    .orElseThrow(() -> new OtpException(INVALID_OTP, IN_VALID_OTP));
 
             if (otpEntity.getExpiryTime().isBefore(LocalDateTime.now())) {
-                throw new OtpException("OTP expired", "OTP_EXPIRED");
+                throw new OtpException(OTP_EXPIRED, OTP_EXPIRE);
             }
 
             return CommonResponse.<String>builder()
                     .status(true)
-                    .message("OTP verified successfully")
+                    .message(OTP_VERIFIED_SUCCESSFULLY)
                     .statusCode(SUCCESS_CODE)
                     .build();
 
         } catch (OtpException e){
             throw e;
         } catch (Exception e){
-            throw new UnexpectedServerException("Error while verifying otp: " + e.getMessage());
+            throw new UnexpectedServerException(ERROR_VERIFYING_OTP + e.getMessage());
         }
 
     }

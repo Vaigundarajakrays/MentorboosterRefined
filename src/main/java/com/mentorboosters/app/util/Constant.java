@@ -1,5 +1,7 @@
 package com.mentorboosters.app.util;
 
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
+
 public final class Constant {
 
     private Constant(){
@@ -115,6 +117,88 @@ public final class Constant {
     public static String NO_COMMENTS = "No comments found for this post";
     public static final String LOADED_COMMENTS = "Comments loaded successfully";
 
+    // Mentor profile messages
+    public static final String EMAIL_PHONE_EXISTS = "Email or phone number already exists!";
+    public static final String ALREADY_REGISTERED_EMAIL ="You have already registered as a mentee with this email";
+    public static final String TIMEZONE_REQUIRED ="Timezone is required.";
+    public static final String REGISTERED_SUCCESSFULLY ="Mentor registered successfully";
+    public static final String DETAILS_LOADED_SUCCESSFULLY="Mentor details loaded successfully";
+    public static final String PROFILE_UPDATED_SUCCESSFULLY="Mentor profile updated successfully";
+    public static final String COMPLETED="completed";
+    public static final String COMPLETE="Completed";
+    public static final String UPCOMING="Upcoming";
+    public static final String ONGOING ="Ongoing";
+    public static final String LOADED_MENTOR_APPOINTMENTS="Loaded mentor appointments";
+    public static final String BOOKING_ID="for the booking id: ";
+
+
+    //Mentor profile errors
+    public static final String  INVALID_TIME_TIMESLOTS="Invalid time format in timeSlots: ";
+    public static final String REGISTRATION_FAILED="Registration failed: ";
+    public static final String LOADING_MENTOR_DETAILS="Error while loading mentor details:";
+    public static final String INVALID_TIME_FORMAT="Invalid time format: ";
+    public static final String FAILED_UPDATE_PROFILE="Failed to update mentor profile: ";
+    public static final String MENTOR_NOT_FOUND_ID="Mentor not found with id: ";
+    public static final String DO_NOT_HAVE_ANY_APPOINTMENTS ="Mentor don't have any appointments";
+    public static final String MENTEE_NOT_FOUND_ID="Mentee not found with id: ";
+    public static final String ERROR_LOADING_APPOINTMENTS="Error while loading appointments of mentor: ";
+
+
+    //Mentee profile messages
+    public static final String ALREADY_REGISTERED_MENTOR_EMAIL="You have already registered as a mentor with this email.";
+    public static final String ACTIVE="Active";
+    public static final String MENTEE_REGISTER_SUCCESSFULLY="Mentee registered successfully";
+    public static final String LOADED_PROFILE_DETAILS ="Loaded mentor profile details";
+    public static final String MENTEE_PROFILE_UPDATED_SUCCESSFULLY="Mentee profile updated successfully";
+    public static final String LOADED_MENTEE_APPOINTMENTS="Loaded mentee appointments";
+
+
+    //Mentee profile errors
+    public static final String MENTEE_REGISTRATION_FAILED="Mentee registration failed: ";
+    public static final String FAILED_UPDATE_MENTEE_PROFILE="Failed to update mentee profile: ";
+    public static final String MENTEE_FOUND_THE_ID ="Mentee not found with the id:";
+    public static final String ERROR_LOADING_MENTOR_PROFILE_DETAILS="Error while loading mentor profile details: ";
+    public static final String MENTEE_NOT_HAVE_ANY_APPOINTMENTS="Mentee don't have any appointments";
+    public static final String ERROR_LOADING_APPOINTMENTS_MENTEE="Error while loading appointments of mentee: ";
+
+
+    // S3 controller message
+    public static final String  FILE_SUCCESSFULLY_UPLOADED="File successfully uploaded";
+
+    //S3 controller errors
+    public static final String  ERROR_UPLOADING_FILE="Error while uploading the file: ";
+
+
+    //Auth controller messages
+    public static final String OTP_VERIFIED_SUCCESSFULLY="OTP verified successfully";
+
+    //Auth controller errors
+    public static final String MENTEE_NOT_FOUND_EMAIL="Mentee not found with this email: ";
+    public static final String INVALID_OTP="Invalid OTP";
+    public static final String IN_VALID_OTP="INVALID_OTP";
+    public static final String OTP_EXPIRED="OTP expired";
+    public static final String OTP_EXPIRE="OTP_EXPIRED";
+    public static final String ERROR_VERIFYING_OTP="Error while verifying otp: ";
+
+    // Admin controller messages
+    public static final String MENTORS_NOT_FOUND="No mentors found";
+    public static final String ADMIN_DASHBOARD_DETAILS_SUCCESSFULLY="Loaded admin dashboard details successfully";
+
+
+    // Admin controller errors
+    public static String ERROR_ADMIN_DASHBOARD_DETAILS="Error while loading admin dashboard details:";
+
+
+    // Fixed Time Slot New Service Messages
+    public static final String OCCUPIED ="Occupied";
+    public static final String NOT_AVAILABLE="Not available";
+    public static final String AVAILABLE= "Available";
+
+
+    // Fixed Time Slot New Service Errors
+    public static final String MENTEE_NOT_FOUND_WITH_ID="Mentee not found with the id:";
+
+
     //General errors
     public static final String NO_DATA="No Data found";
     public static final String INVALID_EMAIL_PASSWORD = "Invalid email or password";
@@ -168,6 +252,7 @@ public final class Constant {
     public static final String ERROR_FETCHING_VERIFIED_MENTORS = "Error while fetching verified mentors: ";
     public static final String ERROR_FETCHING_TOP_RATED_MENTORS = "Error while fetching top rated mentors: ";
     public static final String ERROR_FETCHING_TOP_MENTORS = "Error while fetching top mentors: ";
+
 
     //Category Errors
     public static final String ERROR_FETCHING_CATEGORIES = "Error while fetching categories: ";

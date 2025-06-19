@@ -14,8 +14,7 @@ import software.amazon.awssdk.services.s3.model.*;
 import java.io.IOException;
 import java.util.UUID;
 
-import static com.mentorboosters.app.util.Constant.STATUS_TRUE;
-import static com.mentorboosters.app.util.Constant.SUCCESS_CODE;
+import static com.mentorboosters.app.util.Constant.*;
 
 @Service
 @RequiredArgsConstructor
@@ -58,11 +57,11 @@ public class S3Service {
                     .data(fileUrl)
                     .status(STATUS_TRUE)
                     .statusCode(SUCCESS_CODE)
-                    .message("File successfully uploaded")
+                    .message(FILE_SUCCESSFULLY_UPLOADED)
                     .build();
 
         } catch (Exception e) {
-            throw new UnexpectedServerException("Error while uploading the file: " + e.getMessage());
+            throw new UnexpectedServerException(ERROR_UPLOADING_FILE + e.getMessage());
         }
     }
 

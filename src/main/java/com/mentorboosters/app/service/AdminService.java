@@ -57,7 +57,7 @@ public class AdminService {
                 return CommonResponse.<AdminDashboardDTO>builder()
                         .status(STATUS_FALSE)
                         .statusCode(SUCCESS_CODE)
-                        .message("No mentors found")
+                        .message(MENTORS_NOT_FOUND)
                         .data(adminDashboard)
                         .build();
             }
@@ -101,12 +101,12 @@ public class AdminService {
             return CommonResponse.<AdminDashboardDTO>builder()
                     .status(STATUS_TRUE)
                     .statusCode(SUCCESS_CODE)
-                    .message("Loaded admin dashboard details successfully")
+                    .message(ADMIN_DASHBOARD_DETAILS_SUCCESSFULLY)
                     .data(adminDashboard)
                     .build();
 
         } catch (Exception e){
-            throw new UnexpectedServerException("Error while loading admin dashboard details: " + e.getMessage());
+            throw new UnexpectedServerException(ERROR_ADMIN_DASHBOARD_DETAILS + e.getMessage());
         }
 
     }

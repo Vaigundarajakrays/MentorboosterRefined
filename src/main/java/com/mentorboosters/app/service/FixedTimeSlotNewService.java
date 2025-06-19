@@ -41,7 +41,7 @@ public class FixedTimeSlotNewService {
         }
 
         String timezone = menteeProfileRepository.findById(menteeId)
-                .orElseThrow(() -> new ResourceNotFoundException("Mentee not found with the id: " + menteeId))
+                .orElseThrow(() -> new ResourceNotFoundException( MENTEE_NOT_FOUND_WITH_ID + menteeId))
                 .getTimeZone();
 
 
@@ -72,7 +72,7 @@ public class FixedTimeSlotNewService {
             Instant utcEnd = dayEndZoned.toInstant();
 
             List<Booking> bookings = bookingRepository.findByMentorIdAndBookedDateBetweenAndPaymentStatus(
-                    mentorId, utcStart, utcEnd, "completed"
+                    mentorId, utcStart, utcEnd, COMPLETED
             );
 
             Set<Long> bookedSlotIds = bookings.stream()
@@ -92,11 +92,11 @@ public class FixedTimeSlotNewService {
 
                         String status;
                         if (bookedSlotIds.contains(slot.getId())) {
-                            status = "Occupied";
+                            status = OCCUPIED;
                         } else if (userZonedTime.isBefore(now)) {
-                            status = "Not available";
+                            status = NOT_AVAILABLE;
                         } else {
-                            status = "Available";
+                            status =AVAILABLE;
                         }
 
                         return TimeSlotDTO.builder()

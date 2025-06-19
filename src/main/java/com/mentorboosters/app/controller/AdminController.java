@@ -7,6 +7,7 @@ import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,6 +44,7 @@ public class AdminController {
     public CommonResponse<List<MenteeOverviewDTO>> getMenteesOverview() throws UnexpectedServerException {
         return adminService.getMenteesOverview();
     }
+
 
 
 
