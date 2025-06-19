@@ -9,6 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @MappedSuperclass // table not create for this entity
@@ -18,11 +19,11 @@ public class BaseEntity {
 
     @CreatedDate //spring insert time when data in inserted
     @Column(updatable = false, nullable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;  // Store date time in UTC
 
     @LastModifiedDate // spring insert time when data is modified
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @JsonIgnore
     @Column(nullable = false)

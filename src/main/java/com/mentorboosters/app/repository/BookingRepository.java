@@ -23,4 +23,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByMentorIdAndBookedDateBetweenAndPaymentStatus(Long mentorId, Instant utcStart, Instant utcEnd, String completed);
 
     List<Booking> findByMenteeIdAndBookedDateBetweenAndPaymentStatus(Long menteeId, Instant utcStart, Instant utcEnd, String completed);
+
+    List<Booking> findByMenteeIdAndPaymentStatus(Long menteeId, String completed);
+
+    List<Booking> findByMentorIdAndPaymentStatus(Long mentorId, String completed);
 }

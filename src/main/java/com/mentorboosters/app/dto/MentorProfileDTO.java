@@ -1,6 +1,8 @@
 package com.mentorboosters.app.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.mentorboosters.app.enumUtil.AccountStatus;
+import com.mentorboosters.app.enumUtil.ApprovalStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,5 +32,6 @@ public class MentorProfileDTO {
     private Boolean termsAndConditions;
     private String timezone; // 👈 Needed to convert local to UTC
     private List<String> timeSlots; // 👈 List of time slot DTOs
-    private String status;
+    private AccountStatus accountStatus;
+    private ApprovalStatus approvalStatus;
 }

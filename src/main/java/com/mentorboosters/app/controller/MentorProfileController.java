@@ -1,5 +1,7 @@
 package com.mentorboosters.app.controller;
 
+import com.mentorboosters.app.dto.MenteeDashboardDTO;
+import com.mentorboosters.app.dto.MentorDashboardDTO;
 import com.mentorboosters.app.dto.MentorProfileDTO;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
@@ -9,6 +11,8 @@ import com.mentorboosters.app.service.MentorProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/mentor")
 @RequiredArgsConstructor
@@ -17,7 +21,7 @@ public class MentorProfileController {
     private final MentorProfileService mentorNewService;
 
     @PostMapping("/register")
-    public CommonResponse<MentorProfile> registerNewMentor(@RequestBody MentorProfileDTO mentorNewDTO) throws UnexpectedServerException {
+    public CommonResponse<String> registerNewMentor(@RequestBody MentorProfileDTO mentorNewDTO) throws UnexpectedServerException {
         return mentorNewService.registerMentor(mentorNewDTO);
     }
 
@@ -31,6 +35,10 @@ public class MentorProfileController {
         return mentorNewService.updateMentorProfile(id, mentorProfileDTO);
     }
 
+    @GetMapping("/getAppointments/{mentorId}")
+    public CommonResponse<List<MentorDashboardDTO>> getAppointments(@PathVariable Long mentorId) throws ResourceNotFoundException, UnexpectedServerException {
+        return mentorNewService.getAppointments(mentorId);
+    }
 
 
 }
