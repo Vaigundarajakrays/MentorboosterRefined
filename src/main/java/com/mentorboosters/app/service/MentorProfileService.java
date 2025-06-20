@@ -232,7 +232,7 @@ public class MentorProfileService {
                             .toString())
                     .toList();
 
-            // Prepare response DTO
+            // Prepare response DTO for mentor
             MentorProfileDTO responseDto = MentorProfileDTO.builder()
                     .name(updatedMentor.getName())
                     .phone(updatedMentor.getPhone())
