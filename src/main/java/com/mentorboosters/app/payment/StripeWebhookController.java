@@ -2,6 +2,7 @@ package com.mentorboosters.app.payment;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mentorboosters.app.enumUtil.ZoomContextType;
 import com.mentorboosters.app.model.Booking;
 import com.mentorboosters.app.repository.BookingRepository;
 import com.mentorboosters.app.zoom.ZoomMeetingResponse;
@@ -114,12 +115,22 @@ public class StripeWebhookController {
                 String mentorEmail = metadata.get("mentorEmail").asText();
                 String menteeEmail = metadata.get("menteeEmail").asText();
 
+                String mentorName = metadata.get("mentorName").asText();
+                String menteeName = metadata.get("menteeName").asText();
+
                 Instant sessionStart = Instant.parse(metadata.get("sessionStart").asText());
                 Instant sessionEnd = Instant.parse(metadata.get("sessionEnd").asText());
 
+                String mentorTimezone = metadata.get("mentorTimezone").asText();
+                String menteeTimezone = metadata.get("menteeTimezone").asText();
+
+                // Payment intent id is used for refund,
+                String paymentIntentId = data.has("payment_intent") && !data.get("payment_intent").isNull() ? data.get("payment_intent").asText() : null;
+                booking.setStripePaymentIntentId(paymentIntentId);
+
                 // Create Zoom meeting and get links
                 ZoomMeetingResponse zoomLinks = zoomMeetingService
-                        .createZoomMeetingAndNotify(mentorEmail, menteeEmail, sessionStart, sessionEnd);
+                        .createZoomMeetingAndNotify(mentorEmail, menteeEmail,mentorName, menteeName, sessionStart, sessionEnd, null, ZoomContextType.NEW, mentorTimezone, menteeTimezone);
 
                 booking.setMentorMeetLink(zoomLinks.getStartUrl());
                 booking.setUserMeetLink(zoomLinks.getJoinUrl());

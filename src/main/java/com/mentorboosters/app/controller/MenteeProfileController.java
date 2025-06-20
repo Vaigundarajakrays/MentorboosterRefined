@@ -42,8 +42,13 @@ public class MenteeProfileController {
         return menteeProfileService.getAppointments(menteeId);
     }
 
-//    @PatchMapping("/bookings/{bookingId}/reschedule")
-//    public CommonResponse<MenteeDashboardDTO> rescheduleBooking(@PathVariable Long bookingId, @RequestBody RescheduleDTO rescheduleDTO) throws ResourceNotFoundException {
-//        return menteeProfileService.rescheduleBooking(bookingId, rescheduleDTO);
-//    }
+    @PatchMapping("/bookings/{bookingId}/reschedule")
+    public CommonResponse<MenteeDashboardDTO> rescheduleBooking(@PathVariable Long bookingId, @RequestBody RescheduleDTO rescheduleDTO) throws ResourceNotFoundException, UnexpectedServerException {
+        return menteeProfileService.rescheduleBooking(bookingId, rescheduleDTO);
+    }
+
+    @DeleteMapping("/bookings/{bookingId}")
+    public CommonResponse<String> cancelBooking(@PathVariable Long bookingId) throws UnexpectedServerException, ResourceNotFoundException {
+        return menteeProfileService.cancelBooking(bookingId);
+    }
 }
