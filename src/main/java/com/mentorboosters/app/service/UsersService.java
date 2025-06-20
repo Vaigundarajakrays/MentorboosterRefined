@@ -64,7 +64,7 @@ public class UsersService {
         boolean exists = usersRepository.existsByEmailId(users.getEmailId());
 
         if (exists) {
-            throw new ResourceAlreadyExistsException("Email already exists");
+            throw new ResourceAlreadyExistsException(EMAIL_ALREADY_EXISTS);
         }
 
         try {
