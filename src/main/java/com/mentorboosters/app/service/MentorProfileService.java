@@ -15,6 +15,7 @@ import com.mentorboosters.app.repository.MentorProfileRepository;
 import com.mentorboosters.app.repository.UsersRepository;
 import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.util.CommonFiles;
+import com.mentorboosters.app.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -45,16 +46,16 @@ public class MentorProfileService {
     public CommonResponse<String> registerMentor(MentorProfileDTO mentorDto) throws UnexpectedServerException {
         try {
             if (mentorNewRepository.existsByEmailOrPhone(mentorDto.getEmail(), mentorDto.getPhone())) {
-                throw new ResourceAlreadyExistsException("Email or phone number already exists!");
+                throw new ResourceAlreadyExistsException(EMAIL_PHONE_EXISTS);
             }
 
             if (menteeProfileRepository.existsByEmail(mentorDto.getEmail())){
-                throw new ResourceAlreadyExistsException("You have already registered as a mentee with this email");
+                throw new ResourceAlreadyExistsException(ALREADY_REGISTERED_EMAIL);
             }
 
             String timezone = mentorDto.getTimezone();
             if (timezone == null || timezone.isBlank()) {
-                throw new InvalidFieldValueException("Timezone is required.");
+                throw new InvalidFieldValueException(TIMEZONE_REQUIRED);
             }
 
             // Convert DTO to entity
@@ -88,7 +89,7 @@ public class MentorProfileService {
                             .mentor(mentor)
                             .build();
                 } catch (DateTimeParseException e) {
-                    throw new InvalidFieldValueException("Invalid time format in timeSlots: " + slotStr);
+                    throw new InvalidFieldValueException(INVALID_TIME_TIMESLOTS + slotStr);
                 }
             }).toList();
 
@@ -113,7 +114,7 @@ public class MentorProfileService {
 //            commonFiles.sendPasswordToMentorNew(mentor, mentorDto.getPassword());
 
             return CommonResponse.<String>builder()
-                    .message("Mentor registered successfully")
+                    .message(REGISTERED_SUCCESSFULLY)
                     .status(STATUS_TRUE)
                     .statusCode(SUCCESS_CODE)
                     .data("Role: " + user.getRole().toString())
@@ -122,7 +123,7 @@ public class MentorProfileService {
         } catch (ResourceAlreadyExistsException | InvalidFieldValueException e) {
             throw e;
         } catch (Exception e) {
-            throw new UnexpectedServerException("Registration failed: " + e.getMessage());
+            throw new UnexpectedServerException(REGISTRATION_FAILED + e.getMessage());
         }
     }
 
@@ -130,7 +131,7 @@ public class MentorProfileService {
 
         try {
 
-            MentorProfile mentorNew = mentorNewRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Mentor not found with id: " + id));
+            MentorProfile mentorNew = mentorNewRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(MENTOR_NOT_FOUND_ID + id));
 
             List<String> timeSlots = mentorNew.getTimeSlots().stream()
                     .map(slot -> slot.getTimeStart()
@@ -163,7 +164,7 @@ public class MentorProfileService {
 
             return CommonResponse.<MentorProfileDTO>builder()
                     .status(STATUS_TRUE)
-                    .message("Mentor details loaded successfully")
+                    .message(DETAILS_LOADED_SUCCESSFULLY)
                     .data(mentorDto)
                     .statusCode(SUCCESS_CODE)
                     .build();
@@ -171,7 +172,7 @@ public class MentorProfileService {
         } catch (ResourceNotFoundException e){
             throw e;
         } catch (Exception e){
-            throw new UnexpectedServerException("Error while loading mentor details: " + e.getMessage());
+            throw new UnexpectedServerException(LOADING_MENTOR_DETAILS + e.getMessage());
         }
     }
 
@@ -181,7 +182,7 @@ public class MentorProfileService {
             throws ResourceNotFoundException, UnexpectedServerException {
         try {
             MentorProfile mentor = mentorNewRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with id: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException(MENTOR_NOT_FOUND_ID+ id));
 
             // Update only non-null fields (Partial update / PATCH style)
             if (mentorDto.getName() != null) mentor.setName(mentorDto.getName());
@@ -213,7 +214,7 @@ public class MentorProfileService {
                                         .timeStart(zoned.toInstant())
                                         .build();
                             } catch (DateTimeParseException e) {
-                                throw new InvalidFieldValueException("Invalid time format: " + timeStr);
+                                throw new InvalidFieldValueException(INVALID_TIME_FORMAT + timeStr);
                             }
                         }).toList();
 
@@ -231,7 +232,7 @@ public class MentorProfileService {
                             .toString())
                     .toList();
 
-            // Prepare response DTO
+            // Prepare response DTO for mentor
             MentorProfileDTO responseDto = MentorProfileDTO.builder()
                     .name(updatedMentor.getName())
                     .phone(updatedMentor.getPhone())
@@ -252,7 +253,7 @@ public class MentorProfileService {
 
             return CommonResponse.<MentorProfileDTO>builder()
                     .status(true)
-                    .message("Mentor profile updated successfully")
+                    .message(PROFILE_UPDATED_SUCCESSFULLY)
                     .statusCode(SUCCESS_CODE)
                     .data(responseDto)
                     .build();
@@ -260,7 +261,7 @@ public class MentorProfileService {
         } catch (ResourceNotFoundException | InvalidFieldValueException e) {
             throw e;
         } catch (Exception e) {
-            throw new UnexpectedServerException("Failed to update mentor profile: " + e.getMessage());
+            throw new UnexpectedServerException(FAILED_UPDATE_PROFILE + e.getMessage());
         }
     }
 
@@ -269,15 +270,15 @@ public class MentorProfileService {
 
         try {
 
-            MentorProfile mentor = mentorNewRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor not found with id: " + mentorId));
+            MentorProfile mentor = mentorNewRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException(MENTOR_NOT_FOUND_ID + mentorId));
 
-            List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorId, "completed");
+            List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorId, COMPLETED);
 
             if (bookings.isEmpty()) {
                 return CommonResponse.<List<MentorDashboardDTO>>builder()
                         .status(STATUS_TRUE)
                         .statusCode(SUCCESS_CODE)
-                        .message("Mentor don't have any appointments")
+                        .message(DO_NOT_HAVE_ANY_APPOINTMENTS)
                         .data(List.of())
                         .build();
             }
@@ -295,18 +296,18 @@ public class MentorProfileService {
 
                 // To find mentee name
                 MenteeProfile mentee = menteeProfileRepository.findById(booking.getMenteeId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Mentee not found with id: " + booking.getMenteeId() + "for the booking id: " + booking.getId()));
+                        .orElseThrow(() -> new ResourceNotFoundException(MENTEE_NOT_FOUND_ID + booking.getMenteeId() + BOOKING_ID + booking.getId()));
 
                 // To find the status
                 Instant sessionStartTime = booking.getSessionStartTime();
                 Instant sessionEndTime = sessionStartTime.plus(Duration.ofMinutes(60));
                 String status;
                 if (timeNow.isBefore(sessionStartTime)) {
-                    status = "Upcoming";
+                    status = UPCOMING;
                 } else if (timeNow.isAfter(sessionEndTime)) {
-                    status = "Completed";
+                    status = COMPLETE;
                 } else {
-                    status = "Ongoing";
+                    status = ONGOING;
                 }
 
 
@@ -327,15 +328,17 @@ public class MentorProfileService {
 
             return CommonResponse.<List<MentorDashboardDTO>>builder()
                     .statusCode(SUCCESS_CODE)
-                    .message("Loaded mentor appointments")
+                    .message(LOADED_MENTOR_APPOINTMENTS)
                     .data(appointments)
                     .status(STATUS_TRUE)
                     .build();
 
+
+
         } catch (ResourceNotFoundException e){
             throw e;
         } catch (Exception e){
-            throw new UnexpectedServerException("Error while loading appointments of mentor: " + e.getMessage());
+            throw new UnexpectedServerException(ERROR_LOADING_APPOINTMENTS + e.getMessage());
         }
     }
 }

@@ -38,6 +38,10 @@ public class Booking extends BaseEntity {
 
     private String stripeSessionId;
 
+    private String stripePaymentIntentId;
+
+    private String stripeRefundId;
+
     private Instant sessionStartTime;
 
     @Column(nullable = false)

@@ -8,11 +8,14 @@ import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.Booking;
 import com.mentorboosters.app.model.FixedTimeSlotNew;
 import com.mentorboosters.app.model.MenteeProfile;
+import com.mentorboosters.app.model.MentorProfile;
 import com.mentorboosters.app.repository.*;
 import com.mentorboosters.app.response.CommonResponse;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Refund;
 import com.stripe.model.checkout.Session;
+import com.stripe.param.RefundCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +48,7 @@ public class PaymentService {
     private final MentorProfileRepository mentorProfileRepository;
     private final MenteeProfileRepository menteeProfileRepository;
 
+    // set the api key globally, if used refund method in a separate file and mark it as @Component no need to once again set apiKey in that file.
     @PostConstruct
     public void init() {
         Stripe.apiKey = stripeApiKey;
@@ -161,9 +165,8 @@ public class PaymentService {
             String sessionStartStr = sessionStart.toString();
             String sessionEndStr = sessionEnd.toString();
 
-            String mentorEmail = mentorProfileRepository.findById(bookingDTO.getMentorId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with ID " + bookingDTO.getMentorId()))
-                    .getEmail();
+            MentorProfile mentorProfile = mentorProfileRepository.findById(bookingDTO.getMentorId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with ID " + bookingDTO.getMentorId()));
 
             //Stripe session creation
             Session session = null;
@@ -187,10 +190,14 @@ public class PaymentService {
                     .setSuccessUrl(successUrl + "/{CHECKOUT_SESSION_ID}")
                     .setCancelUrl(cancelUrl + "/{CHECKOUT_SESSION_ID}")
                     .addLineItem(lineItem)
-                    .putMetadata("mentorEmail", mentorEmail)
+                    .putMetadata("mentorEmail", mentorProfile.getEmail())
                     .putMetadata("menteeEmail", menteeEmail)
+                    .putMetadata("mentorName", mentorProfile.getName())
+                    .putMetadata("menteeName", menteeProfile.getName())
                     .putMetadata("sessionStart", sessionStartStr)
                     .putMetadata("sessionEnd", sessionEndStr)
+                    .putMetadata("mentorTimezone", mentorProfile.getTimezone())
+                    .putMetadata("menteeTimezone", menteeProfile.getTimeZone())
                     .putMetadata("bookingId", String.valueOf(savedBooking.getId()));
 
             SessionCreateParams params = builder.build();
@@ -224,11 +231,18 @@ public class PaymentService {
 
     }
 
-//    private ZoneId resolveZoneId(String timezone) {
-//        try {
-//            return ZoneId.of(timezone);
-//        } catch (DateTimeException e) {
-//            return ZoneOffset.UTC;
-//        }
-//    }
+    // Don't remove this method
+    public String refundBooking(String paymentIntentId) throws StripeException, ResourceNotFoundException {
+
+
+        RefundCreateParams params = RefundCreateParams.builder()
+                .setPaymentIntent(paymentIntentId)
+                .setReason(RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
+                .build();
+
+        Refund refund = Refund.create(params);
+
+        return refund.getId();
+    }
+
 }
