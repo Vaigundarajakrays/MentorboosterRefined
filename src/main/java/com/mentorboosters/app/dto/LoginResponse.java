@@ -17,11 +17,10 @@ import java.util.List;
 public class LoginResponse {
 
     private String token;
-
     private Role role;
-
-    private MentorProfileDTO mentorProfile;
-
-    private MenteeProfileDTO menteeProfile;
+    private String name;
+    private Long id;
+    private String timezone;
+    private String profileUrl;
 
 }

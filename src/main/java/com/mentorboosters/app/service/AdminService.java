@@ -3,6 +3,7 @@ package com.mentorboosters.app.service;
 import com.mentorboosters.app.dto.*;
 import com.mentorboosters.app.enumUtil.AccountStatus;
 import com.mentorboosters.app.enumUtil.ApprovalStatus;
+import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.Booking;
@@ -416,36 +417,42 @@ public class AdminService {
 
     }
 
-    public CommonResponse<ApprovalRequestDTO> updateMentorApprovalStatus(Long mentorId,ApprovalRequestDTO request) {
+    public CommonResponse<ApprovalRequestDTO> updateMentorApprovalStatus(Long mentorId,ApprovalRequestDTO request) throws ResourceNotFoundException, UnexpectedServerException {
 
 
-        Optional<MentorProfile> mentorProfile = mentorProfileRepository.findById(mentorId);
-        MentorProfile mentor = mentorProfile.get();
+        try {
 
-        String action = request.getStatus();
-        action=action.toUpperCase();
+            MentorProfile mentor = mentorProfileRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor not found with id: " + mentorId));
 
-        if ("APPROVE".equals(action)) {
-            mentor.setApprovalStatus(ApprovalStatus.ACCEPTED);
-            mentor.setAccountStatus(AccountStatus.ACTIVE);
-        } else if ("REJECT".equals(action)) {
-            mentor.setApprovalStatus(ApprovalStatus.REJECTED);
-            mentor.setAccountStatus(AccountStatus.INACTIVE);
+            String action = request.getStatus();
 
-        } else {
+            if ("APPROVED".equalsIgnoreCase(action)) {
+
+                mentor.setApprovalStatus(ApprovalStatus.ACCEPTED);
+                mentor.setAccountStatus(AccountStatus.ACTIVE);
+
+            } else if ("REJECTED".equalsIgnoreCase(action)) {
+
+                mentor.setApprovalStatus(ApprovalStatus.REJECTED);
+                mentor.setAccountStatus(AccountStatus.INACTIVE);
+
+            } else {
+                throw new InvalidFieldValueException("Action must be either approved or rejected");
+            }
+
+            mentorProfileRepository.save(mentor);
+
             return CommonResponse.<ApprovalRequestDTO>builder()
-                    .status(STATUS_FALSE)
-                    .message("Invalid action")
-                    .statusCode(400)
-                    .error("Action must be either APPROVE or REJECT")
+                    .status(STATUS_TRUE)
+                    .message("Mentor " + action + " successfully")
+                    .statusCode(200)
                     .build();
+
+        }catch (ResourceNotFoundException | InvalidFieldValueException e){
+            throw e;
+        }catch (Exception e){
+            throw new UnexpectedServerException("Error while approving or rejecting the mentor: " + e.getMessage());
         }
-        mentorProfileRepository.save(mentor);
-        return CommonResponse.<ApprovalRequestDTO>builder()
-                .status(STATUS_TRUE)
-                .message("Mentor " + action + "successfully")
-                .statusCode(200)
-                .build();
     }
 
 }
