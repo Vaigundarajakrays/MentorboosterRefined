@@ -12,16 +12,18 @@ import com.mentorboosters.app.repository.BookingRepository;
 import com.mentorboosters.app.repository.MenteeProfileRepository;
 import com.mentorboosters.app.repository.MentorProfileRepository;
 import com.mentorboosters.app.response.CommonResponse;
-import com.mentorboosters.app.util.Constant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.swing.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.mentorboosters.app.util.Constant.*;
 
@@ -29,9 +31,10 @@ import static com.mentorboosters.app.util.Constant.*;
 @RequiredArgsConstructor
 public class AdminService {
 
-    private final MentorProfileRepository mentorProfileRepository;
+    private  final MentorProfileRepository mentorProfileRepository;
     private final MenteeProfileRepository menteeProfileRepository;
     private final BookingRepository bookingRepository;
+
 
     public CommonResponse<AdminDashboardDTO> getAdminDashboardDetails() throws UnexpectedServerException {
 
@@ -45,7 +48,7 @@ public class AdminService {
             // Can use findAllByApprovalStatus too, both works
             List<MentorProfile> mentorProfiles = mentorProfileRepository.findByApprovalStatus(ApprovalStatus.PENDING);
 
-            if(mentorProfiles.isEmpty()){
+            if (mentorProfiles.isEmpty()) {
 
                 var adminDashboard = AdminDashboardDTO.builder()
                         .noOfMentorApproved(mentorApprovedCount)
@@ -105,7 +108,7 @@ public class AdminService {
                     .data(adminDashboard)
                     .build();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new UnexpectedServerException(ERROR_ADMIN_DASHBOARD_DETAILS + e.getMessage());
         }
 
@@ -190,9 +193,9 @@ public class AdminService {
                     .data(mentorAppointmentsDTOS)
                     .build();
 
-        } catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw e;
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new UnexpectedServerException("Error loading all mentors appointments: " + e.getMessage());
         }
     }
@@ -271,9 +274,9 @@ public class AdminService {
                     .data(menteeAppointmentsDTOS)
                     .build();
 
-        } catch (ResourceNotFoundException e){
+        } catch (ResourceNotFoundException e) {
             throw e;
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new UnexpectedServerException("Error while loading all mentees sessions: " + e.getMessage());
         }
 
@@ -340,7 +343,7 @@ public class AdminService {
                     .data(mentorOverviewDTOS)
                     .build();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new UnexpectedServerException("Error while loading mentors details: " + e.getMessage());
         }
 
@@ -407,9 +410,42 @@ public class AdminService {
                     .data(menteeOverviewDTOS)
                     .build();
 
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new UnexpectedServerException("Error while loading mentees details: " + e.getMessage());
         }
 
     }
+
+    public CommonResponse<ApprovalRequestDTO> updateMentorApprovalStatus(Long mentorId,ApprovalRequestDTO request) {
+
+
+        Optional<MentorProfile> mentorProfile = mentorProfileRepository.findById(mentorId);
+        MentorProfile mentor = mentorProfile.get();
+
+        String action = request.getStatus();
+        action=action.toUpperCase();
+
+        if ("APPROVE".equals(action)) {
+            mentor.setApprovalStatus(ApprovalStatus.ACCEPTED);
+            mentor.setAccountStatus(AccountStatus.ACTIVE);
+        } else if ("REJECT".equals(action)) {
+            mentor.setApprovalStatus(ApprovalStatus.REJECTED);
+            mentor.setAccountStatus(AccountStatus.INACTIVE);
+
+        } else {
+            return CommonResponse.<ApprovalRequestDTO>builder()
+                    .status(STATUS_FALSE)
+                    .message("Invalid action")
+                    .statusCode(400)
+                    .error("Action must be either APPROVE or REJECT")
+                    .build();
+        }
+        mentorProfileRepository.save(mentor);
+        return CommonResponse.<ApprovalRequestDTO>builder()
+                .status(STATUS_TRUE)
+                .message("Mentor " + action + "successfully")
+                .statusCode(200)
+                .build();
+    }
+
 }

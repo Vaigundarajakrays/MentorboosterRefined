@@ -1,5 +1,6 @@
 package com.mentorboosters.app.response;
 
+import com.mentorboosters.app.dto.MentorProfileDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,4 +15,5 @@ public class CommonResponse<T> {
     private T data;
     private Integer statusCode;
     private String error;
+
 }

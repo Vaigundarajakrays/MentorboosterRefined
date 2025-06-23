@@ -15,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class MentorProfileDTO {
+
     private Long mentorId;
     private String name;
     private String phone;
@@ -34,4 +35,5 @@ public class MentorProfileDTO {
     private List<String> timeSlots; // 👈 List of time slot DTOs
     private AccountStatus accountStatus;
     private ApprovalStatus approvalStatus;
+
 }
