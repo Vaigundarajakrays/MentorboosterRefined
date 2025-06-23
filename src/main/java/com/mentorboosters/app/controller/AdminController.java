@@ -6,17 +6,14 @@ import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.service.AdminService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
 @RequiredArgsConstructor
-public class AdminController {
+public class AdminController{
 
     private final AdminService adminService;
 
@@ -45,7 +42,10 @@ public class AdminController {
         return adminService.getMenteesOverview();
     }
 
+    @PatchMapping("/mentors/{mentorId}/approval-status")
+    public CommonResponse<ApprovalRequestDTO> updateMentorStatus(@PathVariable Long mentorId,@RequestBody ApprovalRequestDTO request) {
+        return adminService.updateMentorApprovalStatus(mentorId, request);
 
-
-
+    }
 }
+
