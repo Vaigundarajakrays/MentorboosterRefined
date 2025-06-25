@@ -185,6 +185,8 @@ public class PaymentService {
                     .setPriceData(priceData)
                     .build();
 
+            // If we not give payment method type, by default it takes card,
+            // If Wants to support UPI, AfterPay, or others, we need to specify in the method
             SessionCreateParams.Builder builder = SessionCreateParams.builder()
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(successUrl + "/{CHECKOUT_SESSION_ID}")
@@ -199,6 +201,7 @@ public class PaymentService {
                     .putMetadata("mentorTimezone", mentorProfile.getTimezone())
                     .putMetadata("menteeTimezone", menteeProfile.getTimeZone())
                     .putMetadata("bookingId", String.valueOf(savedBooking.getId()));
+                    //.addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
 
             SessionCreateParams params = builder.build();
 

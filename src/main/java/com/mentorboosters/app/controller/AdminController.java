@@ -43,7 +43,7 @@ public class AdminController{
     }
 
     @PatchMapping("/mentors/{mentorId}/approval-status")
-    public CommonResponse<ApprovalRequestDTO> updateMentorStatus(@PathVariable Long mentorId,@RequestBody ApprovalRequestDTO request) throws UnexpectedServerException, ResourceNotFoundException {
+    public CommonResponse<AdminDashboardDTO> updateMentorStatus(@PathVariable Long mentorId,@RequestBody ApprovalRequestDTO request) throws UnexpectedServerException, ResourceNotFoundException {
         return adminService.updateMentorApprovalStatus(mentorId, request);
 
     }

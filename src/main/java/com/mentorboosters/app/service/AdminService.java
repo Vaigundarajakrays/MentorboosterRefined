@@ -155,11 +155,11 @@ public class AdminService {
 
                     String status;
                     if (timeNow.isBefore(sessionStartTime)) {
-                        status = "Upcoming";
+                        status = "upcoming";
                     } else if (timeNow.isAfter(sessionEndTime)) {
-                        status = "Completed";
+                        status = "completed";
                     } else {
-                        status = "Ongoing";
+                        status = "ongoing";
                     }
 
                     var mentorDashboardDTO = MentorDashboardDTO.builder()
@@ -170,6 +170,7 @@ public class AdminService {
                             .meetType(booking.getConnectMethod())
                             .status(status)
                             .mentorMeetLink(booking.getMentorMeetLink())
+                            .bookingId(booking.getId())
                             .build();
 
                     mentorDashboardDTOS.add(mentorDashboardDTO);
@@ -240,11 +241,11 @@ public class AdminService {
 
                     String status;
                     if (timeNow.isBefore(sessionStartTime)) {
-                        status = "Upcoming";
+                        status = "upcoming";
                     } else if (timeNow.isAfter(sessionEndTime)) {
-                        status = "Completed";
+                        status = "completed";
                     } else {
-                        status = "Ongoing";
+                        status = "ongoing";
                     }
 
                     var menteeDashboardDto = MenteeDashboardDTO.builder()
@@ -253,6 +254,7 @@ public class AdminService {
                             .bookingId(booking.getId())
                             .mentorName(mentorProfile.getName())
                             .meetType(booking.getConnectMethod())
+                            .bookingId(booking.getId())
                             .build();
 
                     menteeDashboardDTOS.add(menteeDashboardDto);
@@ -331,6 +333,7 @@ public class AdminService {
                                 .futureSessions(futureSessions)
                                 .completedSessions(completedSessions)
                                 .accountStatus(mentorProfile.getAccountStatus())
+                                .profileUrl(mentorProfile.getProfileUrl())
                                 .build();
 
 
@@ -339,7 +342,7 @@ public class AdminService {
 
             return CommonResponse.<List<MentorOverviewDTO>>builder()
                     .status(STATUS_TRUE)
-                    .status(STATUS_FALSE)
+                    .statusCode(SUCCESS_CODE)
                     .message("Loaded all mentors details")
                     .data(mentorOverviewDTOS)
                     .build();
@@ -398,6 +401,7 @@ public class AdminService {
                                 .futureSessions(futureSessions)
                                 .completedSessions(completedSessions)
                                 .accountStatus(AccountStatus.ACTIVE)
+                                .profileUrl(menteeProfile.getProfileUrl())
                                 .build();
 
 
@@ -406,7 +410,7 @@ public class AdminService {
 
             return CommonResponse.<List<MenteeOverviewDTO>>builder()
                     .status(STATUS_TRUE)
-                    .status(STATUS_FALSE)
+                    .statusCode(SUCCESS_CODE)
                     .message("Loaded all mentees details")
                     .data(menteeOverviewDTOS)
                     .build();
@@ -417,7 +421,7 @@ public class AdminService {
 
     }
 
-    public CommonResponse<ApprovalRequestDTO> updateMentorApprovalStatus(Long mentorId,ApprovalRequestDTO request) throws ResourceNotFoundException, UnexpectedServerException {
+    public CommonResponse<AdminDashboardDTO> updateMentorApprovalStatus(Long mentorId,ApprovalRequestDTO request) throws ResourceNotFoundException, UnexpectedServerException {
 
 
         try {
@@ -442,10 +446,11 @@ public class AdminService {
 
             mentorProfileRepository.save(mentor);
 
-            return CommonResponse.<ApprovalRequestDTO>builder()
+            return CommonResponse.<AdminDashboardDTO>builder()
                     .status(STATUS_TRUE)
                     .message("Mentor " + action + " successfully")
                     .statusCode(200)
+                    .data(getAdminDashboardDetails().getData())
                     .build();
 
         }catch (ResourceNotFoundException | InvalidFieldValueException e){

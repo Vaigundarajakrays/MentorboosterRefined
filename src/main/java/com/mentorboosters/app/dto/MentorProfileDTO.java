@@ -28,6 +28,7 @@ public class MentorProfileDTO {
     private String password;
     private List<String> categories;
     private String summary;
+    private String description;
     private Double amount;
     private Boolean terms;
     private Boolean termsAndConditions;
