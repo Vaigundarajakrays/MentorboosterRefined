@@ -1,5 +1,6 @@
 package com.mentorboosters.app.repository;
 
+import com.mentorboosters.app.dto.MentorProfileDTO;
 import com.mentorboosters.app.enumUtil.ApprovalStatus;
 import com.mentorboosters.app.model.MenteeProfile;
 import com.mentorboosters.app.model.MentorProfile;

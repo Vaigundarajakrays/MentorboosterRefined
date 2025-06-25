@@ -22,5 +22,7 @@ public class MentorOverviewDTO {
 
     private Long completedSessions;
 
+    private String profileUrl;
+
     private AccountStatus accountStatus;
 }

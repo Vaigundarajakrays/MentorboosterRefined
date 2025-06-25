@@ -72,8 +72,10 @@ public class AuthService {
 
             String token = jwtService.generateToken(user);
 
-            MentorProfileDTO mentorProfileDTO = null;
-            MenteeProfileDTO menteeProfileDTO = null;
+            String name = null;
+            Long id = null;
+            String timezone = null;
+            String profileUrl = null;
 
             var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
 
@@ -81,52 +83,29 @@ public class AuthService {
                 MenteeProfile mentee = menteeProfileRepository.findByEmail(user.getEmailId())
                         .orElseThrow(() -> new ResourceNotFoundException(MENTEE_NOT_FOUND_EMAIL + user.getEmailId()));
 
-                menteeProfileDTO = MenteeProfileDTO.builder()
-                        .menteeId(mentee.getId())
-                        .name(mentee.getName())
-                        .email(mentee.getEmail())
-                        .phone(mentee.getPhone())
-                        .description(mentee.getDescription())
-                        .languages(mentee.getLanguages())
-                        .timezone(mentee.getTimeZone())
-                        .subscriptionPlan(mentee.getSubscriptionPlan())
-                        .customerId(mentee.getId())
-                        .joinDate(mentee.getCreatedAt().atZone(ZoneId.of(mentee.getTimeZone())).format(formatter))
-                        .industry(mentee.getIndustry())
-                        .location(mentee.getLocation())
-                        .goals(mentee.getGoals())
-                        .status(mentee.getStatus())
-                        .build();
+                name = mentee.getName();
+                id = mentee.getId();
+                timezone = mentee.getTimeZone();
+                profileUrl = mentee.getProfileUrl();
             }
 
             if (user.getRole() == Role.MENTOR) {
                 MentorProfile mentor = mentorProfileRepository.findByEmail(user.getEmailId())
                         .orElseThrow(() -> new ResourceNotFoundException(MENTEE_NOT_FOUND_EMAIL + user.getEmailId()));
 
-                mentorProfileDTO = MentorProfileDTO.builder()
-                        .mentorId(mentor.getId())
-                        .name(mentor.getName())
-                        .email(mentor.getEmail())
-                        .phone(mentor.getPhone())
-                        .linkedinUrl(mentor.getLinkedinUrl())
-                        .profileUrl(mentor.getProfileUrl())
-                        .resumeUrl(mentor.getResumeUrl())
-                        .yearsOfExperience(mentor.getYearsOfExperience())
-                        .categories(mentor.getCategories())
-                        .summary(mentor.getSummary())
-                        .amount(mentor.getAmount())
-                        .terms(mentor.getTerms())
-                        .termsAndConditions(mentor.getTermsAndConditions())
-                        .timezone(mentor.getTimezone())
-                        .accountStatus(mentor.getAccountStatus())
-                        .build();
+                name = mentor.getName();
+                id = mentor.getId();
+                timezone = mentor.getTimezone();
+                profileUrl = mentor.getProfileUrl();
             }
 
             LoginResponse loginResponse = LoginResponse.builder()
                     .token(token)
                     .role(user.getRole())
-                    .menteeProfile(menteeProfileDTO)
-                    .mentorProfile(mentorProfileDTO)
+                    .name(name)
+                    .id(id)
+                    .timezone(timezone)
+                    .profileUrl(profileUrl)
                     .build();
 
             return CommonResponse.<LoginResponse>builder()

@@ -52,6 +52,9 @@ public class MentorProfile extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String summary;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(nullable = false)
     private Double amount;
 

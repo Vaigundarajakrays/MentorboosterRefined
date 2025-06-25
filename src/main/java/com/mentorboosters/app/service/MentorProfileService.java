@@ -151,6 +151,7 @@ public class MentorProfileService {
                     .linkedinUrl(mentorNew.getLinkedinUrl())
                     .terms(mentorNew.getTerms())
                     .summary(mentorNew.getSummary())
+                    .description(mentorNew.getDescription())
                     .resumeUrl(mentorNew.getResumeUrl())
                     .yearsOfExperience(mentorNew.getYearsOfExperience())
                     .termsAndConditions(mentorNew.getTermsAndConditions())
@@ -340,5 +341,55 @@ public class MentorProfileService {
         } catch (Exception e){
             throw new UnexpectedServerException(ERROR_LOADING_APPOINTMENTS + e.getMessage());
         }
+    }
+
+    public CommonResponse<List<MentorProfileDTO>> getMentorsByCategoryName(String categoryName) {
+
+        // 1. Fetch all mentors
+        List<MentorProfile> allMentors = mentorNewRepository.findAll();
+
+        // 2. Filter mentors manually based on category string (case-insensitive)
+        List<MentorProfile> filtered = allMentors.stream()
+                .filter(m -> m.getCategories() != null &&
+                        m.getCategories().stream()
+                                .map(String::trim)
+                                .anyMatch(c -> c.equalsIgnoreCase(categoryName.trim())))
+                .toList();
+
+        // 3. Map to DTOs
+        List<MentorProfileDTO> dtos = filtered.stream()
+                .map(this::mapToDTO)
+                .toList();
+
+        return CommonResponse.<List<MentorProfileDTO>>builder()
+                .message("Mentors filtered by category: " + categoryName)
+                .status(true)
+                .statusCode(200)
+                .data(dtos)
+                .build();
+    }
+
+    private MentorProfileDTO mapToDTO(MentorProfile mentor) {
+        return MentorProfileDTO.builder()
+                .mentorId(mentor.getId())
+                .name(mentor.getName())
+                .phone(mentor.getPhone())
+                .email(mentor.getEmail())
+                .linkedinUrl(mentor.getLinkedinUrl())
+                .profileUrl(mentor.getProfileUrl())
+                .resumeUrl(mentor.getResumeUrl())
+                .yearsOfExperience(mentor.getYearsOfExperience())
+                .password(null) // not exposed
+                .categories(mentor.getCategories())
+                .summary(mentor.getSummary())
+                .description(mentor.getDescription())
+                .amount(mentor.getAmount())
+                .terms(mentor.getTerms())
+                .termsAndConditions(mentor.getTermsAndConditions())
+                .timezone(mentor.getTimezone())
+                .accountStatus(mentor.getAccountStatus())
+                .approvalStatus(mentor.getApprovalStatus())
+                .timeSlots(null) // optional
+                .build();
     }
 }

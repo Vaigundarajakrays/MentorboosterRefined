@@ -40,5 +40,10 @@ public class MentorProfileController {
         return mentorNewService.getAppointments(mentorId);
     }
 
+    @GetMapping("/search")
+    public CommonResponse<List<MentorProfileDTO>> getMentorsByCategoryName(@RequestParam String category) {
+        return mentorNewService.getMentorsByCategoryName(category);
+    }
+
 
 }

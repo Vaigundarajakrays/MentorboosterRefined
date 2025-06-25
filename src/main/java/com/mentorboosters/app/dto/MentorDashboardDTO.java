@@ -25,4 +25,6 @@ public class MentorDashboardDTO {
 
     private String mentorMeetLink;
 
+    private Long bookingId;
+
 }
