@@ -259,6 +259,7 @@ public class MenteeProfileService {
                 appointments.add(MenteeDashboardDTO.builder()
                         .mentorName(mentor.getName())
                         .sessionTime(session)
+                        .mentorId(booking.getMentorId())
                         .bookingId(booking.getId())
                         .meetType(booking.getConnectMethod())
                         .status(status)

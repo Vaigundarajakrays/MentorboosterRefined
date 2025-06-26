@@ -54,7 +54,7 @@ public class MentorSeeder implements CommandLineRunner {
                         .build(),
 
                 MentorSeederDTO.builder()
-                        .mentorEmail("govind.babu@example.com")
+                        .mentorEmail("govind@gowin.in")
                         .phone("8888888888")
                         .timezone("Canada/Central")
                         .password("govind@123")
@@ -100,8 +100,8 @@ public class MentorSeeder implements CommandLineRunner {
                         .terms(true)
                         .termsAndConditions(true)
                         .timezone(dto.getTimezone())
-                        .accountStatus(AccountStatus.INACTIVE)
-                        .approvalStatus(ApprovalStatus.PENDING)
+                        .accountStatus(AccountStatus.ACTIVE)
+                        .approvalStatus(ApprovalStatus.ACCEPTED)
                         .build();
 
                 List<FixedTimeSlotNew> timeSlots = dto.getTimeSlots().stream().map(timeStr -> {

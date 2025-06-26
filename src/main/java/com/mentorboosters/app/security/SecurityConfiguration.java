@@ -48,6 +48,8 @@ public class SecurityConfiguration {
                                 "/api/auth/adminSignUp",
                                 "/api/mentor/register",
                                 "/api/mentee/register",
+                                "/api/categories",
+                                "/api/mentor/getAllMentors",
                                 "/api/s3/upload/**",
                                 "/api/auth/changePassword",
                                 "/api/auth/login",

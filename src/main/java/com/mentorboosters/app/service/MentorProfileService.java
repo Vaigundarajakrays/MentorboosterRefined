@@ -1,8 +1,11 @@
 package com.mentorboosters.app.service;
 
+import com.mentorboosters.app.dto.AllMentorsResponseDTO;
 import com.mentorboosters.app.dto.MenteeDashboardDTO;
 import com.mentorboosters.app.dto.MentorDashboardDTO;
 import com.mentorboosters.app.dto.MentorProfileDTO;
+import com.mentorboosters.app.enumUtil.AccountStatus;
+import com.mentorboosters.app.enumUtil.ApprovalStatus;
 import com.mentorboosters.app.enumUtil.Role;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
@@ -343,53 +346,101 @@ public class MentorProfileService {
         }
     }
 
-    public CommonResponse<List<MentorProfileDTO>> getMentorsByCategoryName(String categoryName) {
+//    public CommonResponse<List<MentorProfileDTO>> getMentorsByCategoryName(String categoryName) {
+//
+//        // 1. Fetch all mentors
+//        List<MentorProfile> allMentors = mentorNewRepository.findAll();
+//
+//        // 2. Filter mentors manually based on category string (case-insensitive)
+//        List<MentorProfile> filtered = allMentors.stream()
+//                .filter(m -> m.getCategories() != null &&
+//                        m.getCategories().stream()
+//                                .map(String::trim)
+//                                .anyMatch(c -> c.equalsIgnoreCase(categoryName.trim())))
+//                .toList();
+//
+//        // 3. Map to DTOs
+//        List<MentorProfileDTO> dtos = filtered.stream()
+//                .map(this::mapToDTO)
+//                .toList();
+//
+//        return CommonResponse.<List<MentorProfileDTO>>builder()
+//                .message("Mentors filtered by category: " + categoryName)
+//                .status(true)
+//                .statusCode(200)
+//                .data(dtos)
+//                .build();
+//    }
 
-        // 1. Fetch all mentors
-        List<MentorProfile> allMentors = mentorNewRepository.findAll();
+    // It is returning timeslot as null
+//    private MentorProfileDTO mapToDTO(MentorProfile mentor) {
+//
+//        var formatter = DateTimeFormatter.ofPattern("HH:mm");
+//
+//        return MentorProfileDTO.builder()
+//                .mentorId(mentor.getId())
+//                .name(mentor.getName())
+////                .phone(mentor.getPhone())
+////                .email(mentor.getEmail())
+////                .linkedinUrl(mentor.getLinkedinUrl())
+//                .profileUrl(mentor.getProfileUrl())
+////                .resumeUrl(mentor.getResumeUrl())
+////                .yearsOfExperience(mentor.getYearsOfExperience())
+//                .categories(mentor.getCategories())
+//                .summary(mentor.getSummary())
+//                .description(mentor.getDescription())
+////                .amount(mentor.getAmount())
+////                .terms(mentor.getTerms())
+////                .termsAndConditions(mentor.getTermsAndConditions())
+////                .timezone(mentor.getTimezone())
+////                .accountStatus(mentor.getAccountStatus())
+////                .approvalStatus(mentor.getApprovalStatus())
+////                .timeSlots(null)
+//                .build();
+//    }
 
-        // 2. Filter mentors manually based on category string (case-insensitive)
-        List<MentorProfile> filtered = allMentors.stream()
-                .filter(m -> m.getCategories() != null &&
-                        m.getCategories().stream()
-                                .map(String::trim)
-                                .anyMatch(c -> c.equalsIgnoreCase(categoryName.trim())))
-                .toList();
+    // it is returning timeslot as null
+    // It returns only approved mentors, other apis may not, clarify
+    public CommonResponse<List<AllMentorsResponseDTO>> getAllMentors() throws UnexpectedServerException {
 
-        // 3. Map to DTOs
-        List<MentorProfileDTO> dtos = filtered.stream()
-                .map(this::mapToDTO)
-                .toList();
+        try {
 
-        return CommonResponse.<List<MentorProfileDTO>>builder()
-                .message("Mentors filtered by category: " + categoryName)
-                .status(true)
-                .statusCode(200)
-                .data(dtos)
-                .build();
+            List<MentorProfile> mentors = mentorNewRepository.findAllByApprovalStatusAndAccountStatus(ApprovalStatus.ACCEPTED, AccountStatus.ACTIVE);
+
+            if (mentors.isEmpty()) {
+                return CommonResponse.<List<AllMentorsResponseDTO>>builder()
+                        .status(STATUS_FALSE)
+                        .statusCode(SUCCESS_CODE)
+                        .message("No mentors found")
+                        .data(List.of())
+                        .build();
+            }
+
+            List<AllMentorsResponseDTO> dtos = mentors.stream()
+                    .map(this::toAllMentorsResponseDTO)
+                    .toList();
+
+            return CommonResponse.<List<AllMentorsResponseDTO>>builder()
+                    .status(STATUS_TRUE)
+                    .statusCode(SUCCESS_CODE)
+                    .message("Mentors fetched successfully")
+                    .data(dtos)
+                    .build();
+
+        } catch (Exception e){
+            throw new UnexpectedServerException("Error while loading mentors:" + e.getMessage());
+        }
+
     }
 
-    private MentorProfileDTO mapToDTO(MentorProfile mentor) {
-        return MentorProfileDTO.builder()
-                .mentorId(mentor.getId())
-                .name(mentor.getName())
-                .phone(mentor.getPhone())
-                .email(mentor.getEmail())
-                .linkedinUrl(mentor.getLinkedinUrl())
-                .profileUrl(mentor.getProfileUrl())
-                .resumeUrl(mentor.getResumeUrl())
-                .yearsOfExperience(mentor.getYearsOfExperience())
-                .password(null) // not exposed
-                .categories(mentor.getCategories())
-                .summary(mentor.getSummary())
-                .description(mentor.getDescription())
-                .amount(mentor.getAmount())
-                .terms(mentor.getTerms())
-                .termsAndConditions(mentor.getTermsAndConditions())
-                .timezone(mentor.getTimezone())
-                .accountStatus(mentor.getAccountStatus())
-                .approvalStatus(mentor.getApprovalStatus())
-                .timeSlots(null) // optional
+    private AllMentorsResponseDTO toAllMentorsResponseDTO(MentorProfile mentorProfile){
+
+        return AllMentorsResponseDTO.builder()
+                .mentorId(mentorProfile.getId())
+                .name(mentorProfile.getName())
+                .profileUrl(mentorProfile.getProfileUrl())
+                .categories(mentorProfile.getCategories())
+                .summary(mentorProfile.getSummary())
                 .build();
     }
 }

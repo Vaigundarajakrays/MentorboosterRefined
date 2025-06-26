@@ -22,4 +22,8 @@ public class CategoryNewController {
     public CommonResponse<List<CategoryNew>> getAllCategories() throws UnexpectedServerException {
         return categoryNewService.getAllCategories();
     }
+
+    //when adding new api make sure to add /api/categories/update/delete
+    //because get all categories is not needed authorization
+    // /api/categories is in security config
 }
