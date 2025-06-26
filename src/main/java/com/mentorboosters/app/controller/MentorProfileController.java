@@ -1,5 +1,6 @@
 package com.mentorboosters.app.controller;
 
+import com.mentorboosters.app.dto.AllMentorsResponseDTO;
 import com.mentorboosters.app.dto.MenteeDashboardDTO;
 import com.mentorboosters.app.dto.MentorDashboardDTO;
 import com.mentorboosters.app.dto.MentorProfileDTO;
@@ -40,9 +41,15 @@ public class MentorProfileController {
         return mentorNewService.getAppointments(mentorId);
     }
 
-    @GetMapping("/search")
-    public CommonResponse<List<MentorProfileDTO>> getMentorsByCategoryName(@RequestParam String category) {
-        return mentorNewService.getMentorsByCategoryName(category);
+//    @GetMapping("/search")
+//    public CommonResponse<List<MentorProfileDTO>> getMentorsByCategoryName(@RequestParam String category) {
+//        return mentorNewService.getMentorsByCategoryName(category);
+//    }
+
+    // It returns only approved mentors, other apis may not, clarify
+    @GetMapping("/getAllMentors")
+    public CommonResponse<List<AllMentorsResponseDTO>> getAllMentors() throws UnexpectedServerException {
+        return mentorNewService.getAllMentors();
     }
 
 

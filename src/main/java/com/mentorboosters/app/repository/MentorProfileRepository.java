@@ -1,6 +1,7 @@
 package com.mentorboosters.app.repository;
 
 import com.mentorboosters.app.dto.MentorProfileDTO;
+import com.mentorboosters.app.enumUtil.AccountStatus;
 import com.mentorboosters.app.enumUtil.ApprovalStatus;
 import com.mentorboosters.app.model.MenteeProfile;
 import com.mentorboosters.app.model.MentorProfile;
@@ -20,4 +21,6 @@ public interface MentorProfileRepository extends JpaRepository<MentorProfile, Lo
     Long countByApprovalStatus(ApprovalStatus approvalStatus);
 
     List<MentorProfile> findByApprovalStatus(ApprovalStatus approvalStatus);
+
+    List<MentorProfile> findAllByApprovalStatusAndAccountStatus(ApprovalStatus approvalStatus, AccountStatus accountStatus);
 }

@@ -3,11 +3,13 @@ package com.mentorboosters.app.seed;
 import com.mentorboosters.app.model.CategoryNew;
 import com.mentorboosters.app.repository.CategoryNewRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class CategorySeeder implements CommandLineRunner {
@@ -25,5 +27,6 @@ public class CategorySeeder implements CommandLineRunner {
                     categoryNewRepository.save(new CategoryNew(null, name))
             );
         }
+        log.info("✅ Categories seeded successfully");
     }
 }

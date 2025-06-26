@@ -37,6 +37,7 @@ public class AdminService {
     private final BookingRepository bookingRepository;
 
 
+    // wanna add no of mentors active? inactive?
     public CommonResponse<AdminDashboardDTO> getAdminDashboardDetails() throws UnexpectedServerException {
 
         try {
