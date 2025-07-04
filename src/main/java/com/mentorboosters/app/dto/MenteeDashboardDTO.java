@@ -21,5 +21,7 @@ public class MenteeDashboardDTO {
 
     private String meetType;
 
+    private String menteeMeetLink;
+
     private String status;
 }

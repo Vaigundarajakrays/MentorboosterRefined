@@ -117,7 +117,7 @@ public class MentorProfileService {
 //            commonFiles.sendPasswordToMentorNew(mentor, mentorDto.getPassword());
 
             return CommonResponse.<String>builder()
-                    .message(REGISTERED_SUCCESSFULLY)
+                    .message("You have registered successfully")
                     .status(STATUS_TRUE)
                     .statusCode(SUCCESS_CODE)
                     .data("Role: " + user.getRole().toString())
@@ -257,7 +257,7 @@ public class MentorProfileService {
 
             return CommonResponse.<MentorProfileDTO>builder()
                     .status(true)
-                    .message(PROFILE_UPDATED_SUCCESSFULLY)
+                    .message("You have successfully updated your profile")
                     .statusCode(SUCCESS_CODE)
                     .data(responseDto)
                     .build();

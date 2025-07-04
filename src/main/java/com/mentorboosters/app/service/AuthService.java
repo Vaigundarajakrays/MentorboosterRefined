@@ -1,18 +1,13 @@
 package com.mentorboosters.app.service;
 
 import com.mentorboosters.app.dto.*;
+import com.mentorboosters.app.enumUtil.OtpPurpose;
 import com.mentorboosters.app.enumUtil.Role;
 import com.mentorboosters.app.exceptionHandling.OtpException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
-import com.mentorboosters.app.model.MenteeProfile;
-import com.mentorboosters.app.model.MentorProfile;
-import com.mentorboosters.app.model.Otp;
-import com.mentorboosters.app.model.Users;
-import com.mentorboosters.app.repository.MenteeProfileRepository;
-import com.mentorboosters.app.repository.MentorProfileRepository;
-import com.mentorboosters.app.repository.OtpRepository;
-import com.mentorboosters.app.repository.UsersRepository;
+import com.mentorboosters.app.model.*;
+import com.mentorboosters.app.repository.*;
 import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.security.JwtService;
 import com.mentorboosters.app.util.CommonFiles;
@@ -56,6 +51,7 @@ public class AuthService {
     private final OtpRepository otpRepository;
     private final MenteeProfileRepository menteeProfileRepository;
     private final MentorProfileRepository mentorProfileRepository;
+    private final SubscribeRepository subscribeRepository;
 
     public CommonResponse<LoginResponse> authenticate(LoginRequest request) throws UnexpectedServerException, ResourceNotFoundException {
 
@@ -76,12 +72,18 @@ public class AuthService {
             Long id = null;
             String timezone = null;
             String profileUrl = null;
+            boolean isSubscribed = false;
 
             var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
 
             if (user.getRole() == Role.USER) {
                 MenteeProfile mentee = menteeProfileRepository.findByEmail(user.getEmailId())
                         .orElseThrow(() -> new ResourceNotFoundException(MENTEE_NOT_FOUND_EMAIL + user.getEmailId()));
+
+                Subscribe subscribe = subscribeRepository.findByEmail(mentee.getEmail());
+                if(!(subscribe ==null)){
+                    isSubscribed=true;
+                }
 
                 name = mentee.getName();
                 id = mentee.getId();
@@ -92,6 +94,11 @@ public class AuthService {
             if (user.getRole() == Role.MENTOR) {
                 MentorProfile mentor = mentorProfileRepository.findByEmail(user.getEmailId())
                         .orElseThrow(() -> new ResourceNotFoundException(MENTEE_NOT_FOUND_EMAIL + user.getEmailId()));
+
+                Subscribe subscribe = subscribeRepository.findByEmail(mentor.getEmail());
+                if(!(subscribe ==null)){
+                    isSubscribed=true;
+                }
 
                 name = mentor.getName();
                 id = mentor.getId();
@@ -106,6 +113,7 @@ public class AuthService {
                     .id(id)
                     .timezone(timezone)
                     .profileUrl(profileUrl)
+                    .isSubscribed(isSubscribed)
                     .build();
 
             return CommonResponse.<LoginResponse>builder()
@@ -123,9 +131,35 @@ public class AuthService {
     }
 
 
-    public CommonResponse<String> sendOtp(String email) throws UnexpectedServerException {
-
+    public CommonResponse<String> sendOtp(String email, OtpPurpose otpPurpose) throws UnexpectedServerException {
         try {
+            if (otpPurpose.isMentorRegister()) {
+                if (mentorProfileRepository.existsByEmail(email)) {
+                    throw new OtpException("You are already registered as a mentor", "MENTOR_EXISTS");
+                }
+
+                if (menteeProfileRepository.existsByEmail(email)) {
+                    throw new OtpException("You are already registered as a mentee with this account. Please proceed with another account.", "MENTEE_EXISTS");
+                }
+
+                if (usersRepository.existsByEmailId(email)) {
+                    throw new OtpException("Your email already exists in our system", "USER_EXISTS");
+                }
+            }
+
+            if (otpPurpose.isMenteeRegister()) {
+                if (menteeProfileRepository.existsByEmail(email)) {
+                    throw new OtpException("You are already registered as a mentee", "MENTEE_EXISTS");
+                }
+
+                if (mentorProfileRepository.existsByEmail(email)) {
+                    throw new OtpException("You are already registered as a mentor with this account. Please proceed with another account.", "MENTOR_EXISTS");
+                }
+
+                if (usersRepository.existsByEmailId(email)) {
+                    throw new OtpException("Your email already exists in our system", "USER_EXISTS");
+                }
+            }
 
             String otp = commonFiles.generateOTP(6);
             LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5);
@@ -140,7 +174,8 @@ public class AuthService {
 
             otpRepository.save(otpEntity);
 
-            commonFiles.sendOTPUser(email, otp);
+            // ✨ Custom email body + subject
+            commonFiles.sendOTPUser(email, otp, otpPurpose);
 
             return CommonResponse.<String>builder()
                     .message(OTP_SENT_SUCCESS)
@@ -148,12 +183,45 @@ public class AuthService {
                     .statusCode(SUCCESS_CODE)
                     .build();
 
-        } catch (MailAuthenticationException | MailSendException e){
+        } catch (MailAuthenticationException | MailSendException | OtpException e) {
             throw e;
         } catch (Exception e) {
             throw new UnexpectedServerException(ERROR_SENDING_OTP + e.getMessage());
         }
     }
+
+
+//    public CommonResponse<String> sendOtp(String email) throws UnexpectedServerException {
+//
+//        try {
+//
+//            String otp = commonFiles.generateOTP(6);
+//            LocalDateTime expiryTime = LocalDateTime.now().plusMinutes(5);
+//
+//            Otp otpEntity = otpRepository.findByEmail(email)
+//                    .map(existingOtp -> {
+//                        existingOtp.setOtp(otp);
+//                        existingOtp.setExpiryTime(expiryTime);
+//                        return existingOtp;
+//                    })
+//                    .orElse(new Otp(email, otp, expiryTime));
+//
+//            otpRepository.save(otpEntity);
+//
+//            commonFiles.sendOTPUser(email, otp);
+//
+//            return CommonResponse.<String>builder()
+//                    .message(OTP_SENT_SUCCESS)
+//                    .status(STATUS_TRUE)
+//                    .statusCode(SUCCESS_CODE)
+//                    .build();
+//
+//        } catch (MailAuthenticationException | MailSendException | OtpException e){
+//            throw e;
+//        } catch (Exception e) {
+//            throw new UnexpectedServerException(ERROR_SENDING_OTP + e.getMessage());
+//        }
+//    }
 
     public CommonResponse<String> verifyOtp(String email, String otp) throws UnexpectedServerException {
 
