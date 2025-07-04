@@ -55,10 +55,15 @@ public class AiMentorService {
         Map<String, Object> request = Map.of(
                 "model", "gpt-4o-mini",
                 "stream", true,
-                "max_tokens", 200,
+                "max_tokens", 300,
                 "temperature", 1.0,
                 "messages", List.of(
-                        Map.of("role", "system", "content", "You are a helpful AI mentor. Keep responses professional and short. If asked about your identity, always respond:\"I am MentorBooster's AI model — your personal learning companion.\""),
+                        Map.of(
+                                "role", "system",
+                                "content", """
+                                                    You are a helpful AI mentor. Keep your responses professional and concise. Never exceed 300 tokens in your replies. Use short, clear sentences. If asked about your identity, always respond: "I am MentorBooster's AI model — your personal learning companion."
+                                                   """
+                        ),
                         Map.of("role", "user", "content", userMessage)
                 )
         );
@@ -84,14 +89,14 @@ public class AiMentorService {
                         JsonNode root = mapper.readTree(json);
                         JsonNode contentNode = root.path("choices").get(0).path("delta").path("content");
                         if (!contentNode.isMissingNode()) {
-                            return Flux.just(contentNode.asText());
+                            return Flux.just(" " +contentNode.asText());
                         }
                     } catch (Exception e) {
-                        return Flux.just("[ERROR] " + e.getMessage());
+                        return Flux.just(" [ERROR] " + e.getMessage());
                     }
                     return Flux.empty();
                 })
-                .concatWith(Flux.just("[DONE]")); // 👈 perfect!
+                .concatWith(Flux.just(" [DONE]")); // the space before done is very important, that is how frontend is expecting
 
     }
 
