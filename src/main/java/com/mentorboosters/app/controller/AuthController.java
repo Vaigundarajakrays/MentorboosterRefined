@@ -3,6 +3,7 @@ package com.mentorboosters.app.controller;
 import com.mentorboosters.app.dto.ChangePasswordRequest;
 import com.mentorboosters.app.dto.LoginRequest;
 import com.mentorboosters.app.dto.LoginResponse;
+import com.mentorboosters.app.enumUtil.OtpPurpose;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.model.Users;
@@ -40,9 +41,15 @@ public class AuthController {
     }
 
     @PostMapping("/sendOtp")
-    public CommonResponse<String> sendOtp(@RequestParam String email) throws UnexpectedServerException {
-        return authService.sendOtp(email);
+    public CommonResponse<String> sendOtp(@RequestParam String email, @RequestParam String purpose) throws UnexpectedServerException {
+        OtpPurpose otpPurpose = OtpPurpose.from(purpose);
+        return authService.sendOtp(email, otpPurpose);
     }
+
+//    @PostMapping("/sendOtp")
+//    public CommonResponse<String> sendOtp(@RequestParam String email) throws UnexpectedServerException {
+//        return authService.sendOtp(email);
+//    }
 
     @PostMapping("/verifyOtp")
     public CommonResponse<String> verifyOtp(@RequestParam String email, @RequestParam String otp) throws UnexpectedServerException {

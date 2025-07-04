@@ -98,7 +98,7 @@ public class MenteeProfileService {
 
             return CommonResponse.<MenteeProfile>builder()
                     .status(true)
-                    .message(MENTEE_REGISTER_SUCCESSFULLY)
+                    .message("You have registered successfully")
                     .statusCode(SUCCESS_CODE)
                     .data(savedMentee)
                     .build();
@@ -196,7 +196,7 @@ public class MenteeProfileService {
             return CommonResponse.<MenteeProfileDTO>builder()
                     .status(true)
                     .statusCode(200)
-                    .message(MENTEE_PROFILE_UPDATED_SUCCESSFULLY)
+                    .message("You have successfully updated your profile")
                     .data(responseDto)
                     .build();
 
@@ -262,6 +262,7 @@ public class MenteeProfileService {
                         .mentorId(booking.getMentorId())
                         .bookingId(booking.getId())
                         .meetType(booking.getConnectMethod())
+                        .menteeMeetLink(booking.getUserMeetLink())
                         .status(status)
                         .build());
             }

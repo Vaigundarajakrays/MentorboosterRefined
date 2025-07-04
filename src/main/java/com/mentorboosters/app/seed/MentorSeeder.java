@@ -39,7 +39,7 @@ public class MentorSeeder implements CommandLineRunner {
 
         List<MentorSeederDTO> mentorsToSeed = List.of(
                 MentorSeederDTO.builder()
-                        .mentorEmail("karthik.bairu@example.com")
+                        .mentorEmail("yskarthik.b@gmail.com")
                         .phone("9999999999")
                         .timezone("Canada/Central")
                         .password("karthik@123")
@@ -67,6 +67,21 @@ public class MentorSeeder implements CommandLineRunner {
                         .amount(3000.0)
                         .timeSlots(List.of("17:00", "20:00"))
                         .build()
+
+//                MentorSeederDTO.builder()
+//                        .mentorEmail("satyendra@gmail.com")
+//                        .phone("7777777777")
+//                        .timezone("Canada/Central")
+//                        .password("govind@123")
+//                        .name("Govind Babu")
+//                        .profileUrl("https://mentorbooster-dev.s3.eu-north-1.amazonaws.com/mentor-images/dc5656d8-8df1-4829-9e7b-799598df17a8-govind.png")
+//                        .yearsOfExperience("18")
+//                        .categories(List.of("Marketing"))
+//                        .summary("Govind Babu is a seasoned sales and leadership expert with over 18 years of global experience across leading companies like Tech Mahindra, Sify, Birlasoft, Aditya Birla (USA), and Synechron. An engineer by background and MBA graduate from Symbiosis, Pune, he has trained over 15,000 professionals across 7 countries. He is the co-author of the book “Life is Fundamentally Management” and currently serves as Managing Partner at EMP GoWin Global (Dubai) and GoWin Search (USA). A 3-time President of BNI in India and Dubai, Govind is deeply passionate about mentoring startup founders, building high-impact sales strategies, and driving growth for SMEs and enterprises across India, the Middle East, and Asia-Pacific.")
+//                        .description("Mentor | Sales Leadership Expert | 3X Entrepreneur | Author | International Trainer | 18+ Years of Global Experience | Coached 15K+ Sales Professionals | Ex-President, BNI India & Dubai")
+//                        .amount(3000.0)
+//                        .timeSlots(List.of("17:00", "20:00"))
+//                        .build()
         );
 
         for (MentorSeederDTO dto : mentorsToSeed) {

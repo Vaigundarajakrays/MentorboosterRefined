@@ -23,4 +23,6 @@ public interface MentorProfileRepository extends JpaRepository<MentorProfile, Lo
     List<MentorProfile> findByApprovalStatus(ApprovalStatus approvalStatus);
 
     List<MentorProfile> findAllByApprovalStatusAndAccountStatus(ApprovalStatus approvalStatus, AccountStatus accountStatus);
+
+    boolean existsByIdAndEmail(Long id, String email);
 }

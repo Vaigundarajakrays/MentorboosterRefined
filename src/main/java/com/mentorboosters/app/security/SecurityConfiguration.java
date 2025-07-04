@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,6 +37,9 @@ public class SecurityConfiguration {
         http
                 .cors(Customizer.withDefaults()) // if not add this, cors error occur
                 .csrf(AbstractHttpConfigurer::disable)
+//                .securityContext(securityContext -> securityContext // If not add this when api is needs to be authorised, ai-mentor async api, will throw error
+//                        .securityContextRepository(new RequestAttributeSecurityContextRepository())
+//                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -48,6 +52,8 @@ public class SecurityConfiguration {
                                 "/api/auth/adminSignUp",
                                 "/api/mentor/register",
                                 "/api/mentee/register",
+                                "/api/ai-mentor/stream",
+                                "/api/contact-messages",
                                 "/api/categories",
                                 "/api/mentor/getAllMentors",
                                 "/api/s3/upload/**",
