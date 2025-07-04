@@ -43,6 +43,7 @@ public class MenteeProfileService {
     private final FixedTimeSlotNewRepository fixedTimeSlotNewRepository;
     private final ZoomMeetingService zoomMeetingService;
     private final JavaMailSender mailSender;
+    private final EmailService emailService;
     // private final PaymentService paymentService;   Dont remove it, in future may need for refund
 
 
@@ -409,8 +410,8 @@ public class MenteeProfileService {
                 """, mentorProfile.getName(), menteeProfile.getName(), sessionStartForMentor);
 
             // Send emails
-            sendEmail(menteeProfile.getEmail(), "Your MentorBooster Session Has Been Cancelled", menteeEmailBody);
-            sendEmail(mentorProfile.getEmail(), "A Session Has Been Cancelled", mentorEmailBody);
+            emailService.sendEmail(menteeProfile.getEmail(), "Your MentorBooster Session Has Been Cancelled", menteeEmailBody);
+            emailService.sendEmail(mentorProfile.getEmail(), "A Session Has Been Cancelled", mentorEmailBody);
 
             bookingRepository.deleteById(bookingId);
 
@@ -437,12 +438,12 @@ public class MenteeProfileService {
 //        bookingRepository.save(booking);
     }
 
-    private void sendEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        message.setFrom(mailFrom);
-        mailSender.send(message);
-    }
+//    private void sendEmail(String to, String subject, String text) {
+//        SimpleMailMessage message = new SimpleMailMessage();
+//        message.setTo(to);
+//        message.setSubject(subject);
+//        message.setText(text);
+//        message.setFrom(mailFrom);
+//        mailSender.send(message);
+//  }
 }
