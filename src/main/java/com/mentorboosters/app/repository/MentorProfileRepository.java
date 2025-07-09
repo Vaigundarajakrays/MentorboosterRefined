@@ -1,9 +1,11 @@
 package com.mentorboosters.app.repository;
 
+<<<<<<< Updated upstream
 import com.mentorboosters.app.dto.MentorProfileDTO;
 import com.mentorboosters.app.enumUtil.AccountStatus;
+=======
+>>>>>>> Stashed changes
 import com.mentorboosters.app.enumUtil.ApprovalStatus;
-import com.mentorboosters.app.model.MenteeProfile;
 import com.mentorboosters.app.model.MentorProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 

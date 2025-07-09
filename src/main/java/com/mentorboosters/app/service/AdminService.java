@@ -422,14 +422,28 @@ public class AdminService {
 
     }
 
+<<<<<<< Updated upstream
     public CommonResponse<AdminDashboardDTO> updateMentorApprovalStatus(Long mentorId,ApprovalRequestDTO request) throws ResourceNotFoundException, UnexpectedServerException {
+=======
+    public CommonResponse<ApprovalRequestDTO> updateMentorApprovalStatus(Long mentorId, ApprovalRequestDTO request) {
+>>>>>>> Stashed changes
 
 
         try {
 
             MentorProfile mentor = mentorProfileRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException("Mentor not found with id: " + mentorId));
 
+<<<<<<< Updated upstream
             String action = request.getStatus();
+=======
+        if ("APPROVE".equals(action)) {
+            mentor.setApprovalStatus(ApprovalStatus.ACCEPTED);
+            mentor.setAccountStatus(AccountStatus.ACTIVE);
+
+        } else if ("REJECT".equals(action)) {
+            mentor.setApprovalStatus(ApprovalStatus.REJECTED);
+            mentor.setAccountStatus(AccountStatus.INACTIVE);
+>>>>>>> Stashed changes
 
             if ("APPROVED".equalsIgnoreCase(action)) {
 
