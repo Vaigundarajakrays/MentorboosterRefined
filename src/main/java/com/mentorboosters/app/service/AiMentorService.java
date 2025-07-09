@@ -89,10 +89,10 @@ public class AiMentorService {
                         JsonNode root = mapper.readTree(json);
                         JsonNode contentNode = root.path("choices").get(0).path("delta").path("content");
                         if (!contentNode.isMissingNode()) {
-                            return Flux.just(" " +contentNode.asText());
+                            return Flux.just(" " +contentNode.asText()); // the space before done is very important, that is how frontend is expecting
                         }
                     } catch (Exception e) {
-                        return Flux.just(" [ERROR] " + e.getMessage());
+                        return Flux.just(" [ERROR] " + e.getMessage()); // the space before done is very important, that is how frontend is expecting
                     }
                     return Flux.empty();
                 })
@@ -100,98 +100,4 @@ public class AiMentorService {
 
     }
 
-    // It was correct
-//    public Flux<String> streamResponse(String userMessage) {
-//        Map<String, Object> request = Map.of(
-//                "model", "gpt-4o-mini",
-//                "stream", true,
-//                "max_tokens", 200,
-//                "temperature", 1.0,
-//                "messages", List.of(
-//                        Map.of("role", "system", "content", "You are a helpful AI mentor. Keep responses professional and short. If asked about your identity, always respond:\"I am MentorBooster's AI model — your personal learning companion.\""),
-//                        Map.of("role", "user", "content", userMessage)
-//                )
-//        );
-//
-//        return webClient.post()
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .bodyValue(request)
-//                .accept(MediaType.TEXT_EVENT_STREAM)
-//                .retrieve()
-//                .bodyToFlux(DataBuffer.class)
-//                .flatMap(dataBuffer -> {
-//                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
-//                    dataBuffer.read(bytes);
-//                    DataBufferUtils.release(dataBuffer);
-//                    String rawChunk = new String(bytes, StandardCharsets.UTF_8);
-//                    // Split by newlines because SSE sends data line-by-line
-//                    String[] lines = rawChunk.split("\n");
-//                    for (String line : lines) {
-//                        if (line.startsWith("data: ")) {
-//                            System.out.println("👉 RAW LINE FROM OPENAI: " + line);
-//                        }
-//                    }
-//                    return Flux.fromArray(rawChunk.split("\n"));
-//                })
-//                .filter(line -> line.startsWith("data: ") && !line.contains("[DONE]"))
-//                .flatMap(line -> {
-//                    try {
-//                        String json = line.substring("data: ".length());
-//                        ObjectMapper mapper = new ObjectMapper();
-//                        JsonNode root = mapper.readTree(json);
-//                        JsonNode contentNode = root.path("choices").get(0).path("delta").path("content");
-//                        if (!contentNode.isMissingNode()) {
-//                            return Flux.just(contentNode.asText());
-//                        }
-//                    } catch (Exception e) {
-//                        return Flux.empty();
-//                    }
-//                    return Flux.empty();
-//                });
-//    }
-
-
-//    public Flux<String> streamResponse(String userMessage) {
-//
-//        Map<String, Object> request = Map.of(
-//                "model", "gpt-4o-mini",
-//                "stream", true,
-//                "max_tokens", 150,
-//                "temperature", 0.7,
-//                "messages", List.of(
-//                        Map.of("role", "system", "content", "You are a helpful AI mentor. Keep responses professional and short. If asked about your identity, always respond:\"I am MentorBooster's AI model — your personal learning companion.\""),
-//                        Map.of("role", "user", "content", userMessage)
-//                )
-//        );
-//
-//        return webClient.post()
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .bodyValue(request)
-//                .accept(MediaType.TEXT_EVENT_STREAM) // “Please send the response using text/event-stream format (aka SSE chunks)
-//                .retrieve()
-//                .bodyToFlux(DataBuffer.class)
-//                .map(dataBuffer -> {
-//                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
-//                    dataBuffer.read(bytes);
-//                    DataBufferUtils.release(dataBuffer);
-//                    return new String(bytes, StandardCharsets.UTF_8);
-//                })
-//                .flatMap(line -> {
-//                    // Filter lines that start with "data: " and contain content
-//                    if (line.startsWith("data: ") && !line.contains("[DONE]")) {
-//                        try {
-//                            String json = line.substring("data: ".length());
-//                            ObjectMapper mapper = new ObjectMapper();
-//                            JsonNode root = mapper.readTree(json);
-//                            JsonNode contentNode = root.path("choices").get(0).path("delta").path("content");
-//                            if (!contentNode.isMissingNode()) {
-//                                return Flux.just(contentNode.asText());
-//                            }
-//                        } catch (Exception e) {
-//                            return Flux.empty();
-//                        }
-//                    }
-//                    return Flux.empty();
-//                });
-//    }
 }
