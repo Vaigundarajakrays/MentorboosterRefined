@@ -1,12 +1,19 @@
 package com.mentorboosters.app.service;
 
+import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
+import com.mentorboosters.app.response.CommonResponse;
+import com.mentorboosters.app.util.Constant;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.mentorboosters.app.util.Constant.STATUS_TRUE;
+import static com.mentorboosters.app.util.Constant.SUCCESS_CODE;
 
 @Service
 public class TempTokenService {
@@ -15,10 +22,46 @@ public class TempTokenService {
 
     private static final long TOKEN_EXPIRY_MINUTES = 20;
 
-    public String generateToken(String username) {
-        String token = UUID.randomUUID().toString();
-        Instant expiry = Instant.now().plus(Duration.ofMinutes(TOKEN_EXPIRY_MINUTES));
-        tokenStore.put(token, new TempToken(username, expiry));
+    public CommonResponse<String> generateToken(String username) throws UnexpectedServerException {
+
+        try {
+
+            // First, check if any existing token for this username is present & valid
+            Optional<Map.Entry<String, TempToken>> existingEntry = tokenStore.entrySet().stream()
+                    .filter(entry -> entry.getValue().username().equals(username))
+                    .filter(entry -> entry.getValue().expiry().isAfter(Instant.now()))
+                    .findFirst();
+
+            if (existingEntry.isPresent()) {
+                // If found and not expired, return existing token
+                String token = existingEntry.get().getKey();
+                return CommonResponse.<String>builder()
+                        .status(STATUS_TRUE)
+                        .statusCode(SUCCESS_CODE)
+                        .message("Token successfully generated")
+                        .data(token)
+                        .build();
+
+            }
+
+            // Otherwise, remove all expired/old tokens for this user (optional cleanup)
+            tokenStore.entrySet().removeIf(entry ->
+                    entry.getValue().username().equals(username)
+            );
+
+            // Generate and store a new token
+            String token = UUID.randomUUID().toString();
+            Instant expiry = Instant.now().plus(Duration.ofMinutes(TOKEN_EXPIRY_MINUTES));
+            tokenStore.put(token, new TempToken(username, expiry));
+
+            return CommonResponse.<String>builder()
+                    .status(STATUS_TRUE)
+                    .statusCode(SUCCESS_CODE)
+                    .message("Token successfully generated")
+                    .data(token)
+                    .build();
+
+
 //        System.out.println("Current Token Store:");
 //        tokenStore.forEach((key, value) -> {
 //            System.out.println("Token: " + key);
@@ -27,7 +70,10 @@ public class TempTokenService {
 //            System.out.println("----------");
 //        });
 
-        return token;
+        } catch (Exception e){
+            throw new UnexpectedServerException("Error while generating token: " + e.getMessage());
+        }
+
     }
 
     public boolean isValid(String token) {
@@ -51,6 +97,7 @@ public class TempTokenService {
     }
 
     // static class is used only in nested class
+    // below code not generate getter like getUsername, we can just simply use key.username() to get the username
     private record TempToken(String username, Instant expiry) {}
 
     // the above can be written as

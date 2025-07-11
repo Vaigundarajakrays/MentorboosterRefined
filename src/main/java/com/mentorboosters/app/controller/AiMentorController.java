@@ -1,5 +1,7 @@
 package com.mentorboosters.app.controller;
 
+import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
+import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.security.JwtService;
 import com.mentorboosters.app.service.AiMentorService;
 import com.mentorboosters.app.service.ProfanityCheckerService;
@@ -23,10 +25,11 @@ public class AiMentorController {
 
     // See sse-auth.md in docs package/directory for why this api is used
     @GetMapping("/sse-token")
-    public ResponseEntity<String> getSseToken() {
+    public CommonResponse<String> getSseToken() throws UnexpectedServerException {
+
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        String tempToken = tempTokenService.generateToken(username);
-        return ResponseEntity.ok(tempToken);
+        return tempTokenService.generateToken(username);
+
     }
 
 
