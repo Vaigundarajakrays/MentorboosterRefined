@@ -2,6 +2,8 @@ package com.mentorboosters.app.zoom;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mentorboosters.app.enumUtil.ZoomContextType;
+import com.mentorboosters.app.service.EmailService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -23,13 +25,12 @@ import java.util.Map;
 import java.util.TimeZone;
 
 @Service
+@RequiredArgsConstructor
 public class ZoomMeetingService {
 
-    @Autowired
-    private ZoomTokenService zoomTokenService;
-
-    @Autowired
-    private JavaMailSender mailSender;
+    private final ZoomTokenService zoomTokenService;
+    private final JavaMailSender mailSender;
+    private final EmailService emailService;
 
     @Value("${mail.from}")
     private String mailFrom;
@@ -227,8 +228,8 @@ public class ZoomMeetingService {
                 );
             }
 
-            sendEmail(mentorEmail, mentorSubject, mentorBody);
-            sendEmail(menteeEmail, menteeSubject, menteeBody);
+            emailService.sendEmail(mentorEmail, mentorSubject, mentorBody);
+            emailService.sendEmail(menteeEmail, menteeSubject, menteeBody);
 
             return ZoomMeetingResponse.builder()
                     .startUrl(startUrl)
@@ -288,14 +289,4 @@ public class ZoomMeetingService {
         return DateTimeFormatter.ofPattern("hh:mm a").withZone(timezone).format(instant);
     }
 
-
-
-    private void sendEmail(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        message.setFrom(mailFrom);
-        mailSender.send(message);
-    }
 }

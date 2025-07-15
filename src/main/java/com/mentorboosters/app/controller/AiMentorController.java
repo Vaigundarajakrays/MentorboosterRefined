@@ -23,7 +23,7 @@ public class AiMentorController {
     private final ProfanityCheckerService profanityCheckerService;
     private final TempTokenService tempTokenService;
 
-    // See sse-auth.md in docs package/directory for why this api is used
+    // See sse-stream-api-authorised-case-study.md in docs package/directory for why this api is used
     @GetMapping("/sse-token")
     public CommonResponse<String> getSseToken() throws UnexpectedServerException {
 

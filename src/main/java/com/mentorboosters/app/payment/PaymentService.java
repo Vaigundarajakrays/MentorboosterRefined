@@ -1,6 +1,7 @@
 package com.mentorboosters.app.payment;
 
 import com.mentorboosters.app.dto.BookingDTO;
+import com.mentorboosters.app.enumUtil.PaymentStatus;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
@@ -27,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.mentorboosters.app.util.Constant.*;
 
@@ -96,6 +98,7 @@ public class PaymentService {
             ZonedDateTime currentSlotStartDateTime = bookingDate.atTime(currentSlotTime).atZone(zoneId);
             ZonedDateTime currentSlotEndDateTime = currentSlotStartDateTime.plusHours(1);
 
+            Instant sessionStart = currentSlotStartDateTime.toInstant();
 
             // For DB CHECKING
             ZonedDateTime dayStartZoned = date.atStartOfDay(zoneId);
@@ -103,8 +106,26 @@ public class PaymentService {
             Instant utcStart = dayStartZoned.toInstant();
             Instant utcEnd = dayEndZoned.toInstant();
 
+            // Checking if any other user already booked this slot
+            // 2 0r more users may hit api at same time, so more users have same id, same sessionStartTime, samePaymentStatus
+            // Also, we have BookingCleanUpService, which will for every 5 min, convert HOLD to EXPIRED, if HOLD is before the (currentTime - 15 min)
+            List<Booking> alreadyBooked = bookingRepository.findByTimeSlotIdAndSessionStartTimeAndPaymentStatusIn(bookingDTO.getTimeSlotId(), sessionStart, List.of(PaymentStatus.COMPLETED, PaymentStatus.HOLD));
+            if(!alreadyBooked.isEmpty()){
+
+                for(Booking booking : alreadyBooked){
+
+                    if (booking.getPaymentStatus() == PaymentStatus.COMPLETED) {
+                        throw new ResourceAlreadyExistsException("Slot is already booked.");
+                    }
+
+                    if (booking.getPaymentStatus() == PaymentStatus.HOLD && booking.getHoldStartTime() != null && booking.getHoldStartTime().plus(Duration.ofMinutes(15)).isAfter(Instant.now())) {
+                        throw new ResourceAlreadyExistsException("Slot is temporarily held. Try again later.");
+                    }
+                }
+            }
+
             // Prevent user from booking same time slot for 2 different mentors
-            List<Booking> bookings = bookingRepository.findByMenteeIdAndBookedDateBetweenAndPaymentStatus(bookingDTO.getMenteeId(), utcStart, utcEnd, "completed");
+            List<Booking> bookings = bookingRepository.findByMenteeIdAndSessionStartTimeBetweenAndPaymentStatus(bookingDTO.getMenteeId(), utcStart, utcEnd, PaymentStatus.COMPLETED);
 
             if (!(bookings.isEmpty())) {
 
@@ -137,14 +158,14 @@ public class PaymentService {
                     .mentorId(bookingDTO.getMentorId())
                     .menteeId(bookingDTO.getMenteeId())
                     .timeSlotId(bookingDTO.getTimeSlotId())
-                    .bookedDate(bookedUtcDate) // Stored as UTC
                     .category(bookingDTO.getCategory())
                     .connectMethod(bookingDTO.getConnectMethod())
                     .amount(bookingDTO.getAmount())
                     .currency(bookingDTO.getCurrency())
                     .productName(bookingDTO.getProductName())
                     .quantity(bookingDTO.getQuantity())
-                    .paymentStatus("pending")
+                    .paymentStatus(PaymentStatus.HOLD)
+                    .holdStartTime(Instant.now())
                     .mentorMeetLink(bookingDTO.getMentorMeetLink())
                     .userMeetLink(bookingDTO.getUserMeetLink())
                     .menteeTimezone(menteeProfile.getTimeZone())
@@ -158,7 +179,6 @@ public class PaymentService {
             // 4. Get mentor and user emails from DB
             String menteeEmail = menteeProfile.getEmail();
 
-            Instant sessionStart = currentSlotStartDateTime.toInstant();
             Instant sessionEnd = currentSlotEndDateTime.toInstant();
 
             // 4. Convert to ISO strings

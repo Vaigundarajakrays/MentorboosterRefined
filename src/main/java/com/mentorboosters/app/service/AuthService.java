@@ -52,6 +52,7 @@ public class AuthService {
     private final MenteeProfileRepository menteeProfileRepository;
     private final MentorProfileRepository mentorProfileRepository;
     private final SubscribeRepository subscribeRepository;
+    private final EmailService emailService;
 
     public CommonResponse<LoginResponse> authenticate(LoginRequest request) throws UnexpectedServerException, ResourceNotFoundException {
 
@@ -174,8 +175,8 @@ public class AuthService {
 
             otpRepository.save(otpEntity);
 
-            // ✨ Custom email body + subject
-            commonFiles.sendOTPUser(email, otp, otpPurpose);
+            // Send email
+            emailService.sendOTPUser(email, otp, otpPurpose);
 
             return CommonResponse.<String>builder()
                     .message(OTP_SENT_SUCCESS)
