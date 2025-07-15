@@ -1,6 +1,7 @@
 package com.mentorboosters.app.service;
 
 import com.mentorboosters.app.dto.TimeSlotDTO;
+import com.mentorboosters.app.enumUtil.PaymentStatus;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
@@ -18,7 +19,6 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,18 +44,31 @@ public class FixedTimeSlotNewService {
                 .orElseThrow(() -> new ResourceNotFoundException( MENTEE_NOT_FOUND_WITH_ID + menteeId))
                 .getTimeZone();
 
+        // Convert string timezone to ZoneId
+        final ZoneId menteeTimezone;
+        try {
+            menteeTimezone = ZoneId.of(timezone);
+        } catch (DateTimeException e){
+            throw new InvalidFieldValueException("Invalid Timezone");
+        }
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        // Converting string date to LocalDate
+        LocalDate date;
+        try {
+            date = LocalDate.parse(localDate, dateFormatter);
+        } catch (DateTimeParseException e){
+            throw new InvalidFieldValueException("Date must be yyyy-mm-dd format");
+        }
+
 
         try {
 
-            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate date = LocalDate.parse(localDate, dateFormatter);
-
-            // Convert string timezone to ZoneId
-            final ZoneId zoneId = resolveZoneId(timezone);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
             // Get current time in mentee timezone
-            ZonedDateTime now = ZonedDateTime.now(zoneId);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            ZonedDateTime now = ZonedDateTime.now(menteeTimezone);
 
             // 1. Fetch all fixed time slots for the mentor (stored as UTC Instants)
             List<FixedTimeSlotNew> slots = fixedTimeSlotNewRepository.findByMentorId(mentorId);
@@ -65,14 +78,14 @@ public class FixedTimeSlotNewService {
             }
 
             // 2. Fetch bookings only for that date in user's timezone
-            ZonedDateTime dayStartZoned = date.atStartOfDay(zoneId);
+            ZonedDateTime dayStartZoned = date.atStartOfDay(menteeTimezone);
             ZonedDateTime dayEndZoned = dayStartZoned.plusDays(1);
 
             Instant utcStart = dayStartZoned.toInstant();
             Instant utcEnd = dayEndZoned.toInstant();
 
-            List<Booking> bookings = bookingRepository.findByMentorIdAndBookedDateBetweenAndPaymentStatus(
-                    mentorId, utcStart, utcEnd, COMPLETED
+            List<Booking> bookings = bookingRepository.findByMentorIdAndSessionStartTimeBetweenAndPaymentStatus(
+                    mentorId, utcStart, utcEnd, PaymentStatus.COMPLETED
             );
 
             Set<Long> bookedSlotIds = bookings.stream()
@@ -82,13 +95,14 @@ public class FixedTimeSlotNewService {
             List<TimeSlotDTO> timeSlotDTOS = slots.stream()
                     .map(slot -> {
                         // converting the mentor slot's start time to mentee local time
+                        // Since mentor is available daily at that time, we cant compare with mentee and mentor Instant
                         LocalTime slotTime = slot.getTimeStart()
                                 .atZone(ZoneOffset.UTC)
-                                .withZoneSameInstant(zoneId)
+                                .withZoneSameInstant(menteeTimezone)
                                 .toLocalTime();
 
                         // Apply that time to the requested date
-                        ZonedDateTime userZonedTime = date.atTime(slotTime).atZone(zoneId);
+                        ZonedDateTime userZonedTime = date.atTime(slotTime).atZone(menteeTimezone);
 
                         String status;
                         if (bookedSlotIds.contains(slot.getId())) {
@@ -118,19 +132,8 @@ public class FixedTimeSlotNewService {
         }
         catch (ResourceNotFoundException e) {
             throw e;
-        } catch (DateTimeParseException e){
-            throw new InvalidFieldValueException("Date must be yyyy-mm-dd format");
         } catch (Exception e) {
             throw new UnexpectedServerException(ERROR_FETCHING_TIME_SLOTS_FOR_MENTOR + e.getMessage());
-        }
-    }
-
-    // Helper method
-    private ZoneId resolveZoneId(String timezone) {
-        try {
-            return ZoneId.of(timezone);
-        } catch (DateTimeException e) {
-            return ZoneOffset.UTC;
         }
     }
 

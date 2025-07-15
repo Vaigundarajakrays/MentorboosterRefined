@@ -6,6 +6,7 @@ import com.mentorboosters.app.dto.MentorDashboardDTO;
 import com.mentorboosters.app.dto.MentorProfileDTO;
 import com.mentorboosters.app.enumUtil.AccountStatus;
 import com.mentorboosters.app.enumUtil.ApprovalStatus;
+import com.mentorboosters.app.enumUtil.PaymentStatus;
 import com.mentorboosters.app.enumUtil.Role;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
@@ -276,7 +277,7 @@ public class MentorProfileService {
 
             MentorProfile mentor = mentorNewRepository.findById(mentorId).orElseThrow(() -> new ResourceNotFoundException(MENTOR_NOT_FOUND_ID + mentorId));
 
-            List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorId, COMPLETED);
+            List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorId, PaymentStatus.COMPLETED);
 
             if (bookings.isEmpty()) {
                 return CommonResponse.<List<MentorDashboardDTO>>builder()

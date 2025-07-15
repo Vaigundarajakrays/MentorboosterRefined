@@ -1,9 +1,10 @@
-package com.mentorboosters.app.payment;
+package com.mentorboosters.app.controller;
 
 import com.mentorboosters.app.dto.BookingDTO;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
-import com.mentorboosters.app.model.Booking;
+import com.mentorboosters.app.payment.PaymentResponse;
+import com.mentorboosters.app.payment.PaymentService;
 import com.mentorboosters.app.response.CommonResponse;
 import com.stripe.exception.StripeException;
 import lombok.RequiredArgsConstructor;

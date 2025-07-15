@@ -3,6 +3,7 @@ package com.mentorboosters.app.service;
 import com.mentorboosters.app.dto.MenteeDashboardDTO;
 import com.mentorboosters.app.dto.MenteeProfileDTO;
 import com.mentorboosters.app.dto.RescheduleDTO;
+import com.mentorboosters.app.enumUtil.PaymentStatus;
 import com.mentorboosters.app.enumUtil.Role;
 import com.mentorboosters.app.enumUtil.ZoomContextType;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
@@ -214,7 +215,7 @@ public class MenteeProfileService {
 
             MenteeProfile mentee = menteeProfileRepository.findById(menteeId).orElseThrow(() -> new ResourceNotFoundException(MENTEE_NOT_FOUND_ID + menteeId));
 
-            List<Booking> bookings = bookingRepository.findByMenteeIdAndPaymentStatus(menteeId,COMPLETED);
+            List<Booking> bookings = bookingRepository.findByMenteeIdAndPaymentStatus(menteeId, PaymentStatus.COMPLETED);
 
             if (bookings.isEmpty()) {
                 return CommonResponse.<List<MenteeDashboardDTO>>builder()
@@ -327,7 +328,6 @@ public class MenteeProfileService {
                     .createZoomMeetingAndNotify(mentorProfile.getEmail(), menteeProfile.getEmail(), mentorProfile.getName(), menteeProfile.getName(), sessionStartTime, sessionEndTime, oldStartTime, ZoomContextType.RESCHEDULE, mentorProfile.getTimezone(), menteeProfile.getTimeZone());
 
             booking.setTimeSlotId(rescheduleDTO.getTimeSlotId());
-            booking.setBookedDate(bookingDate);
             booking.setSessionStartTime(sessionStartTime);
             booking.setMentorMeetLink(zoomLinks.getStartUrl());
             booking.setUserMeetLink(zoomLinks.getJoinUrl());

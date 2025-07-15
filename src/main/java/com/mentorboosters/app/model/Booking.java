@@ -1,5 +1,6 @@
 package com.mentorboosters.app.model;
 
+import com.mentorboosters.app.enumUtil.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,8 +31,8 @@ public class Booking extends BaseEntity {
     private Long timeSlotId;
 
     // This is the new field you'll use to store the exact booking time in UTC
-    @Column(nullable = false)
-    private Instant bookedDate;
+//    @Column(nullable = false)
+//    private Instant bookedDate;
 
     @Column(nullable = false)
     private String menteeTimezone;
@@ -62,7 +63,10 @@ public class Booking extends BaseEntity {
     @Column(nullable = false)
     private Long quantity;
 
-    private String paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
+    private Instant holdStartTime;
 
     @Column(columnDefinition = "TEXT")
     private String mentorMeetLink;

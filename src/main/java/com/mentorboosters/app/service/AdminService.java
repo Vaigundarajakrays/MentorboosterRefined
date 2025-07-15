@@ -3,6 +3,7 @@ package com.mentorboosters.app.service;
 import com.mentorboosters.app.dto.*;
 import com.mentorboosters.app.enumUtil.AccountStatus;
 import com.mentorboosters.app.enumUtil.ApprovalStatus;
+import com.mentorboosters.app.enumUtil.PaymentStatus;
 import com.mentorboosters.app.exceptionHandling.InvalidFieldValueException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
@@ -141,7 +142,7 @@ public class AdminService {
             for (MentorProfile mentorProfile : mentorProfiles) {
 
 
-                List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorProfile.getId(), "completed");
+                List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorProfile.getId(), PaymentStatus.COMPLETED);
 
                 List<MentorDashboardDTO> mentorDashboardDTOS = new ArrayList<>();
 
@@ -227,7 +228,7 @@ public class AdminService {
 
             for (MenteeProfile menteeProfile : menteeProfiles) {
 
-                List<Booking> bookings = bookingRepository.findByMenteeIdAndPaymentStatus(menteeProfile.getId(), "completed");
+                List<Booking> bookings = bookingRepository.findByMenteeIdAndPaymentStatus(menteeProfile.getId(), PaymentStatus.COMPLETED);
 
                 List<MenteeDashboardDTO> menteeDashboardDTOS = new ArrayList<>();
 
@@ -310,7 +311,7 @@ public class AdminService {
             List<MentorOverviewDTO> mentorOverviewDTOS = mentorProfiles.stream()
                     .map(mentorProfile -> {
 
-                        List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorProfile.getId(), "completed");
+                        List<Booking> bookings = bookingRepository.findByMentorIdAndPaymentStatus(mentorProfile.getId(), PaymentStatus.COMPLETED);
 
                         // filter must return a boolean true or false
                         Long futureSessions = bookings.stream()
@@ -378,7 +379,7 @@ public class AdminService {
             List<MenteeOverviewDTO> menteeOverviewDTOS = menteeProfiles.stream()
                     .map(menteeProfile -> {
 
-                        List<Booking> bookings = bookingRepository.findByMenteeIdAndPaymentStatus(menteeProfile.getId(), "completed");
+                        List<Booking> bookings = bookingRepository.findByMenteeIdAndPaymentStatus(menteeProfile.getId(), PaymentStatus.COMPLETED);
 
                         // filter must return a boolean true or false
                         Long futureSessions = bookings.stream()
