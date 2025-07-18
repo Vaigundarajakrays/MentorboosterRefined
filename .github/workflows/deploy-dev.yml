@@ -94,5 +94,5 @@ jobs:
             echo "🧹 Restarting app using start.sh"
             ./start.sh
             
-            echo "🚀 App restarted! Check output.log for logs."
+            echo "🚀 App restarted! Check log.txt for logs."
         continue-on-error: false
