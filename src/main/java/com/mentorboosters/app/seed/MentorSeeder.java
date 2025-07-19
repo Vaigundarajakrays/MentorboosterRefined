@@ -66,24 +66,25 @@ public class MentorSeeder implements CommandLineRunner {
                         .description("Mentor | Sales Leadership Expert | 3X Entrepreneur | Author | International Trainer | 18+ Years of Global Experience | Coached 15K+ Sales Professionals | Ex-President, BNI India & Dubai")
                         .amount(3000.0)
                         .timeSlots(List.of("17:00", "20:00"))
-                        .build()
+                        .build(),
 
-// resume yrl: https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/9434cebc-6df8-4ddc-a9c8-0b7ea0a7b93c-Satyendra Kumar Singh_One Pager.pdf
-// linked in url of stayen: https://www.linkedin.com/in/satyendra-kumar-singh-business-mentor-career-strategist-55b2b97/
-//                MentorSeederDTO.builder()
-//                        .mentorEmail("satyen.trainer@gmail.com")
-//                        .phone("917379285472")
-//                        .timezone("Asia/Shanghai")
-//                        .password("satyen@123")
-//                        .name("Satyendra Kumar Singh")
-//                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/d50d5bb7-4e6e-47af-9b32-43a288191c6a-Passport Pic.jpg")
-//                        .yearsOfExperience("25")
-//                        .categories(List.of("Marketing", "Entrepreneurship"))
-//                        .summary("Satyendra K. Singh is a dynamic mentor and advisor with extensive experience in guiding over 100 startups and businesses towards growth and success. Currently serving as a Mentor at MAARG (Govt. of India), he plays a pivotal role in nurturing entrepreneurial talent. Satyendra is deeply involved in empowering emerging entrepreneurs. Additionally, he serves as an Advisory Board Member for Innovation and Incubation Councils at educational institutions, further contributing to the growth of innovation ecosystems. He regularly conducts workshops through the Institution’s Innovation Council (IIC), equipping future innovators with practical insights and tools for success.")
-//                        .description("Mentor | Mentoring 100+ Startups & Businesses | Career Strategist - Counselled 50000+ students | Academic Advisor @ Educational Institutes | Avid Writer - Published 3 Poetry Titles and still writing...")
-//                        .amount(2500.0)
-//                        .timeSlots(List.of("19:00"))
-//                        .build()
+                // Password of styen: $2a$10$QUB1hFb0W3oz2IvKjiQfsuhwSW6sHS73ZDI3JYSSUCAsAzZOaq2DG
+                MentorSeederDTO.builder()
+                        .mentorEmail("satyen.trainer@gmail.com")
+                        .phone("917379285472")
+                        .timezone("Asia/Shanghai")
+                        .password("satyen@123")
+                        .name("Satyendra Kumar Singh")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/29f7b20c-e20c-4ff2-9bc6-3157b2a99ba5-Satyendra Kumar Singh.png")
+                        .linkedinUrl("https://www.linkedin.com/in/satyendra-kumar-singh-business-mentor-career-strategist-55b2b97/")
+                        .resumeUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/9434cebc-6df8-4ddc-a9c8-0b7ea0a7b93c-Satyendra Kumar Singh_One Pager.pdf")
+                        .yearsOfExperience("25")
+                        .categories(List.of("Marketing", "Entrepreneurship"))
+                        .summary("Satyendra K. Singh is a dynamic mentor and advisor with extensive experience in guiding over 100 startups and businesses towards growth and success. Currently serving as a Mentor at MAARG (Govt. of India), he plays a pivotal role in nurturing entrepreneurial talent. Satyendra is deeply involved in empowering emerging entrepreneurs. Additionally, he serves as an Advisory Board Member for Innovation and Incubation Councils at educational institutions, further contributing to the growth of innovation ecosystems. He regularly conducts workshops through the Institution’s Innovation Council (IIC), equipping future innovators with practical insights and tools for success.")
+                        .description("Mentor | Mentoring 100+ Startups & Businesses | Career Strategist - Counselled 50000+ students | Academic Advisor @ Educational Institutes | Avid Writer - Published 3 Poetry Titles and still writing...")
+                        .amount(2500.0)
+                        .timeSlots(List.of("19:00"))
+                        .build()
         );
 
         for (MentorSeederDTO dto : mentorsToSeed) {
@@ -101,13 +102,20 @@ public class MentorSeeder implements CommandLineRunner {
                 LocalDate today = LocalDate.now(zoneId);
                 String hashedPassword = passwordEncoder.encode(dto.getPassword());
 
+                String defaultLinkedinUrl = "https://linkedin.com/in/sampleprofile";
+                String defaultResumeUrl = "https://mentorbooster-resumes.s3.amazonaws.com/sample_resume.pdf";
+                if(dto.getResumeUrl() != null && dto.getLinkedinUrl() != null){
+                    defaultLinkedinUrl = dto.getLinkedinUrl();
+                    defaultResumeUrl = dto.getResumeUrl();
+                }
+
                 MentorProfile mentor = MentorProfile.builder()
                         .name(dto.getName())
                         .email(dto.getMentorEmail())
                         .phone(dto.getPhone())
-                        .linkedinUrl("https://linkedin.com/in/sampleprofile") // 🔧 placeholder
+                        .linkedinUrl(defaultLinkedinUrl) // 🔧 placeholder
                         .profileUrl(dto.getProfileUrl())
-                        .resumeUrl("https://mentorbooster-resumes.s3.amazonaws.com/sample_resume.pdf")
+                        .resumeUrl(defaultResumeUrl)
                         .yearsOfExperience(dto.getYearsOfExperience())
                         .password(hashedPassword)
                         .categories(dto.getCategories())

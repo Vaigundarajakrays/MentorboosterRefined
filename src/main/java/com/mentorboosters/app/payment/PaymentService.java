@@ -107,7 +107,7 @@ public class PaymentService {
             Instant utcEnd = dayEndZoned.toInstant();
 
             // Checking if any other user already booked this slot
-            // 2 0r more users may hit api at same time, so more users have same id, same sessionStartTime, samePaymentStatus
+            // 2 0r more users may hit api at same time, so more users have same timeslotId, same sessionStartTime, samePaymentStatus
             // Also, we have BookingCleanUpService, which will for every 5 min, convert HOLD to EXPIRED, if HOLD is before the (currentTime - 15 min)
             List<Booking> alreadyBooked = bookingRepository.findByTimeSlotIdAndSessionStartTimeAndPaymentStatusIn(bookingDTO.getTimeSlotId(), sessionStart, List.of(PaymentStatus.COMPLETED, PaymentStatus.HOLD));
             if(!alreadyBooked.isEmpty()){
