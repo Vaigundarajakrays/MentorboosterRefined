@@ -1,12 +1,8 @@
 name: 🚀 Deploy MentorBooster to Prod EC2
 
 on:
-  workflow_dispatch:
-    inputs:
-      reason:
-        description: 'What change is going live in this deployment?'
-        required: true
-        default: 'Bug fix, UI update, or performance improvement'
+  push:
+    branches: [ production ]
 
 jobs:
   deploy:

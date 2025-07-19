@@ -19,6 +19,8 @@ public class MentorSeederDTO {
     private String password;
     private String name;
     private String profileUrl;
+    private String linkedinUrl;
+    private String resumeUrl;
     private String yearsOfExperience;
     private List<String> categories;
     private String summary;

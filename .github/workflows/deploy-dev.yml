@@ -2,7 +2,7 @@ name: 🚧 Deploy MentorBooster to Dev EC2
 
 on:
   push:
-    branches: [ main ]  # Change if your dev branch is different
+    branches: [ main ]
 
 jobs:
   deploy:
