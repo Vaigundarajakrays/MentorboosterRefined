@@ -36,6 +36,7 @@ public class AdminService {
     private  final MentorProfileRepository mentorProfileRepository;
     private final MenteeProfileRepository menteeProfileRepository;
     private final BookingRepository bookingRepository;
+    private final EmailService emailService;
 
 
     // wanna add no of mentors active? inactive?
@@ -447,6 +448,50 @@ public class AdminService {
             }
 
             mentorProfileRepository.save(mentor);
+
+            String subject;
+            String body;
+
+            if (ApprovalStatus.ACCEPTED.equals(mentor.getApprovalStatus())) {
+                subject = "Your Mentor Application is Approved ✅";
+                body = String.format("""
+                Hi %s,
+                
+                Congratulations! 🎉
+                
+                Your application to become a mentor on MentorBooster has been reviewed and approved by our team.
+                
+                You can now:
+                ✔ Log in to your dashboard  
+                ✔ Manage your availability  
+                ✔ Start receiving mentorship bookings
+                
+                Thank you for being part of our mission to empower learners!
+                
+                Warm regards,  
+                Team MentorBooster  
+                """, mentor.getName());
+            } else {
+                subject = "Your Mentor Application is Not Approved ❌";
+                body = String.format("""
+                Hi %s,
+                
+                Thank you for applying to be a mentor on MentorBooster.
+                
+                After carefully reviewing your application, we regret to inform you that it has not been approved at this time.
+                
+                This may be due to:
+                - Incomplete or unclear information  
+                - A mismatch with our current mentor requirements
+                
+                We truly appreciate your interest, and you're welcome to re-apply in the future with updated details.
+                
+                Warm wishes,  
+                Team MentorBooster  
+                """, mentor.getName());
+            }
+
+            emailService.sendEmail(mentor.getEmail(), subject, body);
 
             return CommonResponse.<AdminDashboardDTO>builder()
                     .status(STATUS_TRUE)

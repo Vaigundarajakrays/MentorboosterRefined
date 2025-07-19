@@ -43,6 +43,7 @@ public class MentorProfileService {
     private final CommonFiles commonFiles;
     private final MenteeProfileRepository menteeProfileRepository;
     private final BookingRepository bookingRepository;
+    private final EmailService emailService;
 
     //@Transactional
     //Spring only rolls back for unchecked exceptions (aka runtime exceptions) unless you explicitly tell it otherwise.
@@ -114,8 +115,27 @@ public class MentorProfileService {
                     .build();
             usersRepository.save(user);
 
-            // Send welcome mail
-//            commonFiles.sendPasswordToMentorNew(mentor, mentorDto.getPassword());
+            // Send confirmation email
+            String subject = "Mentor Registration Received - Awaiting Approval";
+            String body = String.format("""
+            Hi %s,
+            
+            Thank you for registering as a mentor on MentorBooster. 🎉
+            
+            Your registration was successful, and our team is currently reviewing your application.
+            
+            🕒 What’s next?
+            - Our admin team will verify your profile details.
+            - You will receive an email once your account is approved or rejected.
+            
+            We appreciate your willingness to guide and empower mentees.
+            
+            Warm regards,  
+            Team MentorBooster  
+            """, mentor.getName());
+
+            emailService.sendEmail(mentor.getEmail(), subject, body);
+
 
             return CommonResponse.<String>builder()
                     .message("You have registered successfully")
