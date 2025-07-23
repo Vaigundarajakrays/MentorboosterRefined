@@ -90,4 +90,7 @@ public class MentorProfile extends BaseEntity {
 
     @OneToMany(mappedBy = "mentor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FixedTimeSlotNew> timeSlots;
+
+    @OneToMany(mappedBy = "mentorProfile", cascade = CascadeType.ALL)
+    private List<Skill> skills;
 }

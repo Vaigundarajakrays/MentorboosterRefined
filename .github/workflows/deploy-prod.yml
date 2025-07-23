@@ -78,7 +78,10 @@ jobs:
             echo "🔗 Updating symlink 'mentorbooster-latest.jar' → '$new_name'"
             ln -sf "$new_name" mentorbooster-latest.jar
             
-            echo "✅ Rename and symlink update complete!"
+            echo "🧹 Cleaning up old .jar files (keeping latest 10 only)..."
+            ls -tp *.jar | grep -v '/$' | tail -n +11 | xargs -r rm --
+            
+            echo "✅ Rename and symlink, and cleanup complete!"
         continue-on-error: false
 
       - name: 🔁 Restart MentorBooster app on Prod EC2

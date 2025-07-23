@@ -6,6 +6,7 @@ import com.mentorboosters.app.enumUtil.Role;
 import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.model.FixedTimeSlotNew;
 import com.mentorboosters.app.model.MentorProfile;
+import com.mentorboosters.app.model.Skill;
 import com.mentorboosters.app.model.Users;
 import com.mentorboosters.app.repository.MenteeProfileRepository;
 import com.mentorboosters.app.repository.MentorProfileRepository;
@@ -21,6 +22,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import static com.mentorboosters.app.util.Constant.ALREADY_REGISTERED_EMAIL;
 
@@ -80,7 +82,7 @@ public class MentorSeeder implements CommandLineRunner {
                         .resumeUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/9434cebc-6df8-4ddc-a9c8-0b7ea0a7b93c-Satyendra Kumar Singh_One Pager.pdf")
                         .yearsOfExperience("25")
                         .categories(List.of("Marketing", "Entrepreneurship"))
-                        .summary("Satyendra K. Singh is a dynamic mentor and advisor with extensive experience in guiding over 100 startups and businesses towards growth and success. Currently serving as a Mentor at MAARG (Govt. of India), he plays a pivotal role in nurturing entrepreneurial talent. Satyendra is deeply involved in empowering emerging entrepreneurs. Additionally, he serves as an Advisory Board Member for Innovation and Incubation Councils at educational institutions, further contributing to the growth of innovation ecosystems. He regularly conducts workshops through the Institution’s Innovation Council (IIC), equipping future innovators with practical insights and tools for success.")
+                        .summary("Satyendra Kumar Singh is a seasoned business mentor and career strategist with over two decades of experience guiding students, professionals, and startups. With a strong background in academic advising, startup mentoring, motivational counselling, and skill development training, he has empowered countless individuals to achieve clarity in their personal and professional goals. His work spans institutions, startups, and government organizations, where he brings a structured, empathetic, and transformative approach. In addition to his mentoring work, Satyendra is a prolific author with three published poetry titles and ongoing projects in motivational writing and fiction. His mentorship is grounded in real-world insights and a passion for enabling growth through purpose-driven guidance.")
                         .description("Mentor | Mentoring 100+ Startups & Businesses | Career Strategist - Counselled 50000+ students | Academic Advisor @ Educational Institutes | Avid Writer - Published 3 Poetry Titles and still writing...")
                         .amount(2500.0)
                         .timeSlots(List.of("19:00"))
@@ -96,6 +98,8 @@ public class MentorSeeder implements CommandLineRunner {
                 log.warn("⚠️ Mentor with email {} already registered as mentee. So skipped seeding.", dto.getMentorEmail());
                 continue;
             }
+
+            List<Skill> skills = getSkills(dto);
 
             try {
                 ZoneId zoneId = ZoneId.of(dto.getTimezone());
@@ -127,7 +131,14 @@ public class MentorSeeder implements CommandLineRunner {
                         .timezone(dto.getTimezone())
                         .accountStatus(AccountStatus.ACTIVE)
                         .approvalStatus(ApprovalStatus.ACCEPTED)
+                        .skills(skills)
                         .build();
+
+                // List is mutable, so even though we put .skills(skills) before, we later update those skills with mentor
+                for (Skill skill : skills) {
+                    skill.setMentorProfile(mentor);
+                }
+
 
                 List<FixedTimeSlotNew> timeSlots = dto.getTimeSlots().stream().map(timeStr -> {
                     LocalTime localTime = LocalTime.parse(timeStr.trim());
@@ -154,5 +165,32 @@ public class MentorSeeder implements CommandLineRunner {
                 log.error("❌ Failed to seed mentor {}: {}", dto.getName(), e.getMessage(), e);
             }
         }
+    }
+
+    private static List<Skill> getSkills(MentorSeederDTO dto) {
+        List<Skill> skills = null;
+        if(dto.getMentorEmail().equals("satyen.trainer@gmail.com")){
+            skills = List.of(
+                    new Skill("Startup & Business Mentoring", List.of("Advises entrepreneurs and early-stage ventures on strategy, structure, and sustainable business models.")),
+                    new Skill("Career Strategy & Planning", List.of("Helps students and professionals map meaningful career paths through structured, personalized planning.")),
+                    new Skill("Academic Advising & Training", List.of("Collaborates with educational institutions to deliver training programs and workshops on skill development and goal setting.")),
+                    new Skill("Motivational Counselling & Public Speaking", List.of("Inspires individuals through motivational sessions focused on mindset shifts, confidence building, and overcoming barriers.")),
+                    new Skill("Content Creation & Creative Writing", List.of("Published poet and author, skilled in crafting impactful literature across Hindi and English, with a focus on personal growth and self-reflection.")),
+                    new Skill("Skill Development & Capacity Building", List.of("Designs and delivers modules that focus on practical life skills, professional readiness, and personal effectiveness.")),
+                    new Skill("Empathy-Driven Leadership", List.of("Mentorship approach rooted in empathy, lifelong learning, and a strong belief in the transformative power of clarity and inner drive."))
+            );
+        } else {
+            skills = List.of(
+                    new Skill("Startup Mentorship & Advisory", List.of("Guiding early-stage and growth-stage startups on business strategy, product-market fit, and scaling.")),
+                    new Skill("Artificial Intelligence & Machine Learning", List.of("Deep technical expertise in AI/ML applications, with academic excellence and practical implementation.")),
+                    new Skill("Entrepreneurship", List.of("Built and exited three startups, with hands-on experience in founding, growing, and managing ventures.")),
+                    new Skill("Fundraising & Investment Strategy", List.of("Experience in angel investing and supporting startups in preparing for venture capital and funding rounds.")),
+                    new Skill("Go-to-Market Strategy", List.of("Expertise in market validation, positioning, and customer acquisition for technology products.")),
+                    new Skill("Technology & Product Development", List.of("Strong technical foundation with the ability to guide product roadmaps, MVP design, and agile development.")),
+                    new Skill("Leadership & Team Building", List.of("Proven ability to build high-performing teams, foster innovation, and cultivate entrepreneurial leadership.")),
+                    new Skill("Startup Ecosystem Navigation", List.of("In-depth knowledge of incubator/accelerator programs, government schemes, and startup networks."))
+            );
+        }
+        return skills;
     }
 }

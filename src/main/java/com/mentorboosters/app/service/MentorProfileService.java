@@ -1,9 +1,6 @@
 package com.mentorboosters.app.service;
 
-import com.mentorboosters.app.dto.AllMentorsResponseDTO;
-import com.mentorboosters.app.dto.MenteeDashboardDTO;
-import com.mentorboosters.app.dto.MentorDashboardDTO;
-import com.mentorboosters.app.dto.MentorProfileDTO;
+import com.mentorboosters.app.dto.*;
 import com.mentorboosters.app.enumUtil.AccountStatus;
 import com.mentorboosters.app.enumUtil.ApprovalStatus;
 import com.mentorboosters.app.enumUtil.PaymentStatus;
@@ -164,6 +161,15 @@ public class MentorProfileService {
                             .toString())
                     .toList();
 
+            List<SkillDTO> skills = mentorNew.getSkills().stream()
+                    .map(skill -> {
+                        return SkillDTO.builder()
+                                .subHeading(skill.getSubHeading())
+                                .points(skill.getPoints())
+                                .build();
+                    })
+                    .toList();
+
 
             var mentorDto = MentorProfileDTO.builder()
                     .mentorId(mentorNew.getId())
@@ -184,6 +190,7 @@ public class MentorProfileService {
                     .timezone(mentorNew.getTimezone())
                     .timeSlots(timeSlots)
                     .accountStatus(mentorNew.getAccountStatus())
+                    .skills(skills)
                     .build();
 
 
