@@ -55,6 +55,17 @@ public class ZoomMeetingService {
         meetingDetails.put("duration", 60);
         meetingDetails.put("timezone", "UTC");
 
+        Map<String, Object> settings = new HashMap<>();
+        settings.put("join_before_host", false); // Don't allow joining before host
+        settings.put("allow_multiple_devices", false); // Disallow joining from multiple devices
+        settings.put("waiting_room", true); // Optional: enable waiting room
+        settings.put("host_video", false); // Optional: host video OFF by default
+        settings.put("participant_video", false); // Optional: participant video OFF
+        settings.put("enforce_login", false); // Optional: allow guests
+        settings.put("auto_recording", "none"); // Optional: It will not auto record
+
+        meetingDetails.put("settings", settings);
+
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(meetingDetails, headers);
 
         ResponseEntity<String> response = restTemplate.postForEntity(

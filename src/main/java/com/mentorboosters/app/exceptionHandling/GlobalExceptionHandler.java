@@ -193,14 +193,14 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse=
                 new ErrorResponse(EMAIL_AUTH_FAILED_SENDER
                         ,ex.getMessage(),STATUS_FALSE, LocalDateTime.now());
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_GATEWAY);
     }
     @ExceptionHandler(MailSendException.class)
     public ResponseEntity<?> handleMailSendException(MailSendException ex) {
         ErrorResponse errorResponse=
                 new ErrorResponse(EMAIL_AUTH_FAILED_RECIPIENT
                         ,ex.getMessage(),STATUS_FALSE, LocalDateTime.now());
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(errorResponse, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     @ExceptionHandler(MailException.class)
@@ -208,7 +208,7 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse=
                 new ErrorResponse(EMAIL_SENDING_FAILED
                         ,ex.getMessage(),STATUS_FALSE, LocalDateTime.now());
-        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     // Exception Handling for Stripe payment
