@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SecretCheck {
 
+    // checking
     @Value("${stripe.webhook.secret}")
     private String stripeApiKey;
 
