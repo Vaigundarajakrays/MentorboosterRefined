@@ -82,6 +82,7 @@ public class MenteeProfileService {
                     .timeZone(menteeDto.getTimezone())
                     .profileUrl(menteeDto.getProfileUrl())
                     .status(ACTIVE)
+                    .ageOver18(menteeDto.getAgeOver18())
                     .build();
 
             MenteeProfile savedMentee = menteeProfileRepository.save(mentee);

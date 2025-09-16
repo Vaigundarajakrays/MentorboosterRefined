@@ -53,4 +53,7 @@ public class MenteeProfile extends BaseEntity{
 
     private String status;
 
+    private Boolean ageOver18;
+
+
 }

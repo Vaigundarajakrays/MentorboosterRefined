@@ -30,6 +30,7 @@ public class MenteeProfileDTO {
     private String location;
     private List<String> goals;
     private String status;
+    private Boolean ageOver18;
 
 
 //    private String businessStage;
