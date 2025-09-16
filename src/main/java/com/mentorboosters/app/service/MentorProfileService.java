@@ -76,6 +76,7 @@ public class MentorProfileService {
                     .terms(mentorDto.getTerms())
                     .termsAndConditions(mentorDto.getTermsAndConditions())
                     .timezone(timezone)
+                    .ageOver18(mentorDto.getAgeOver18())
                     .build();
 
             List<FixedTimeSlotNew> timeSlots = mentorDto.getTimeSlots().stream().map(slotStr -> {

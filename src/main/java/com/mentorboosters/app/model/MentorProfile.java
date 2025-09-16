@@ -93,4 +93,7 @@ public class MentorProfile extends BaseEntity {
 
     @OneToMany(mappedBy = "mentorProfile", cascade = CascadeType.ALL)
     private List<Skill> skills;
+
+    private Boolean ageOver18;
+
 }

@@ -37,5 +37,6 @@ public class MentorProfileDTO {
     private AccountStatus accountStatus;
     private ApprovalStatus approvalStatus;
     private List<SkillDTO> skills;
+    private Boolean ageOver18;
 
 }
