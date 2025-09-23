@@ -3,14 +3,10 @@ package com.mentorboosters.app.service;
 import com.mentorboosters.app.exceptionHandling.ResourceAlreadyExistsException;
 import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
-import com.mentorboosters.app.model.Category;
-import com.mentorboosters.app.model.Mentor;
 import com.mentorboosters.app.model.SeminarNotes;
-import com.mentorboosters.app.model.Users;
 import com.mentorboosters.app.repository.SeminarNotesRepository;
 import com.mentorboosters.app.repository.UsersRepository;
 import com.mentorboosters.app.response.CommonResponse;
-import com.mentorboosters.app.util.Constant;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

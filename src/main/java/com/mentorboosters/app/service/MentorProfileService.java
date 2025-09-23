@@ -73,6 +73,7 @@ public class MentorProfileService {
                     .categories(mentorDto.getCategories())
                     .summary(mentorDto.getSummary())
                     .amount(mentorDto.getAmount())
+                    .currency(mentorDto.getCurrency())
                     .terms(mentorDto.getTerms())
                     .termsAndConditions(mentorDto.getTermsAndConditions())
                     .timezone(timezone)
@@ -177,6 +178,7 @@ public class MentorProfileService {
                     .name(mentorNew.getName())
                     .email(mentorNew.getEmail())
                     .amount(mentorNew.getAmount())
+                    .currency(mentorNew.getCurrency())
                     .profileUrl(mentorNew.getProfileUrl())
                     .categories(mentorNew.getCategories())
                     .linkedinUrl(mentorNew.getLinkedinUrl())
@@ -228,6 +230,7 @@ public class MentorProfileService {
             if (mentorDto.getCategories() != null) mentor.setCategories(mentorDto.getCategories());
             if (mentorDto.getSummary() != null) mentor.setSummary(mentorDto.getSummary());
             if (mentorDto.getAmount() != null) mentor.setAmount(mentorDto.getAmount());
+            if (mentorDto.getCurrency() != null) mentor.setCurrency(mentorDto.getCurrency());
             if (mentorDto.getTerms() != null) mentor.setTerms(mentorDto.getTerms());
             if (mentorDto.getTermsAndConditions() != null) mentor.setTermsAndConditions(mentorDto.getTermsAndConditions());
             if (mentorDto.getTimezone() != null) mentor.setTimezone(mentorDto.getTimezone());
@@ -277,6 +280,7 @@ public class MentorProfileService {
                     .categories(updatedMentor.getCategories())
                     .summary(updatedMentor.getSummary())
                     .amount(updatedMentor.getAmount())
+                    .currency(updatedMentor.getCurrency())
                     .terms(updatedMentor.getTerms())
                     .termsAndConditions(updatedMentor.getTermsAndConditions())
                     .timezone(updatedMentor.getTimezone())

@@ -1,7 +1,5 @@
 package com.mentorboosters.app.util;
 
-import com.mentorboosters.app.enumUtil.OtpPurpose;
-import com.mentorboosters.app.model.Mentor;
 import com.mentorboosters.app.model.MentorProfile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;

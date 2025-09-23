@@ -52,6 +52,7 @@ public class MentorSeeder implements CommandLineRunner {
                         .summary("Karthik Bairu is a distinguished startup mentor at T-Hub, India’s largest startup incubator, where he provides strategic guidance to over 15 early-stage and growth-stage startups. With a proven track record as a three-time entrepreneur and an accomplished angel investor, Karthik brings a unique blend of hands-on business experience and investment insight. He is a gold medalist in Artificial Intelligence, and his expertise spans across emerging technologies, product innovation, and go-to-market strategy. Karthik is highly regarded for his ability to help founders refine their business models, scale sustainably, and prepare for successful fundraising.")
                         .description("Mentor at T-Hub | 3X Entrepreneur | AI Gold Medalist | Angel Investor | Advisor to 15+ Startups")
                         .amount(2500.0)
+                        .currency("CAD")
                         .timeSlots(List.of("18:00", "15:00"))
                         .build(),
 
@@ -67,6 +68,7 @@ public class MentorSeeder implements CommandLineRunner {
                         .summary("Govind Babu is a seasoned sales and leadership expert with over 18 years of global experience across leading companies like Tech Mahindra, Sify, Birlasoft, Aditya Birla (USA), and Synechron. An engineer by background and MBA graduate from Symbiosis, Pune, he has trained over 15,000 professionals across 7 countries. He is the co-author of the book “Life is Fundamentally Management” and currently serves as Managing Partner at EMP GoWin Global (Dubai) and GoWin Search (USA). A 3-time President of BNI in India and Dubai, Govind is deeply passionate about mentoring startup founders, building high-impact sales strategies, and driving growth for SMEs and enterprises across India, the Middle East, and Asia-Pacific.")
                         .description("Mentor | Sales Leadership Expert | 3X Entrepreneur | Author | International Trainer | 18+ Years of Global Experience | Coached 15K+ Sales Professionals | Ex-President, BNI India & Dubai")
                         .amount(3000.0)
+                        .currency("CAD")
                         .timeSlots(List.of("17:00", "20:00"))
                         .build(),
 
@@ -85,9 +87,44 @@ public class MentorSeeder implements CommandLineRunner {
                         .summary("Satyendra Kumar Singh is a seasoned business mentor and career strategist with over two decades of experience guiding students, professionals, and startups. With a strong background in academic advising, startup mentoring, motivational counselling, and skill development training, he has empowered countless individuals to achieve clarity in their personal and professional goals. His work spans institutions, startups, and government organizations, where he brings a structured, empathetic, and transformative approach. In addition to his mentoring work, Satyendra is a prolific author with three published poetry titles and ongoing projects in motivational writing and fiction. His mentorship is grounded in real-world insights and a passion for enabling growth through purpose-driven guidance.")
                         .description("Mentor | Mentoring 100+ Startups & Businesses | Career Strategist - Counselled 50000+ students | Academic Advisor @ Educational Institutes | Avid Writer - Published 3 Poetry Titles and still writing...")
                         .amount(2500.0)
+                        .currency("CAD")
                         .timeSlots(List.of("19:00"))
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("alex.velazquez@gmail.com")
+                        .phone("7777777777")
+                        .timezone("America/Toronto")
+                        .password("alex@123")
+                        .name("Alex Velazquez")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/c94b6501-f679-4d3d-9725-b7a52fbd74a2-alex.jpg")
+                        .yearsOfExperience("12")
+                        .categories(List.of("Marketing", "Entrepreneurship"))
+                        .summary("Alex Velazquez is a seasoned software engineer and interview coach with over a decade of experience at Google. During his tenure, he led 100+ technical interviews, served on the Early Career Hiring Committee, and mentored students through workshops across North America. Alex is passionate about helping early career talent break into top tech companies like Google, Meta, Amazon, and IBM. He left Big Tech to focus on mentoring full-time and now runs 'Next Offer,' a coaching program designed to equip aspiring software engineers with the tools to stand out in the competitive job market. Through personalized coaching, resume revamps, mock interviews, and strategic job search guidance, Alex helps mentees build confidence, refine their skills, and secure offers at leading technology firms. His mission is simple: to bridge the gap between talent and opportunity by teaching mentees how to think like an interviewer, communicate effectively, and excel in the hiring process.")
+                        .description("Software Engineer Mentor | Ex-Google | SWE Interview Coach")
+                        .amount(150.0)
+                        .currency("CAD")
+                        .timeSlots(List.of("16:00", "21:00"))
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("roberta.basili@gmail.com")
+                        .phone("6666666666")
+                        .timezone("Europe/Amsterdam")
+                        .password("roberta@123")
+                        .name("Roberta Basili")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/a4501a49-11d9-4161-96f5-40ab955c5ed2-basili.jpg")
+                        .yearsOfExperience("10")
+                        .categories(List.of("Marketing", "Entrepreneurship"))
+                        .summary("Roberta Basili is an experienced Career & Life Coach specializing in guiding expats and international professionals to find fulfilling, high-income careers abroad. Based in Amsterdam and certified by Erickson Coaching International, Roberta combines her background as a senior recruiter with her expertise as a professional coach to help clients transition careers, industries, or countries with clarity and confidence. Having coached over 100 professionals from 24+ nationalities, Roberta understands the unique challenges faced by expats who feel stuck in unfulfilling roles. Her mission is to empower professionals to overcome limiting beliefs, navigate complex job markets, and create careers that are not only financially rewarding but also deeply meaningful.")
+                        .description("The Expats’ Career Coach | Career & Life Coach | Former Recruiter")
+                        .amount(160.0)
+                        .currency("USD")
+                        .timeSlots(List.of("15:00", "20:00"))
                         .build()
-        );
+
+
+                );
 
         for (MentorSeederDTO dto : mentorsToSeed) {
             if (mentorProfileRepository.existsByEmailOrPhone(dto.getMentorEmail(), dto.getPhone())) {
@@ -126,6 +163,7 @@ public class MentorSeeder implements CommandLineRunner {
                         .summary(dto.getSummary())
                         .description(dto.getDescription())
                         .amount(dto.getAmount())
+                        .currency(dto.getCurrency())
                         .terms(true)
                         .termsAndConditions(true)
                         .timezone(dto.getTimezone())
@@ -168,9 +206,26 @@ public class MentorSeeder implements CommandLineRunner {
     }
 
     private static List<Skill> getSkills(MentorSeederDTO dto) {
-        List<Skill> skills = null;
-        if(dto.getMentorEmail().equals("satyen.trainer@gmail.com")){
-            skills = List.of(
+        if (dto.getMentorEmail().equals("alex.velazquez@gmail.com")) {
+            return List.of(
+                    new Skill("Software Engineering & Development",
+                            List.of("Proven expertise in algorithms, data structures, and large-scale systems.")),
+                    new Skill("Interview Preparation",
+                            List.of("Conducted 100+ interviews at Google, with deep knowledge of technical hiring processes.")),
+                    new Skill("Resume & LinkedIn Optimization",
+                            List.of("Helps mentees craft standout profiles in competitive markets.")),
+                    new Skill("Mock Interviews & Feedback",
+                            List.of("Simulates real interview environments to improve performance.")),
+                    new Skill("Career Strategy",
+                            List.of("Guides mentees on job search approaches, referrals, and offer negotiation.")),
+                    new Skill("Teaching & Mentorship",
+                            List.of("Experienced coach at universities, bootcamps, and initiatives like Google CodeNext.")),
+                    new Skill("Problem Solving & Algorithms",
+                            List.of("Strong foundation in solving coding challenges and technical problems."))
+            );
+        }
+        if (dto.getMentorEmail().equals("satyen.trainer@gmail.com")) {
+            return List.of(
                     new Skill("Startup & Business Mentoring", List.of("Advises entrepreneurs and early-stage ventures on strategy, structure, and sustainable business models.")),
                     new Skill("Career Strategy & Planning", List.of("Helps students and professionals map meaningful career paths through structured, personalized planning.")),
                     new Skill("Academic Advising & Training", List.of("Collaborates with educational institutions to deliver training programs and workshops on skill development and goal setting.")),
@@ -179,18 +234,37 @@ public class MentorSeeder implements CommandLineRunner {
                     new Skill("Skill Development & Capacity Building", List.of("Designs and delivers modules that focus on practical life skills, professional readiness, and personal effectiveness.")),
                     new Skill("Empathy-Driven Leadership", List.of("Mentorship approach rooted in empathy, lifelong learning, and a strong belief in the transformative power of clarity and inner drive."))
             );
-        } else {
-            skills = List.of(
-                    new Skill("Startup Mentorship & Advisory", List.of("Guiding early-stage and growth-stage startups on business strategy, product-market fit, and scaling.")),
-                    new Skill("Artificial Intelligence & Machine Learning", List.of("Deep technical expertise in AI/ML applications, with academic excellence and practical implementation.")),
-                    new Skill("Entrepreneurship", List.of("Built and exited three startups, with hands-on experience in founding, growing, and managing ventures.")),
-                    new Skill("Fundraising & Investment Strategy", List.of("Experience in angel investing and supporting startups in preparing for venture capital and funding rounds.")),
-                    new Skill("Go-to-Market Strategy", List.of("Expertise in market validation, positioning, and customer acquisition for technology products.")),
-                    new Skill("Technology & Product Development", List.of("Strong technical foundation with the ability to guide product roadmaps, MVP design, and agile development.")),
-                    new Skill("Leadership & Team Building", List.of("Proven ability to build high-performing teams, foster innovation, and cultivate entrepreneurial leadership.")),
-                    new Skill("Startup Ecosystem Navigation", List.of("In-depth knowledge of incubator/accelerator programs, government schemes, and startup networks."))
+        }
+        if (dto.getMentorEmail().equals("roberta.basili@gmail.com")) {
+            return List.of(
+                    new Skill("Expat Career Coaching",
+                            List.of("Supporting professionals in navigating global job markets.")),
+                    new Skill("Career Change Consulting",
+                            List.of("Helping clients pivot into new roles, industries, and countries.")),
+                    new Skill("Resume & LinkedIn Optimization",
+                            List.of("Crafting standout applications tailored for global recruiters.")),
+                    new Skill("Interview Preparation",
+                            List.of("Providing insider recruiter strategies and mock interviews.")),
+                    new Skill("Leadership Development",
+                            List.of("Guiding professionals to grow into leadership and management roles.")),
+                    new Skill("Negotiation & Strategy",
+                            List.of("Coaching on salary, benefits, and career advancement planning.")),
+                    new Skill("Diversity, Equity & Inclusion Advocacy",
+                            List.of("Championing inclusive hiring and workplace practices.")),
+                    new Skill("Cross-Cultural Career Navigation",
+                            List.of("Helping expats adapt professionally and culturally to new environments."))
             );
         }
-        return skills;
+        return List.of(
+                new Skill("Startup Mentorship & Advisory", List.of("Guiding early-stage and growth-stage startups on business strategy, product-market fit, and scaling.")),
+                new Skill("Artificial Intelligence & Machine Learning", List.of("Deep technical expertise in AI/ML applications, with academic excellence and practical implementation.")),
+                new Skill("Entrepreneurship", List.of("Built and exited three startups, with hands-on experience in founding, growing, and managing ventures.")),
+                new Skill("Fundraising & Investment Strategy", List.of("Experience in angel investing and supporting startups in preparing for venture capital and funding rounds.")),
+                new Skill("Go-to-Market Strategy", List.of("Expertise in market validation, positioning, and customer acquisition for technology products.")),
+                new Skill("Technology & Product Development", List.of("Strong technical foundation with the ability to guide product roadmaps, MVP design, and agile development.")),
+                new Skill("Leadership & Team Building", List.of("Proven ability to build high-performing teams, foster innovation, and cultivate entrepreneurial leadership.")),
+                new Skill("Startup Ecosystem Navigation", List.of("In-depth knowledge of incubator/accelerator programs, government schemes, and startup networks."))
+        );
     }
+
 }

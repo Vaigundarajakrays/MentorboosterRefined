@@ -26,5 +26,6 @@ public class MentorSeederDTO {
     private String summary;
     private String description;
     private Double amount;
+    private String currency;
     private List<String> timeSlots;
 }
