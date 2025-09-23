@@ -30,6 +30,7 @@ public class MentorProfileDTO {
     private String summary;
     private String description;
     private Double amount;
+    private String currency;
     private Boolean terms;
     private Boolean termsAndConditions;
     private String timezone; // 👈 Needed to convert local to UTC

@@ -5,6 +5,7 @@ import com.mentorboosters.app.enumUtil.AccountStatus;
 import com.mentorboosters.app.enumUtil.ApprovalStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.util.List;
 
@@ -57,6 +58,10 @@ public class MentorProfile extends BaseEntity {
 
     @Column(nullable = false)
     private Double amount;
+
+    @Column(nullable = false, columnDefinition = "varchar(3)")
+    @ColumnDefault("'CAD'")
+    private String currency;
 
     @Column(nullable = false)
     private Boolean terms;
