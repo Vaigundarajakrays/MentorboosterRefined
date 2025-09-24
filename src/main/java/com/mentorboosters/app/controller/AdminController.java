@@ -5,6 +5,7 @@ import com.mentorboosters.app.exceptionHandling.ResourceNotFoundException;
 import com.mentorboosters.app.exceptionHandling.UnexpectedServerException;
 import com.mentorboosters.app.response.CommonResponse;
 import com.mentorboosters.app.service.AdminService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -43,9 +44,8 @@ public class AdminController{
     }
 
     @PatchMapping("/mentors/{mentorId}/approval-status")
-    public CommonResponse<AdminDashboardDTO> updateMentorStatus(@PathVariable Long mentorId,@RequestBody ApprovalRequestDTO request) throws UnexpectedServerException, ResourceNotFoundException {
+    public CommonResponse<AdminDashboardDTO> updateMentorStatus(@PathVariable Long mentorId,@Valid @RequestBody ApprovalRequestDTO request) throws UnexpectedServerException, ResourceNotFoundException {
         return adminService.updateMentorApprovalStatus(mentorId, request);
-
     }
 }
 

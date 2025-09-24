@@ -13,9 +13,11 @@ import com.mentorboosters.app.model.MentorProfile;
 import com.mentorboosters.app.repository.BookingRepository;
 import com.mentorboosters.app.repository.MenteeProfileRepository;
 import com.mentorboosters.app.repository.MentorProfileRepository;
+import com.mentorboosters.app.repository.UsersRepository;
 import com.mentorboosters.app.response.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.swing.*;
@@ -37,6 +39,7 @@ public class AdminService {
     private final MenteeProfileRepository menteeProfileRepository;
     private final BookingRepository bookingRepository;
     private final EmailService emailService;
+    private final UsersRepository usersRepository;
 
 
     // wanna add no of mentors active? inactive?
@@ -424,6 +427,7 @@ public class AdminService {
 
     }
 
+    @Transactional
     public CommonResponse<AdminDashboardDTO> updateMentorApprovalStatus(Long mentorId,ApprovalRequestDTO request) throws ResourceNotFoundException, UnexpectedServerException {
 
 
@@ -433,28 +437,17 @@ public class AdminService {
 
             String action = request.getStatus();
 
+            String email = mentor.getEmail();
+            String name = mentor.getName();
+
             if ("APPROVED".equalsIgnoreCase(action)) {
 
                 mentor.setApprovalStatus(ApprovalStatus.ACCEPTED);
                 mentor.setAccountStatus(AccountStatus.ACTIVE);
+                mentorProfileRepository.save(mentor);
 
-            } else if ("REJECTED".equalsIgnoreCase(action)) {
-
-                mentor.setApprovalStatus(ApprovalStatus.REJECTED);
-                mentor.setAccountStatus(AccountStatus.INACTIVE);
-
-            } else {
-                throw new InvalidFieldValueException("Action must be either approved or rejected");
-            }
-
-            mentorProfileRepository.save(mentor);
-
-            String subject;
-            String body;
-
-            if (ApprovalStatus.ACCEPTED.equals(mentor.getApprovalStatus())) {
-                subject = "Your Mentor Application is Approved ✅";
-                body = String.format("""
+                String subject = "Your Mentor Application is Approved ✅";
+                String body = String.format("""
                 Hi %s,
                 
                 Congratulations! 🎉
@@ -470,10 +463,17 @@ public class AdminService {
                 
                 Warm regards,  
                 Team MentorBooster  
-                """, mentor.getName());
-            } else {
-                subject = "Your Mentor Application is Not Approved ❌";
-                body = String.format("""
+                """, name);
+
+                emailService.sendEmail(email, subject, body);
+
+            } else if ("REJECTED".equalsIgnoreCase(action)) {
+
+                usersRepository.deleteByEmailId(mentor.getEmail());
+                mentorProfileRepository.deleteById(mentor.getId());
+
+                String subject = "Your Mentor Application is Not Approved ❌";
+                String body = String.format("""
                 Hi %s,
                 
                 Thank you for applying to be a mentor on MentorBooster.
@@ -488,10 +488,13 @@ public class AdminService {
                 
                 Warm wishes,  
                 Team MentorBooster  
-                """, mentor.getName());
-            }
+                """, name);
 
-            emailService.sendEmail(mentor.getEmail(), subject, body);
+                emailService.sendEmail(email, subject, body);
+
+            } else {
+                throw new InvalidFieldValueException("Action must be either approved or rejected");
+            }
 
             return CommonResponse.<AdminDashboardDTO>builder()
                     .status(STATUS_TRUE)
