@@ -24,5 +24,6 @@ public class LoginResponse {
     private String profileUrl;
     @JsonProperty("isSubscribed")
     private boolean isSubscribed;
+    private String currency;
 
 }
