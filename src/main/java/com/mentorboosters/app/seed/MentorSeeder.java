@@ -121,7 +121,26 @@ public class MentorSeeder implements CommandLineRunner {
                         .amount(160.0)
                         .currency("USD")
                         .timeSlots(List.of("15:00", "20:00"))
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("ctckohli@outlook.com")
+                        .phone("918882279758")
+                        .timezone("Asia/Kolkata")
+                        .password("tarun@123")
+                        .name("Tarun Kohli")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/b9b4e112-1d8e-4592-ad12-c68f49ab4e62-TARUN_KOHLI_PHOTO_optimized_100 copy1.JPG")
+                        .resumeUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/8f4514d3-9ef0-4c2a-be88-c64a65717144-T K Advisors Profile.pdf")
+                        .linkedinUrl("https://www.linkedin.com/in/tkadvisors/")
+                        .yearsOfExperience("32")
+                        .categories(List.of("Marketing", "Entrepreneurship"))
+                        .summary("Tarun Kohli is a senior management consultant and marketing leader with over 32 years of cross-industry experience. He has held leadership roles spanning marketing, international business development, channel establishment, strategic planning, operations management, and customer relationship management. As founder of T K ADVISORS and a seasoned fractional CMO, Tarun helps businesses—especially SMEs and startups—build go-to-market strategies, establish distribution channels, structure partnerships, and improve sales and marketing effectiveness. He combines analytical thinking with hands-on execution and is experienced in leadership assessment, gap analysis, and training programs.")
+                        .description("Fractional CMO | Senior Management Consultant & Advisor | SME/Startup Coach")
+                        .amount(100.0)
+                        .currency("INR")
+                        .timeSlots(List.of("01:00"))
                         .build()
+
 
 
                 );
@@ -255,6 +274,52 @@ public class MentorSeeder implements CommandLineRunner {
                             List.of("Helping expats adapt professionally and culturally to new environments."))
             );
         }
+        if (dto.getMentorEmail().equals("tarun.kohli@gmail.com")) {
+            return List.of(
+                    new Skill("International Business Development",
+                            List.of("Led cross-border expansion projects across Asia, Europe, and Middle East.",
+                                    "Expertise in building international partnerships and distribution channels.")),
+
+                    new Skill("Marketing & Go-to-Market Strategy",
+                            List.of("Designed and executed GTM strategies for SMEs and startups.",
+                                    "Specialized in positioning, branding, and customer acquisition.")),
+
+                    new Skill("Sales & Channel Development",
+                            List.of("Established dealer and distributor networks across multiple industries.",
+                                    "Developed high-performing sales teams with structured processes.")),
+
+                    new Skill("Management Consulting",
+                            List.of("Advised clients in automotive, logistics, telecom, and construction sectors.",
+                                    "Focused on operational efficiency, growth strategy, and turnaround management.")),
+
+                    new Skill("Leadership & Executive Coaching",
+                            List.of("Guided senior leaders through personalized coaching programs.",
+                                    "Helps executives strengthen decision-making and leadership presence.")),
+
+                    new Skill("Gap Assessment & Leadership Assessment",
+                            List.of("Conducts structured leadership gap analysis for SMEs and corporates.",
+                                    "Identifies organizational skill gaps and provides development roadmaps.")),
+
+                    new Skill("Strategic Planning & Operations Management",
+                            List.of("Specialized in long-term business planning and execution frameworks.",
+                                    "Improved operational processes for multinational and SME clients.")),
+
+                    new Skill("Cross-cultural & Cross-functional Coordination",
+                            List.of("Worked with global teams across Japan, India, Europe, and the Middle East.",
+                                    "Strong experience in managing diverse cultural and functional teams.")),
+
+                    new Skill("Market Research & Entry Strategy",
+                            List.of("Designed market-entry strategies for international companies entering India.",
+                                    "Expert in competitive analysis, market sizing, and feasibility studies.")),
+
+                    new Skill("Training, Workshops & Guest Faculty",
+                            List.of("Delivered 100+ workshops on business development, leadership, and marketing.",
+                                    "Served as guest faculty at leading management institutes."))
+
+            );
+        }
+
+
         return List.of(
                 new Skill("Startup Mentorship & Advisory", List.of("Guiding early-stage and growth-stage startups on business strategy, product-market fit, and scaling.")),
                 new Skill("Artificial Intelligence & Machine Learning", List.of("Deep technical expertise in AI/ML applications, with academic excellence and practical implementation.")),

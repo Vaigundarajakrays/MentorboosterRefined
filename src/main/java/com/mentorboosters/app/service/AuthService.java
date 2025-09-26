@@ -74,8 +74,7 @@ public class AuthService {
             String timezone = null;
             String profileUrl = null;
             boolean isSubscribed = false;
-
-            var formatter = DateTimeFormatter.ofPattern("MMM dd, yyyy");
+            String currency = null;
 
             if (user.getRole() == Role.USER) {
                 MenteeProfile mentee = menteeProfileRepository.findByEmail(user.getEmailId())
@@ -105,6 +104,7 @@ public class AuthService {
                 id = mentor.getId();
                 timezone = mentor.getTimezone();
                 profileUrl = mentor.getProfileUrl();
+                currency = mentor.getCurrency();
             }
 
             LoginResponse loginResponse = LoginResponse.builder()
@@ -114,6 +114,7 @@ public class AuthService {
                     .id(id)
                     .timezone(timezone)
                     .profileUrl(profileUrl)
+                    .currency(currency)
                     .isSubscribed(isSubscribed)
                     .build();
 
