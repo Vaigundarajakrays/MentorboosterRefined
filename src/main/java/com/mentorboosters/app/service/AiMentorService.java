@@ -2,6 +2,7 @@ package com.mentorboosters.app.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpHeaders;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class AiMentorService {
 
     private final WebClient webClient;
@@ -105,12 +107,22 @@ public class AiMentorService {
 
                         ObjectMapper mapper = new ObjectMapper();
                         JsonNode root = mapper.readTree(json);
-                        JsonNode contentNode = root.path("choices").get(0).path("delta").path("content");
-                        if (!contentNode.isMissingNode()) {
-                            return Flux.just(" " +contentNode.asText()); // the space before done is very important, that is how frontend is expecting
+                        // Defensive check for choices array
+                        JsonNode choices = root.path("choices");
+                        if (!choices.isArray() || choices.size() == 0) {
+                            log.warn("Skipping SSE chunk: 'choices' missing or empty -> {}", json);
+                            return Flux.empty();
+                        }
+
+                        JsonNode contentNode = choices.get(0).path("delta").path("content");
+                        if (!contentNode.isMissingNode() && !contentNode.isNull()) {
+                            return Flux.just(" " + contentNode.asText());
+                        } else {
+                            log.debug("Skipping SSE chunk: no content found -> {}", json);
                         }
                     } catch (Exception e) {
-                        return Flux.empty(); // the space before done is very important, that is how frontend is expecting
+                        log.error("Failed to parse SSE chunk: {}", line, e);
+                        return Flux.empty();
                     }
                     return Flux.empty();
                 })
