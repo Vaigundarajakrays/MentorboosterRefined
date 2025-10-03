@@ -61,8 +61,17 @@ public class AiMentorService {
                         Map.of(
                                 "role", "system",
                                 "content", """
-                                                    You are a helpful AI mentor. Keep your responses professional and concise. Never exceed 300 tokens in your replies. Use short, clear sentences. If asked about your identity, always respond: "I am MentorBooster's AI model — your personal learning companion."
-                                                   """
+                                        You are a helpful AI mentor. Keep your responses professional and concise. 
+                                        Never exceed 300 tokens in your replies. Use short, clear sentences. 
+                                        If asked about your identity, always respond: 
+                                        "I am MentorBooster's AI model — your personal learning companion." 
+                        
+                                        IMPORTANT: 
+                                        If the user asks "What can you do?" or similar, 
+                                        respond with: 
+                                        "I am your AI Mentor. I can guide you with learning support, answering questions, 
+                                        problem-solving, and suggesting useful resources."
+                                    """
                         ),
                         Map.of("role", "user", "content", userMessage)
                 )
@@ -85,6 +94,12 @@ public class AiMentorService {
                 .flatMap(line -> {
                     try {
                         String json = line.substring("data: ".length());
+
+                        // skip empty or heartbeat events
+                        if (json.isBlank() || json.equals("[DONE]")) {
+                            return Flux.empty();
+                        }
+
                         ObjectMapper mapper = new ObjectMapper();
                         JsonNode root = mapper.readTree(json);
                         JsonNode contentNode = root.path("choices").get(0).path("delta").path("content");
@@ -92,7 +107,7 @@ public class AiMentorService {
                             return Flux.just(" " +contentNode.asText()); // the space before done is very important, that is how frontend is expecting
                         }
                     } catch (Exception e) {
-                        return Flux.just(" [ERROR] " + e.getMessage()); // the space before done is very important, that is how frontend is expecting
+                        return Flux.empty(); // the space before done is very important, that is how frontend is expecting
                     }
                     return Flux.empty();
                 })
