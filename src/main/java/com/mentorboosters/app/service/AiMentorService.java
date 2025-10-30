@@ -116,7 +116,7 @@ public class AiMentorService {
 
                         JsonNode contentNode = choices.get(0).path("delta").path("content");
                         if (!contentNode.isMissingNode() && !contentNode.isNull()) {
-                            return Flux.just(" " + contentNode.asText());
+                            return Flux.just(" " + contentNode.asText()); // the space before done is very important, that is how frontend is expecting
                         } else {
                             log.debug("Skipping SSE chunk: no content found -> {}", json);
                         }

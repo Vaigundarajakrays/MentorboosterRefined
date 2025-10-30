@@ -38,7 +38,7 @@ public class AiMentorController {
     public Flux<String> streamAi(@RequestParam String message, @RequestParam String token) {
 
         if (!tempTokenService.isValid(token)) {
-            return Flux.just(" Unauthorized. Invalid or expired token.");
+            return Flux.just(" Unauthorized. Invalid or expired token."); // this exact message wanna send to frontend
         }
 
         if (message == null || message.length() > 500) {
