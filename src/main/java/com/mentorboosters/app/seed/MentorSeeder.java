@@ -139,7 +139,78 @@ public class MentorSeeder implements CommandLineRunner {
                         .amount(100.0)
                         .currency("INR")
                         .timeSlots(List.of("01:00"))
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("aojekunle@yahoo.com")
+                        .phone("999999000065")
+                        .timezone("America/Toronto")
+                        .password("azeezat@123")
+                        .name("Azeezat Ojekunle")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/716e3771-6dbc-4e4f-a131-ae476c83783a-Azeezat Ojekunle.jpg")
+                        .yearsOfExperience("15+")
+                        .categories(List.of("Finance"))
+                        .summary("Azeezat Ojekunle is a finance professional and business strategist with over 15 years of experience guiding entrepreneurs and small business owners toward sustainable growth. As the Founder of Mentor Boosters, she has built a platform dedicated to connecting experienced mentors with business owners seeking clarity, structure, and profitability. Azeezat’s expertise lies in simplifying complex financial concepts and turning them into actionable business strategies. She has advised startups and SMEs on financial planning, budgeting, funding strategies, and leadership development. Known for her practical and empathetic mentoring approach, Azeezat helps entrepreneurs make informed decisions, improve cash flow, and align financial success with business vision. Her mentorship empowers business owners to gain confidence in managing finances, scaling operations, and building resilience in dynamic markets.")
+                        .description("Founder of Mentor Boosters | Finance Leader | Business Strategist | Mentor for Entrepreneurs | Advocate for Financial Empowerment")
+                        .amount(150.0)
+                        .currency("CAD")
+                        .timeSlots(List.of("16:00", "19:00"))
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("touchinfinitynow@gmail.com")
+                        .phone("456357836483")
+                        .timezone("America/New_York")
+                        .password("avinash@123")
+                        .name("Avinash Mahalingam")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/1af23244-0a9c-4be8-b8dd-240d5ac8e6e3-avinash.jpg")
+                        .yearsOfExperience("15")
+                        .categories(List.of("Product Development", "Entrepreneurship"))
+                        .summary("Avinash Mahalingam is a strategic product leader and mentor with deep expertise in AI Product Management, Business Strategy, and Leadership Development. With extensive experience across technology, innovation, and commercial growth, he helps professionals and founders bridge the gap between product vision and market success. As a mentor, Avinash focuses on empowering individuals to think strategically, build scalable products, and lead teams with clarity and impact. His approach combines technical excellence with human-centered leadership—helping mentees align their career goals, mindset, and performance to thrive in dynamic business environments. Avinash has guided numerous professionals and organizations in shaping product strategy, optimizing sales execution, and creating value-driven business models in AI and technology domains.")
+                        .description("AI Product Leader | Business Strategist | Growth Advisor | Leadership Mentor")
+                        .amount(200.0)
+                        .currency("USD")
+                        .timeSlots(List.of("13:00", "15:00"))
+                        .linkedinUrl("https://www.linkedin.com/in/avinashmahalingam/")
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("shwetasapra98@gmail.com")
+                        .phone("19059214552")
+                        .timezone("America/Toronto") // EST timezone
+                        .password("shweta@123")
+                        .name("Shweta Sapra")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/42074eb2-a947-44fe-af79-6b935b5c6800-shweta.jpg") // <-- replace with actual image link
+                        .yearsOfExperience("8.5")
+                        .categories(List.of("Marketing"))
+                        .summary("Shweta Sapra is a career coach and mentor with over 8.5 years of experience in marketing, analytics, and higher education consulting. She helps professionals and students navigate career transitions, build impactful resumes, and prepare for MBA entrance exams. Her mentoring approach blends data-driven insights with empathy, helping mentees gain clarity, confidence, and career direction.")
+                        .description("Career Coach | Marketing & Analytics Expert | MBA Preparation Mentor")
+                        .amount(80.0)
+                        .currency("CAD")
+                        .timeSlots(List.of("01:00"))
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("gaurav@amgvp.com")
+                        .phone("16477649590")
+                        .timezone("America/New_York")
+                        .password("gaurav@123")
+                        .name("Gaurav Bansal")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/f41800b8-8ca1-4d06-81f1-9e5c945195f9-Gaurav Bansal_Headshot.jpg")
+                        .resumeUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/e903aa8c-e19b-47fc-99ef-a35d0baad001-Gaurav Bansal_Resume.pdf")
+                        .linkedinUrl("https://www.linkedin.com/in/gauravbansalventurecapital/")
+                        .yearsOfExperience("13")
+                        .categories(List.of("Finance", "Entrepreneurship"))
+                        .summary("Gaurav is a tech investor and advisor with a portfolio of over 35+ VC investments across 10 countries and experience in US$2Bn+ worth of IPOs, M&A, and private equity deals. He is the founder & CEO at AMG Venture Partners where he manages his Family investment portfolio (50+ startups and member of 520+ global angel syndicates). Additionally, Gaurav serves as an Expert in Residence and Mentor across startup programs in North America, Europe, and LATAM, and specializes in investment readiness, AI/ML strategy, and global expansion. Gaurav is also an anonymous Evaluator for various Government grant programs in North America and Europe. Gaurav has held key roles at multiple venture capital funds and investment banks, bringing deep sector expertise in MedTech, Robotics, Fintech, B2B SaaS, AI/ML and Sustainability. Gaurav loves to travel (12+ countries), has worked across North America, Asia and Eu/UK markets and has a big network of investors, founders, and senior industry veterans.")
+                        .description("Venture Capital & Startup Growth Advisor | Seed-Stage Investor | AI / SaaS Specialist")
+                        .amount(300.0)
+                        .currency("USD")
+                        .timeSlots(List.of("13:00", "09:00"))
                         .build()
+
+
+
+
 
 
 
@@ -318,6 +389,126 @@ public class MentorSeeder implements CommandLineRunner {
 
             );
         }
+        if (dto.getMentorEmail().equals("aojekunle@yahoo.com")) {
+            return List.of(
+                    new Skill("Financial Planning & Business Strategy",
+                            List.of("Helping business owners design sustainable financial structures, budgets, and long-term growth plans.")),
+                    new Skill("Entrepreneurial Leadership",
+                            List.of("Guiding entrepreneurs to lead effectively and make strategic business decisions with confidence.")),
+                    new Skill("SME Growth Consulting",
+                            List.of("Providing tailored mentoring for small and medium businesses to improve profitability and scalability.")),
+                    new Skill("Mentorship & Coaching",
+                            List.of("Empowering professionals with actionable insights, accountability, and structured mentorship for career and business success.")),
+                    new Skill("Financial Literacy & Advisory",
+                            List.of("Simplifying complex financial topics into easy, practical guidance for better decision-making.")),
+                    new Skill("Business Development & Expansion Strategy",
+                            List.of("Advising founders on how to structure, fund, and scale their ventures responsibly.")),
+                    new Skill("Strategic Problem-Solving",
+                            List.of("Applying analytical and structured thinking to overcome financial and business challenges.")),
+                    new Skill("Leadership & Team Development",
+                            List.of("Building entrepreneurial confidence and leadership through focused mentoring and mindset transformation."))
+            );
+        }
+
+        if (dto.getMentorEmail().equals("touchinfinitynow@gmail.com")) {
+            return List.of(
+                    new Skill("AI Product Management",
+                            List.of("Guiding professionals to define, build, and scale AI-driven products that create measurable business impact.",
+                                    "Helping mentees bridge the gap between product vision and practical execution using AI technologies.")),
+
+                    new Skill("Product Strategy & Innovation",
+                            List.of("Coaching mentees on crafting actionable product roadmaps and defining go-to-market strategies.",
+                                    "Teaching how to align cross-functional teams and drive innovation through structured experimentation.")),
+
+                    new Skill("Business Strategy & Growth",
+                            List.of("Helping leaders and founders identify growth levers, create scalable frameworks, and make data-driven decisions.",
+                                    "Providing mentorship on building sustainable business models and long-term value creation.")),
+
+                    new Skill("Sales & Market Execution",
+                            List.of("Mentoring professionals on B2B and enterprise sales strategy, customer success, and market expansion.",
+                                    "Improving client relationship management and aligning sales processes with business goals.")),
+
+                    new Skill("Leadership & Team Development",
+                            List.of("Helping leaders inspire their teams, communicate vision clearly, and foster trust-based collaboration.",
+                                    "Guiding professionals to develop the mindset and behaviors that drive performance and innovation.")),
+
+                    new Skill("Self-Leadership & Personal Mastery",
+                            List.of("Coaching individuals to cultivate emotional intelligence, resilience, and self-awareness for career success.",
+                                    "Empowering mentees to align mindset, goals, and actions for long-term personal and professional growth."))
+            );
+        }
+
+        if (dto.getMentorEmail().equals("shwetasapra98@gmail.com")) {
+            return List.of(
+                    new Skill("Career Transition & Resume Building",
+                            List.of(
+                                    "Helping professionals restructure their resumes to highlight achievements and align profiles with targeted roles.",
+                                    "Guiding mentees through smooth career switches by identifying transferable skills and market-fit positioning."
+                            )),
+
+                    new Skill("Marketing & Analytics Strategy",
+                            List.of(
+                                    "Mentoring professionals on marketing concepts, campaign performance analysis, and analytics tools to enhance decision-making.",
+                                    "Providing insights into how data-driven marketing strategies can drive measurable business growth."
+                            )),
+
+                    new Skill("Career Change & Personal Branding",
+                            List.of(
+                                    "Coaching professionals to rebrand themselves for new industries or roles using personalized strategies.",
+                                    "Helping mentees build authentic personal brands that communicate their value and expertise effectively."
+                            )),
+
+                    new Skill("Higher Education (MBA Preparation)",
+                            List.of(
+                                    "Supporting mentees in crafting goal-oriented MBA preparation plans and optimizing their academic and professional profiles.",
+                                    "Mentoring students on exam strategies, SOPs, and interview preparation for global MBA programs."
+                            )),
+
+                    new Skill("Professional Development & Interview Coaching",
+                            List.of(
+                                    "Training mentees in behavioral interview techniques, effective communication, and confidence building.",
+                                    "Providing actionable feedback to improve articulation, clarity, and executive presence during interviews."
+                            )),
+
+                    new Skill("Pharma Industry Mentorship",
+                            List.of(
+                                    "Helping professionals from pharma backgrounds transition into marketing, analytics, or consulting roles.",
+                                    "Offering career direction for pharma professionals seeking to expand into data-driven or strategic domains."
+                            ))
+            );
+        }
+
+        if (dto.getMentorEmail().equals("gaurav@amgvp.com")) {
+            return List.of(
+                    new Skill("Investment Readiness & Fundraising Strategy",
+                            List.of("Advising startups on crafting pitch decks, financial models, and valuation strategies to attract investors.",
+                                    "Guiding founders on building datarooms, managing investor CRM, and understanding how VCs and angels evaluate deals.")),
+
+                    new Skill("Startup Growth & Scaling (AI / SaaS)",
+                            List.of("Helping early-stage companies achieve product-market fit and accelerate customer acquisition.",
+                                    "Designing sustainable growth roadmaps tailored for AI and SaaS-driven startups.")),
+
+                    new Skill("Business Model & Go-to-Market Strategy",
+                            List.of("Mentoring founders on refining their value proposition, monetization strategy, and pricing models.",
+                                    "Advising startups on international expansion and go-to-market execution across multiple regions.")),
+
+                    new Skill("Investor & Partner Network Access",
+                            List.of("Providing access to global investor networks including angel syndicates, VC funds, and strategic partners.",
+                                    "Leveraging extensive connections across North America, Europe, and Asia to open doors for fundraising and collaborations.")),
+
+                    new Skill("Leadership & Founding Team Coaching",
+                            List.of("Supporting founders in leadership transitions, team structuring, and scaling company culture.",
+                                    "Helping leaders improve decision-making, communication, and operating efficiency in high-growth environments.")),
+
+                    new Skill("M&A / Exit Strategy Consultation",
+                            List.of("Advising on acquisition readiness, strategic partnerships, and long-term exit planning.",
+                                    "Guiding founders through term sheet negotiation, legal documentation, and investor communication during M&A discussions."))
+            );
+        }
+
+
+
+
 
 
         return List.of(

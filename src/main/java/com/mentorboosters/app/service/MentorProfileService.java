@@ -99,6 +99,17 @@ public class MentorProfileService {
 
             mentor.setTimeSlots(timeSlots);
 
+            List<Skill> skills = mentorDto.getSkills().stream()
+                    .map(skillDto -> {
+                        Skill skill = new Skill();
+                        skill.setSubHeading(skillDto.getSubHeading());
+                        skill.setPoints(skillDto.getPoints());
+                        skill.setMentorProfile(mentor);
+                        return skill;
+                    })
+                    .toList();
+            mentor.setSkills(skills);
+
             // Encrypt password
             String hashedPassword = passwordEncoder.encode(mentorDto.getPassword());
             mentor.setPassword(hashedPassword);
@@ -164,13 +175,12 @@ public class MentorProfileService {
                     .toList();
 
             List<SkillDTO> skills = mentorNew.getSkills().stream()
-                    .map(skill -> {
-                        return SkillDTO.builder()
-                                .subHeading(skill.getSubHeading())
-                                .points(skill.getPoints())
-                                .build();
-                    })
+                    .map(skill -> SkillDTO.builder()
+                            .subHeading(skill.getSubHeading())
+                            .points(skill.getPoints())
+                            .build())
                     .toList();
+
 
 
             var mentorDto = MentorProfileDTO.builder()
@@ -258,6 +268,21 @@ public class MentorProfileService {
                 mentor.getTimeSlots().addAll(updatedTimeSlots);
             }
 
+            // ✅ Update skills if provided
+            if (mentorDto.getSkills() != null) {
+                List<Skill> updatedSkills = mentorDto.getSkills().stream()
+                        .map(skillDto -> {
+                            Skill skill = new Skill();
+                            skill.setSubHeading(skillDto.getSubHeading());
+                            skill.setPoints(skillDto.getPoints());
+                            skill.setMentorProfile(mentor);
+                            return skill;
+                        })
+                        .toList();
+                mentor.getSkills().clear();
+                mentor.getSkills().addAll(updatedSkills);
+            }
+
             MentorProfile updatedMentor = mentorNewRepository.save(mentor);
 
             // Build timeSlots back to String list for response
@@ -267,6 +292,15 @@ public class MentorProfileService {
                             .toLocalTime()
                             .toString())
                     .toList();
+
+            // ✅ Convert skills to DTOs for response
+            List<SkillDTO> updatedSkillsDto = updatedMentor.getSkills().stream()
+                    .map(skill -> SkillDTO.builder()
+                            .subHeading(skill.getSubHeading())
+                            .points(skill.getPoints())
+                            .build())
+                    .toList();
+
 
             // Prepare response DTO for mentor
             MentorProfileDTO responseDto = MentorProfileDTO.builder()
@@ -285,6 +319,7 @@ public class MentorProfileService {
                     .termsAndConditions(updatedMentor.getTermsAndConditions())
                     .timezone(updatedMentor.getTimezone())
                     .timeSlots(updatedTimeSlotsStr)
+                    .skills(updatedSkillsDto)
                     .accountStatus(updatedMentor.getAccountStatus())
                     .build();
 
