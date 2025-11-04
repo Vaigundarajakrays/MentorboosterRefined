@@ -206,7 +206,26 @@ public class MentorSeeder implements CommandLineRunner {
                         .amount(300.0)
                         .currency("USD")
                         .timeSlots(List.of("13:00", "09:00"))
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("pankhudi.gupta093@gmail.com")
+                        .phone("16474509134")
+                        .timezone("America/New_York")
+                        .password("pan@123")
+                        .name("Pan Seth")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/0ed361db-bc23-4dd4-9223-7bd3a0679681-panseth.jpg") // replace with actual image URL once uploaded
+                        .resumeUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/pan-seth-resume.pdf") // replace with actual resume URL
+                        .linkedinUrl("https://www.linkedin.com/in/panseth/")
+                        .yearsOfExperience("9+")
+                        .categories(List.of("Product Development", "Entrepreneurship"))
+                        .summary("Pan Seth is a seasoned leader who helps executives and business owners demystify artificial intelligence and data science, turning complex tools into tangible business impact. With over 9 years of experience and two patented innovations, Pan has driven over USD 600 million in business growth through AI, product innovation, and platform strategy. She provides guidance to those looking to leverage AI, data, product, and growth in their organizations or careers.")
+                        .description("AI Strategy & Data Science Innovator | Consumer Growth Leader | Product & Platform Strategist")
+                        .amount(300.0)
+                        .currency("USD")
+                        .timeSlots(List.of("09:00", "15:00"))
                         .build()
+
 
 
 
@@ -505,6 +524,47 @@ public class MentorSeeder implements CommandLineRunner {
                                     "Guiding founders through term sheet negotiation, legal documentation, and investor communication during M&A discussions."))
             );
         }
+
+        if (dto.getMentorEmail().equals("pankhudi.gupta093@gmail.com")) {
+            return List.of(
+                    new Skill("AI Strategy & Data Science Implementation",
+                            List.of(
+                                    "Translating AI/ML models into measurable business value.",
+                                    "Building frameworks for AI adoption, scaling data initiatives, and operationalizing insights across teams."
+                            )),
+
+                    new Skill("Product Innovation & Platform Strategy",
+                            List.of(
+                                    "Designing product ecosystems and applying growth loops to scale platforms.",
+                                    "Leading consumer-growth initiatives through product-led and data-informed strategies."
+                            )),
+
+                    new Skill("Business & Growth Strategy",
+                            List.of(
+                                    "Aligning product, data, and business strategies to unlock long-term sustainable growth.",
+                                    "Advising companies on integrating data-driven decision-making into their strategic roadmap."
+                            )),
+
+                    new Skill("Leadership & Team Building",
+                            List.of(
+                                    "Coaching executives and senior teams to build high-performing, data-driven organizations.",
+                                    "Guiding leaders in fostering innovation, collaboration, and effective change management."
+                            )),
+
+                    new Skill("Career Transition & Upskilling for AI",
+                            List.of(
+                                    "Helping professionals pivot into AI and data science roles with practical frameworks and career strategy.",
+                                    "Supporting leaders in upskilling for executive positions in data-driven organizations."
+                            )),
+
+                    new Skill("Innovation & Patents",
+                            List.of(
+                                    "Providing insights into technology patenting and commercialization strategies.",
+                                    "Leading innovation programs and converting technical inventions into market-ready solutions."
+                            ))
+            );
+        }
+
 
 
 

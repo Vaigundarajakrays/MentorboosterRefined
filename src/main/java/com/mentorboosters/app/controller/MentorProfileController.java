@@ -52,5 +52,11 @@ public class MentorProfileController {
         return mentorNewService.getAllMentors();
     }
 
+    @DeleteMapping("/{mentorId}")
+    public CommonResponse<String> deleteMentor(@PathVariable Long mentorId)
+            throws UnexpectedServerException, ResourceNotFoundException {
+        return mentorNewService.deleteMentor(mentorId);
+    }
+
 
 }

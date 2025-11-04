@@ -51,4 +51,9 @@ public class MenteeProfileController {
     public CommonResponse<String> cancelBooking(@PathVariable Long bookingId) throws UnexpectedServerException, ResourceNotFoundException {
         return menteeProfileService.cancelBooking(bookingId);
     }
+
+    @DeleteMapping("/{menteeId}")
+    public CommonResponse<String> deleteMentee(@PathVariable Long menteeId) throws UnexpectedServerException, ResourceNotFoundException {
+        return menteeProfileService.deleteMentee(menteeId);
+    }
 }
