@@ -72,6 +72,7 @@ public class MentorProfileService {
                     .password(mentorDto.getPassword()) // Will hash below
                     .categories(mentorDto.getCategories())
                     .summary(mentorDto.getSummary())
+                    .description(mentorDto.getDescription())
                     .amount(mentorDto.getAmount())
                     .currency(mentorDto.getCurrency())
                     .terms(mentorDto.getTerms())
@@ -239,6 +240,7 @@ public class MentorProfileService {
             if (mentorDto.getYearsOfExperience() != null) mentor.setYearsOfExperience(mentorDto.getYearsOfExperience());
             if (mentorDto.getCategories() != null) mentor.setCategories(mentorDto.getCategories());
             if (mentorDto.getSummary() != null) mentor.setSummary(mentorDto.getSummary());
+            if (mentorDto.getDescription() != null) mentor.setDescription(mentorDto.getDescription());
             if (mentorDto.getAmount() != null) mentor.setAmount(mentorDto.getAmount());
             if (mentorDto.getCurrency() != null) mentor.setCurrency(mentorDto.getCurrency());
             if (mentorDto.getTerms() != null) mentor.setTerms(mentorDto.getTerms());
@@ -313,6 +315,7 @@ public class MentorProfileService {
                     .yearsOfExperience(updatedMentor.getYearsOfExperience())
                     .categories(updatedMentor.getCategories())
                     .summary(updatedMentor.getSummary())
+                    .description(updatedMentor.getDescription())
                     .amount(updatedMentor.getAmount())
                     .currency(updatedMentor.getCurrency())
                     .terms(updatedMentor.getTerms())
@@ -510,5 +513,36 @@ public class MentorProfileService {
                 .categories(mentorProfile.getCategories())
                 .summary(mentorProfile.getSummary())
                 .build();
+    }
+
+    @Transactional
+    public CommonResponse<String> deleteMentor(Long mentorId)
+            throws ResourceNotFoundException, UnexpectedServerException {
+        try {
+            // Step 1: Find mentor by ID
+            MentorProfile mentor = mentorNewRepository.findById(mentorId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Mentor not found with ID: " + mentorId));
+
+            String email = mentor.getEmail();
+
+            // Step 2: Delete mentor (cascade deletes timeSlots and skills)
+            mentorNewRepository.delete(mentor);
+
+            // Step 3: Delete corresponding user from Users table (if exists)
+            usersRepository.deleteByEmailId(email);
+
+            // Step 4: Return response
+            return CommonResponse.<String>builder()
+                    .status(true)
+                    .statusCode(SUCCESS_CODE)
+                    .message("Mentor deleted successfully")
+                    .data("Deleted mentor with ID: " + mentorId)
+                    .build();
+
+        } catch (ResourceNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnexpectedServerException("Error while deleting mentor: " + e.getMessage());
+        }
     }
 }

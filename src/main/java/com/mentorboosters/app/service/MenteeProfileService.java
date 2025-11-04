@@ -447,4 +447,32 @@ public class MenteeProfileService {
 //        message.setFrom(mailFrom);
 //        mailSender.send(message);
 //  }
+
+
+    @Transactional
+    public CommonResponse<String> deleteMentee(Long menteeId) throws ResourceNotFoundException, UnexpectedServerException {
+
+        try {
+
+            MenteeProfile menteeProfile = menteeProfileRepository.findById(menteeId).orElseThrow(() -> new ResourceNotFoundException("Mentee not found with id: " + menteeId));
+
+            String menteeEmail = menteeProfile.getEmail();
+
+            menteeProfileRepository.deleteById(menteeId);
+
+            usersRepository.deleteByEmailId(menteeEmail);
+
+            return CommonResponse.<String>builder()
+                    .status(STATUS_TRUE)
+                    .statusCode(SUCCESS_CODE)
+                    .message("Mentee deleted successfully")
+                    .data("Deleted mentee with ID: " + menteeId)
+                    .build();
+
+        } catch (ResourceNotFoundException e){
+            throw e;
+        } catch (Exception e){
+            throw new UnexpectedServerException("Error while deleting mentee: " + e.getMessage());
+        }
+    }
 }
