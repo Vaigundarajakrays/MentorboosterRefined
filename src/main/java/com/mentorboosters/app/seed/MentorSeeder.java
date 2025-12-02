@@ -224,7 +224,25 @@ public class MentorSeeder implements CommandLineRunner {
                         .amount(300.0)
                         .currency("USD")
                         .timeSlots(List.of("09:00", "15:00"))
-                        .build()
+                        .build(),
+
+                MentorSeederDTO.builder()
+                        .mentorEmail("quentin.sallat@gmail.com")
+                        .phone("14373508050")
+                        .timezone("America/Montreal")
+                        .password("quen@123")
+                        .name("Quentin Sallat")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/4e997722-ec2b-43ea-980c-286ed25f0e0c-Quentin sallat.jpg") // replace with actual image URL once uploaded
+                        .resumeUrl("") // replace with actual resume URL
+                        .linkedinUrl("https://www.linkedin.com/in/quentin-sallat/")
+                        .yearsOfExperience("15+")
+                        .categories(List.of("Product Development"))
+                        .summary("Quentin Sallat is a seasoned software engineer, tech lead, mobile gaming entrepreneur,and data analytics consultant with 15+ years of experience building apps, games, and datadriven products across Europe and Canada.He has developed 50+ mobile apps and games, including Astonishing Basketball & Baseball, some of the world’s top mobile sports management games with millions of players.From consulting for Fortune 500 companies (Airbus, Suez, Total, EDF, Orange) to leading AR innovation for magicplan (an Apple App of the Year winner), Quentin blends storytelling, engineering, leadership, and analytics into powerful, actionable mentorship. Quentin is also a Harvard Extension School degree candidate, a MIT Sloan Executive Education alumnus, and a frequent speaker at international conferences—including Droidcon, Devoxx, and AI events worldwide.He specializes in helping founders, engineers, and creative professionals build products, embrace data, and turn ideas into compelling digital stories.")
+                .description("Co-Founder at Zero One Games | Sports & Gaming Entrepreneur | Data Analytics Consultant | AR & Mobile Tech Leader | HES")
+                .amount(129.0)
+                .currency("USD")
+                .timeSlots(List.of("02:00", "04:00"))
+                .build()
 
 
 
@@ -561,6 +579,40 @@ public class MentorSeeder implements CommandLineRunner {
                             List.of(
                                     "Providing insights into technology patenting and commercialization strategies.",
                                     "Leading innovation programs and converting technical inventions into market-ready solutions."
+                            ))
+            );
+        }
+
+        if (dto.getMentorEmail().equals("quentin.sallat@gmail.com")) {
+            return List.of(
+                    new Skill("Mobile App & Game Development",
+                            List.of(
+                                    "15+ years developing Android, Unity, and AR-based mobile apps and games. Creator of 50+ apps, including top-charting sports simulation games"
+                                    )),
+
+                    new Skill("Data Analytics & Storytelling",
+                            List.of(
+                                    "Helps companies turn data into a competitive advantage by framing insights as compelling narratives that improve decision-making."
+                                    )),
+
+                    new Skill("Entrepreneurship & Product Leadership",
+                            List.of(
+                                    "Co-founder of Zero One Games; experienced in building, scaling, and monetizing creative products for global audiences."
+                                    )),
+
+                    new Skill("AR/VR & Emerging Technologies",
+                            List.of(
+                                    "Led one of the world’s most advanced AR projects at MagicPlan, integrating Unity and mobile AR workflows"
+                                    )),
+
+                    new Skill("Android Development & Technical Leadership",
+                            List.of(
+                                    "Years of hands-on experience as Android Tech Lead and Mobile Team Lead across Europe and Canada"
+                                    )),
+
+                    new Skill("Career & Leadership Coaching",
+                            List.of(
+                                    "Mentors professionals on leadership, communication, team growth, and navigating multidisciplinary tech careers."
                             ))
             );
         }
