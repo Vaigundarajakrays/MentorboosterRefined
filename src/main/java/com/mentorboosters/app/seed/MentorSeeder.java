@@ -232,21 +232,78 @@ public class MentorSeeder implements CommandLineRunner {
                         .timezone("America/Montreal")
                         .password("quen@123")
                         .name("Quentin Sallat")
-                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/4e997722-ec2b-43ea-980c-286ed25f0e0c-Quentin sallat.jpg") // replace with actual image URL once uploaded
-                        .resumeUrl("") // replace with actual resume URL
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/4e997722-ec2b-43ea-980c-286ed25f0e0c-Quentin sallat.jpg")
+                        .resumeUrl("")
                         .linkedinUrl("https://www.linkedin.com/in/quentin-sallat/")
                         .yearsOfExperience("15+")
                         .categories(List.of("Product Development"))
-                        .summary("Quentin Sallat is a seasoned software engineer, tech lead, mobile gaming entrepreneur,and data analytics consultant with 15+ years of experience building apps, games, and datadriven products across Europe and Canada.He has developed 50+ mobile apps and games, including Astonishing Basketball & Baseball, some of the world’s top mobile sports management games with millions of players.From consulting for Fortune 500 companies (Airbus, Suez, Total, EDF, Orange) to leading AR innovation for magicplan (an Apple App of the Year winner), Quentin blends storytelling, engineering, leadership, and analytics into powerful, actionable mentorship. Quentin is also a Harvard Extension School degree candidate, a MIT Sloan Executive Education alumnus, and a frequent speaker at international conferences—including Droidcon, Devoxx, and AI events worldwide.He specializes in helping founders, engineers, and creative professionals build products, embrace data, and turn ideas into compelling digital stories.")
-                .description("Co-Founder at Zero One Games | Sports & Gaming Entrepreneur | Data Analytics Consultant | AR & Mobile Tech Leader | HES")
-                .amount(129.0)
-                .currency("USD")
-                .timeSlots(List.of("02:00", "04:00"))
-                .build()
+                        .summary("Quentin Sallat is a seasoned software engineer, tech lead, mobile gaming entrepreneur,and data analytics consultant with 15+ years of experience building apps, games, and datadriven products across Europe and Canada.He has developed 50+ mobile apps and games, including Astonishing Basketball & Baseball, some of the world's top mobile sports management games with millions of players.From consulting for Fortune 500 companies (Airbus, Suez, Total, EDF, Orange) to leading AR innovation for magicplan (an Apple App of the Year winner), Quentin blends storytelling, engineering, leadership, and analytics into powerful, actionable mentorship. Quentin is also a Harvard Extension School degree candidate, a MIT Sloan Executive Education alumnus, and a frequent speaker at international conferences—including Droidcon, Devoxx, and AI events worldwide.He specializes in helping founders, engineers, and creative professionals build products, embrace data, and turn ideas into compelling digital stories.")
+                        .description("Co-Founder at Zero One Games | Sports & Gaming Entrepreneur | Data Analytics Consultant | AR & Mobile Tech Leader | HES")
+                        .amount(129.0)
+                        .currency("USD")
+                        .timeSlots(List.of("02:00", "04:00"))
+                        .build(),
 
+                MentorSeederDTO.builder()
+                        .mentorEmail("coachshyle@gmail.com")
+                        .phone("+1437-350-8050")
+                        .timezone("America/New_York")
+                        .password("shyle@123")
+                        .name("Shyle Braithwaite")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/649f06eb-d764-42dd-85e5-92895823ba15-Shyle_Braithwaite.jpg")
+                        .linkedinUrl("https://www.linkedin.com/in/shyleb/")
+                        .resumeUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/placeholder-ShyleBraithwaite.pdf")
+                        .yearsOfExperience("15+")
+                        .categories(List.of("Product Development", "Finance"))
+                        .summary("Shyle Braithwaite is an experienced leadership and performance coach with over 15 years of expertise in customer experience, organizational development, and team leadership. She helps individuals strengthen leadership capabilities, enhance performance, and navigate career transitions with clarity and confidence.")
+                        .description("Leadership Coach | Customer Success Expert | Performance & Mindset Coach | Certified Scrum Master | 15+ Years Experience")
+                        .amount(102.0)
+                        .currency("USD")
+                        .timeSlots(List.of("19:00"))
+                        .build(),
 
+                MentorSeederDTO.builder()
+                        .mentorEmail("p17shubhamgoyal@iima.ac.in")
+                        .phone("+19958976139")
+                        .timezone("America/Los_Angeles")
+                        .password("shubham@123")
+                        .name("Shubham Goyal")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/a22e83d7-98e4-4f43-92b6-e9ff8b621e01-Shubham_Goyal.jpg")
+                        .linkedinUrl("https://www.linkedin.com/in/shubham-goyal/")
+                        .resumeUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/placeholder-ShubhamGoyal.pdf")
+                        .yearsOfExperience("8+")
+                        .categories(List.of("Product Development"))
+                        .summary("Shubham Goyal is a Senior Product Manager at Microsoft and former BCG consultant. An Institute Rank 1 graduate from IIM Ahmedabad and top-ranked engineer from DTU, he brings a powerful blend of product leadership, strategy consulting, and AI-driven innovation experience.")
+                        .description("Senior Product Manager at Microsoft | Ex-BCG | Institute Rank 1, IIM Ahmedabad | Product, Strategy & Leadership Expert")
+                        .amount(129.0)
+                        .currency("CAD")
+                        .timeSlots(List.of("19:00"))
+                        .build(),
 
-
+                MentorSeederDTO.builder()
+                        .mentorEmail("babbartushar@gmail.com")
+                        .phone("+55 11 988086499")
+                        .timezone("America/Toronto")
+                        .password("tushar@123")
+                        .name("Tushar Babbar")
+                        .profileUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-images/2f32471d-96d8-4035-8780-052f5e8542a0-tushar.jpg")
+                        .linkedinUrl("https://www.linkedin.com/in/tusharbabbar/")
+                        .resumeUrl("https://mentorbooster-prod.s3.ca-central-1.amazonaws.com/mentor-resumes/placeholder-TusharBabbar.pdf")
+                        .yearsOfExperience("10+")
+                        .categories(List.of(
+                                "Software Engineering",
+                                "Backend Development",
+                                "System Design",
+                                "Cloud Infrastructure",
+                                "Career Growth",
+                                "Technical Interview Prep"
+                        ))
+                        .summary("Tushar Babbar is an SDE-II at Amazon with 10+ years of experience in backend engineering, distributed systems, cloud architecture, and large-scale system design. He has mentored engineers across levels with a structured and practical approach to career growth and interview preparation.")
+                        .description("Amazon SDE-II | Backend & Distributed Systems Expert | System Design Mentor | Cloud & Infrastructure Specialist | 10+ Years Experience")
+                        .amount(149.0)
+                        .currency("USD")
+                        .timeSlots(List.of("20:00"))
+                        .build()
 
 
 
@@ -586,37 +643,78 @@ public class MentorSeeder implements CommandLineRunner {
         if (dto.getMentorEmail().equals("quentin.sallat@gmail.com")) {
             return List.of(
                     new Skill("Mobile App & Game Development",
-                            List.of(
-                                    "15+ years developing Android, Unity, and AR-based mobile apps and games. Creator of 50+ apps, including top-charting sports simulation games"
-                                    )),
-
+                            List.of("15+ years developing Android, Unity, and AR-based mobile apps and games. Creator of 50+ apps, including top-charting sports simulation games")),
                     new Skill("Data Analytics & Storytelling",
-                            List.of(
-                                    "Helps companies turn data into a competitive advantage by framing insights as compelling narratives that improve decision-making."
-                                    )),
-
+                            List.of("Helps companies turn data into a competitive advantage by framing insights as compelling narratives that improve decision-making.")),
                     new Skill("Entrepreneurship & Product Leadership",
-                            List.of(
-                                    "Co-founder of Zero One Games; experienced in building, scaling, and monetizing creative products for global audiences."
-                                    )),
-
+                            List.of("Co-founder of Zero One Games; experienced in building, scaling, and monetizing creative products for global audiences.")),
                     new Skill("AR/VR & Emerging Technologies",
-                            List.of(
-                                    "Led one of the world’s most advanced AR projects at MagicPlan, integrating Unity and mobile AR workflows"
-                                    )),
-
+                            List.of("Led one of the world's most advanced AR projects at MagicPlan, integrating Unity and mobile AR workflows")),
                     new Skill("Android Development & Technical Leadership",
-                            List.of(
-                                    "Years of hands-on experience as Android Tech Lead and Mobile Team Lead across Europe and Canada"
-                                    )),
-
+                            List.of("Years of hands-on experience as Android Tech Lead and Mobile Team Lead across Europe and Canada")),
                     new Skill("Career & Leadership Coaching",
-                            List.of(
-                                    "Mentors professionals on leadership, communication, team growth, and navigating multidisciplinary tech careers."
-                            ))
+                            List.of("Mentors professionals on leadership, communication, team growth, and navigating multidisciplinary tech careers."))
             );
         }
 
+        if (dto.getMentorEmail().equals("coachshyle@gmail.com")) {
+            return List.of(
+                    new Skill("Leadership & Team Development",
+                            List.of("Coaching leaders and teams to perform effectively, communicate better, and navigate organizational change.")),
+                    new Skill("Customer Experience Strategy",
+                            List.of("Designing and refining CX frameworks to improve satisfaction, performance, and operational efficiency.")),
+                    new Skill("Performance & Professional Development",
+                            List.of("Guiding professionals to build clarity, confidence, resilience, and sustainable growth habits.")),
+                    new Skill("Agile & Scrum Coaching",
+                            List.of("Applying Scrum principles to help teams collaborate better, stay aligned, and execute efficiently.")),
+                    new Skill("Career Growth & Transition",
+                            List.of("Supporting mid-career professionals to elevate their leadership identity or transition into fulfilling roles.")),
+                    new Skill("Mindset & Clarity Coaching",
+                            List.of("Helping individuals develop a strong mindset, overcome internal blocks, and unlock higher performance.")),
+                    new Skill("Organizational Development",
+                            List.of("Improving team culture, leadership capability, and internal alignment for long-term success."))
+            );
+        }
+
+        if (dto.getMentorEmail().equals("p17shubhamgoyal@iima.ac.in")) {
+            return List.of(
+                    new Skill("Product Management & Strategy",
+                            List.of("Leading end-to-end product development, AI-first innovation, and global-scale launches across Microsoft's ecosystem.")),
+                    new Skill("Management Consulting",
+                            List.of("Driving strategy, digital transformation, GTM, and operational excellence for multinational clients.")),
+                    new Skill("Leadership & Team Management",
+                            List.of("Managing cross-functional engineering, UX, and business teams to deliver high-impact outcomes.")),
+                    new Skill("Business Analytics & Decision-Making",
+                            List.of("Applying structured frameworks and data-backed insights to solve complex business problems.")),
+                    new Skill("Career & Interview Coaching (PM/Consulting)",
+                            List.of("Helping professionals break into Product Management and Consulting using real-world frameworks and interview systems.")),
+                    new Skill("AI-Driven Product Innovation",
+                            List.of("Building and scaling AI-first product features aligned with business strategy and user needs.")),
+                    new Skill("Strategic Problem Solving",
+                            List.of("Breaking down ambiguous challenges using structured thinking and decision-making models."))
+            );
+        }
+
+        if (dto.getMentorEmail().equals("babbartushar@gmail.com")) {
+            return List.of(
+                    new Skill("Backend Engineering & Distributed Systems",
+                            List.of("Designing and scaling backend systems using Python, Flask, Redis, AWS EC2/RDS, Nginx, and distributed queues.")),
+                    new Skill("System Design Mastery",
+                            List.of("Teaching real-world architectures, tradeoffs, reliability patterns, and large-scale system design principles.")),
+                    new Skill("Software Engineering Career Growth",
+                            List.of("Guiding engineers through SDE1 → SDE2 → SDE3 promotions, roadmap building, and performance narratives.")),
+                    new Skill("Cloud, DevOps & Infrastructure",
+                            List.of("Hands-on mentorship in AWS, orchestration, caching layers, monitoring, and backend performance engineering.")),
+                    new Skill("API Design & Microservices",
+                            List.of("Building and reviewing production-grade APIs, microservices architectures, async systems, and task queues.")),
+                    new Skill("Technical Interview Preparation",
+                            List.of("Coaching on DSA, system design interviews, behavioral loops, and Amazon leadership principles.")),
+                    new Skill("Production Scaling & Architecture",
+                            List.of("Helping engineers design systems that handle real-world scale, traffic spikes, and high availability constraints.")),
+                    new Skill("Career Strategy & Mentorship",
+                            List.of("Providing structured mentorship for skill advancement, promotions, and long-term engineering career success."))
+            );
+        }
 
 
 
