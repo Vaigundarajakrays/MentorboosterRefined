@@ -232,6 +232,7 @@ public class AuthService {
             Otp otpEntity = otpRepository.findByEmailAndOtp(email, otp)
                     .orElseThrow(() -> new OtpException(INVALID_OTP, IN_VALID_OTP));
 
+            // expiry time must be greater than current time, then it is not expired
             if (otpEntity.getExpiryTime().isBefore(LocalDateTime.now())) {
                 throw new OtpException(OTP_EXPIRED, OTP_EXPIRE);
             }
