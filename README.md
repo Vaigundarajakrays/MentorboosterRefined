@@ -1,19 +1,52 @@
 # 🚀 MentorBooster
 
-MentorBooster is a full-stack mentorship platform that connects mentees with industry professionals. It handles everything from mentor discovery to real-time scheduling, payments, AI mentoring, and more — powered by Spring Boot, Stripe, Google Meet/Zoom, and OpenAI.
+MentorBooster is a full-stack mentorship platform that connects mentees with industry professionals. It handles everything from mentor discovery to real-time scheduling, payments, AI mentoring, and more — powered by Spring Boot, Stripe, Zoom, and OpenAI.
+
+Frontend repo: <https://github.com/ManojKrays/Mentor-Boosters>
 
 ---
 
-## 📦 Deployment Status
+## 🌿 Branches
 
-| Environment | Status Badge | Logs |
-|-------------|--------------|------|
-| 🧪 Dev       | ![Dev Deploy](https://github.com/Vaigundarajakrays/MentorboosterRefined/actions/workflows/deploy-dev.yml/badge.svg) | [View Logs »](https://github.com/Vaigundarajakrays/MentorboosterRefined/actions/workflows/deploy-dev.yml) |
-| 🚀 Prod      | ![Prod Deploy](https://github.com/Vaigundarajakrays/MentorboosterRefined/actions/workflows/deploy-prod.yml/badge.svg) | [View Logs »](https://github.com/Vaigundarajakrays/MentorboosterRefined/actions/workflows/deploy-prod.yml) |
+- **`main` is the production branch and always has the latest code.** Work on `main` and build the production JAR from `main`.
+- `backup/main-before-reset` keeps the old `main` history (before `main` became the production branch). Do not use it for builds.
+- The GitHub Actions workflows were removed. Deploys are done by hand (see below).
 
-> ✅ Green = Successful Deploy  
-> ❌ Red = Failed Deploy  
-> 🔁 Blue = Running Now
+---
+
+## 📦 Production
+
+| Part | How it runs |
+|------|-------------|
+| Server | Private AWS EC2 instance (no public IP). Login only through AWS Session Manager (SSM). |
+| Entry | Load balancer with HTTPS (idle timeout 300 s, needed for the AI chat stream) forwards to Nginx on port 80. |
+| Nginx | Serves the React build from `/var/www/html` and sends `/api/` to the app on `127.0.0.1:8080`. The AI stream path `/api/ai-mentor/stream` has no buffering. Upload limit 10 MB. |
+| App | Java 17, run as the systemd service `mentorbooster` (restarts on crash and on reboot). JAR in `/opt/mentorbooster`, the file `mentorbooster-latest.jar` is a link to the current JAR. |
+| Settings | `/opt/mentorbooster/config/application-prod.properties` (owner `mentorbooster`, mode 600). Never in git. |
+| Database | Supabase PostgreSQL (session pooler, `sslmode=require`). Tables are created by Hibernate (`ddl-auto=update`). |
+| File storage | AWS S3, by the instance role (no access keys). Folders `mentee-images/`, `mentor-images/`, `mentor-resumes/`. |
+| Secrets | Stripe API key and webhook secret come from AWS Secrets Manager (`spring.config.import=aws-secretsmanager:mentorbooster/stripe/secret`). |
+| Logs | `sudo journalctl -u mentorbooster -f` (app) and `/var/log/nginx/` (Nginx). |
+
+### Deploy a new version (by hand)
+
+1. On `main`, build a clean JAR (without git-ignored secret files): `git archive` the code into a new folder, then `mvn clean package -DskipTests` there.
+2. Upload the JAR to the deploy S3 bucket.
+3. On the server (SSM session), download it into `/opt/mentorbooster`, point `mentorbooster-latest.jar` to it, and run `sudo systemctl restart mentorbooster`.
+4. Check the log, and keep only one JAR on the server.
+
+### Outside services the server must reach
+
+| Service | Port |
+|---|---|
+| Gmail SMTP (`smtp.gmail.com`) | 587 / 465 |
+| OpenAI (`api.openai.com`) | 443 |
+| Zoom (`zoom.us`, `api.zoom.us`) | 443 |
+| Stripe (`api.stripe.com`) | 443 |
+| Supabase pooler | 5432 |
+| AWS S3 and Secrets Manager | 443 |
+
+The Stripe webhook is `POST /api/stripe/webhook` on the production domain.
 
 ---
 
@@ -23,9 +56,9 @@ MentorBooster is a full-stack mentorship platform that connects mentees with ind
 - 📆 **Session Booking** with conflict checks
 - 🔒 **Role-based Auth** (User, Mentor, Admin)
 - 💳 **Stripe Integration** for secure payments
-- 📧 **Email Notifications** (booking, cancel, reschedule)
+- 📧 **Email Notifications** (OTP, booking, cancel, reschedule)
 - 🧠 **AI Mentor Chat** using OpenAI (SSE enabled)
-- 📹 **Google Meet & Zoom Integration**
+- 📹 **Zoom Integration** (meetings)
 - 🌐 **REST APIs** for all user journeys
 - ⚙️ **Admin Dashboards** with real-time data
 
@@ -35,30 +68,30 @@ MentorBooster is a full-stack mentorship platform that connects mentees with ind
 
 | Layer          | Tech Used                      |
 |----------------|-------------------------------|
-| Backend        | Java 17, Spring Boot, Maven   |
+| Backend        | Java 17, Spring Boot 3.4, Maven |
 | Auth           | Spring Security, JWT          |
-| Database       | PostgreSQL (Neon, local)      |
+| Database       | PostgreSQL (Supabase in production, local for development) |
 | File Storage   | AWS S3                         |
-| Scheduling     | Google Calendar API, Zoom API |
+| Meetings       | Zoom API                       |
 | Payments       | Stripe                         |
 | AI Chat        | OpenAI API + SSE              |
-| DevOps         | GitHub Actions → EC2          |
-| Frontend       | (Not included in this repo)   |
+| Hosting        | AWS EC2 (private) + load balancer + Nginx |
+| Frontend       | Separate repo (see top)       |
 
 ---
 
-## 🚀 Setup Instructions
+## 🚀 Setup Instructions (local PC)
 
 ### 1️⃣ Clone the Project
 
 ```bash
 git clone https://github.com/Vaigundarajakrays/MentorboosterRefined.git
 cd MentorboosterRefined
-````
+```
 
 ### 2️⃣ Create `application.properties`
 
-Inside `src/main/resources/`, create a file named `application.properties` and add the following:
+Inside `src/main/resources/`, create a file named `application.properties` (it is git-ignored) and add the following:
 
 #### 🗄️ Database Configuration
 
@@ -97,6 +130,8 @@ stripe.cancelUrl=https://yourdomain.com/cancel
 stripe.webhook.secret=whsec_*****
 ```
 
+In production, `stripe.apiKey` and `stripe.webhook.secret` are **not** in the settings file. They come from AWS Secrets Manager (see the Production section).
+
 #### 🔐 JWT Security
 
 ```properties
@@ -120,11 +155,15 @@ zoom.client.secret=your-client-secret
 #### ☁️ AWS S3 Configuration
 
 ```properties
-aws.s3.access-key=your-access-key
-aws.s3.secret-key=your-secret-key
 aws.s3.region=your-region
 aws.s3.bucket=your-bucket-name
 ```
+
+There are **no S3 access keys**. The app uses the default AWS credentials:
+- On the server: the instance role.
+- On your PC: run `aws login` in the same terminal before you start the app.
+
+Uploaded files are saved as `<folder>/<uuid>-<file name>` at the top level of the bucket, and the app stores a direct link. For the links to open in the browser, the folders `mentee-images/`, `mentor-images/` and `mentor-resumes/` must allow public read.
 
 #### 📁 File Upload Size (up to 10 MB)
 
@@ -150,5 +189,4 @@ management.endpoints.web.base-path=/api/actuator
 ---
 
 **Author:** Team MentorBoosters  
-**Last Updated:** 2025-07-19
-
+**Last Updated:** 2026-10-26
